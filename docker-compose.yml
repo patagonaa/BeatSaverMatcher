@@ -1,0 +1,40 @@
+version: "3.7"
+services:
+  web:
+    image: matcher-web
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    environment:
+      - "Spotity__ClientId="
+      - "Spotity__ClientSecret="
+      - "ConnectionString=Server=db,1433;Database=BeatSaverMatcher;User Id=sa;Password=!1Start1!;"
+      - "RedisConnection=redis"
+    restart: unless-stopped
+
+  service:
+    image: matcher-service
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+    environment:
+      - "ConnectionString=Server=db,1433;Database=BeatSaverMatcher;User Id=sa;Password=!1Start1!;"
+    restart: unless-stopped
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    ports:
+      - "127.0.0.1:1433:1433"
+    environment:
+      - "ACCEPT_EULA=Y"
+      - "SA_PASSWORD=!1Start1!"
+    volumes: 
+      - "db:/var/opt/mssql"
+    restart: unless-stopped
+
+  redis:
+    image: redis:6.0.5
+    restart: unless-stopped
+
+volumes:
+  db:
