@@ -15,11 +15,11 @@ namespace BeatSaverMatcher.Common
         {
         }
 
-        public async Task<IList<BeatSaberSong>> GetDirectMatches(string artistName, string trackName)
+        public async Task<IList<BeatSaberSong>> GetMatches(string artistName, string trackName)
         {
             using (var connection = GetConnection())
             {
-                var results = await connection.QueryAsync<BeatSaberSong>("SELECT * FROM [dbo].[BeatSaberSong] WHERE SongAuthorName = @SongAuthorName AND SongName = @SongName", new { SongAuthorName = artistName, SongName = trackName });
+                var results = await connection.QueryAsync<BeatSaberSong>("SELECT * FROM [dbo].[BeatSaberSong] WHERE (SongAuthorName = @ArtistName AND SongName = @TrackName) OR (SongSubName = @ArtistName AND SongName = @TrackName)", new { ArtistName = artistName, TrackName = trackName });
                 return results.ToList();
             }
         }

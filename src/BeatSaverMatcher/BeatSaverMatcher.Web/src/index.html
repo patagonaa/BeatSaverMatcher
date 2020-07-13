@@ -11,38 +11,47 @@
             Playlist ID:
             <input type="text" data-bind="value: playlistId" />
             <button data-bind="click: run">Run!</button>
-            <a data-bind="attr: {href: playlistUri}">Download selected</a>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Spotify artist(s)</th>
-                        <th>Spotify title</th>
-                        <th>BeatSaber song author</th>
-                        <th>BeatSaber song name</th>
-                        <th>BeatSaber song sub-name</th>
-                        <th>BeatSaver key</th>
-                        <th>Selected</th>
-                    </tr>
-                </thead>
-                <!-- ko foreach: matches -->
-                <tbody>
-                    <!-- ko foreach: matches -->
-                    <tr>
-                        <!-- ko if: $index() == 0 -->
-                        <td data-bind="attr: {rowspan: $parent.matches.length}"><span data-bind="text: $parent.spotifyArtist"></span></td>
-                        <td data-bind="attr: {rowspan: $parent.matches.length}"><span data-bind="text: $parent.spotifyTitle"></span></td>
+            <div data-bind="if: stateName() != 'Finished'">
+                Current State: <span data-bind="text: stateName()"></span>
+            </div>
+            <div data-bind="if: stateName() == 'Finished'">
+                <a data-bind="attr: {href: playlistUri}">Download selected as playlist</a><br />
+                <span data-bind="text: result().matchedSpotifySongs"></span> / <span data-bind="text: result().totalSpotifySongs"></span> matched!
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Spotify artist(s)</th>
+                            <th>Spotify title</th>
+                            <th>BeatSaber song author</th>
+                            <th>BeatSaber song name</th>
+                            <th>BeatSaber song sub-name</th>
+                            <th>BeatSaver rating</th>
+                            <th>BeatSaver key</th>
+                            <th>Selected</th>
+                        </tr>
+                    </thead>
+                    <!-- ko foreach: result().matches -->
+                    <tbody>
+                        <!-- ko foreach: beatMaps -->
+                        <tr>
+                            <!-- ko if: $index() == 0 -->
+                            <td data-bind="attr: {rowspan: $parent.beatMaps.length}"><span data-bind="text: $parent.spotifyArtist"></span></td>
+                            <td data-bind="attr: {rowspan: $parent.beatMaps.length}"><span data-bind="text: $parent.spotifyTitle"></span></td>
+                            <!-- /ko -->
+                            <td><span data-bind="text: songAuthorName"></span></td>
+                            <td><span data-bind="text: songName"></span></td>
+                            <td><span data-bind="text: songSubName"></span></td>
+                            <td><span data-bind="text: (rating * 100).toFixed(1) + '%'"></span></td>
+                            <td><a data-bind="text: beatSaverKey.toString(16), attr: {href: 'beatsaver://'+beatSaverKey.toString(16)}"></a></td>
+                            <td><input type="checkbox" data-bind="checked: selected" /></td>
+                        </tr>
                         <!-- /ko -->
-                        <td><span data-bind="text: songAuthorName"></span></td>
-                        <td><span data-bind="text: songName"></span></td>
-                        <td><span data-bind="text: songSubName"></span></td>
-                        <td><a data-bind="text: beatSaverKey.toString(16), attr: {href: 'beatsaver://'+beatSaverKey.toString(16)}"></a></td>
-                        <td><input type="checkbox" data-bind="checked: selected" /></td>
-                    </tr>
+                    </tbody>
                     <!-- /ko -->
-                </tbody>
-                <!-- /ko -->
-            </table>
+                </table>
+            </div>
         </div>
+        <a href="https://github.com/patagonaa/BeatSaverMatcher">https://github.com/patagonaa/BeatSaverMatcher</a>
     </div>
 </body>
 </html>

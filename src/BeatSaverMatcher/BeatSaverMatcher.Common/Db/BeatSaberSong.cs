@@ -1,4 +1,6 @@
-﻿namespace BeatSaverMatcher.Common.Models
+﻿using System.Collections.Generic;
+
+namespace BeatSaverMatcher.Common.Models
 {
     public class BeatSaberSong
     {
@@ -14,5 +16,17 @@
         public string Uploader { get; set; }
         public byte[] Hash { get; set; }
         public int BeatSaverKey { get; set; }
+        public double? Rating { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is BeatSaberSong song &&
+                   EqualityComparer<byte[]>.Default.Equals(Hash, song.Hash);
+        }
+
+        public override int GetHashCode()
+        {
+            return -1545866855 + EqualityComparer<byte[]>.Default.GetHashCode(Hash);
+        }
     }
 }

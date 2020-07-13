@@ -7,6 +7,6 @@ namespace BeatSaverMatcher.Web.Models
     {
         public string SpotifyArtist { get; set; }
         public string SpotifyTitle { get; set; }
-        public IList<BeatSaberSong> Matches { get; set; }
+        public IList<BeatSaberSong> BeatMaps { get; set; }
     }
 }

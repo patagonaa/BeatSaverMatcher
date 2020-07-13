@@ -26,7 +26,12 @@ namespace BeatSaverMatcher.Common.BeatSaver
 
     public class BeatSaverStats
     {
-        //...
+        public int Downloads { get; set; }
+        public int Plays { get; set; }
+        public int DownVotes { get; set; }
+        public int UpVotes { get; set; }
+        public double Heat { get; set; }
+        public double Rating { get; set; }
     }
 
     public class BeatSaverMetadata

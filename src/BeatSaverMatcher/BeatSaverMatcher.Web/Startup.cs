@@ -1,4 +1,6 @@
 using BeatSaverMatcher.Common;
+using BeatSaverMatcher.Common.BeatSaver;
+using BeatSaverMatcher.Web.Result;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +24,16 @@ namespace BeatSaverMatcher.Web
             services.Configure<SpotifyConfiguration>(Configuration.GetSection("Spotify"));
             services.AddTransient<SpotifyRepository>();
             services.AddTransient<MatchingService>();
+            services.AddTransient<BeatSaverStatsService>();
+            services.AddTransient<BeatSaverRepository>();
+            services.AddSingleton<WorkItemStore>();
+            services.AddHostedService<SongMatchWorker>();
+
+            services.AddDistributedRedisCache(options =>
+            {
+                options.Configuration = Configuration["RedisConnection"];
+                options.InstanceName = "BeatSaverMatcher";
+            });
 
             services.Configure<DbConfiguration>(Configuration);
             services.AddTransient<IBeatSaberSongRepository, BeatSaberSongRepository>();

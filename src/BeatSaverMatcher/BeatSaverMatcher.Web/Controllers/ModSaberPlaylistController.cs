@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using BeatSaverMatcher.Web.Models;
+using BeatSaverMatcher.Web.Result;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BeatSaverMatcher.Web.Controllers
@@ -10,12 +11,12 @@ namespace BeatSaverMatcher.Web.Controllers
     [ApiController]
     public class ModSaberPlaylistController : ControllerBase
     {
-        private readonly MatchingService _matchingService;
+        private readonly WorkItemStore _itemStore;
         private readonly SpotifyRepository _spotifyRepository;
 
-        public ModSaberPlaylistController(MatchingService matchingService, SpotifyRepository spotifyRepository)
+        public ModSaberPlaylistController(WorkItemStore itemStore, SpotifyRepository spotifyRepository)
         {
-            _matchingService = matchingService;
+            _itemStore = itemStore;
             _spotifyRepository = spotifyRepository;
         }
 
@@ -23,10 +24,16 @@ namespace BeatSaverMatcher.Web.Controllers
         [HttpGet("{playlistId}/{keys}")]
         public async Task<ActionResult<ModSaberPlaylist>> GetMatchesAsPlaylistDownload([FromRoute] string playlistId, [FromRoute] string keys)
         {
-            var playlist = await _spotifyRepository.GetPlaylist(playlistId);
-            var matches = await _matchingService.GetMatches(playlistId);
+            var workItem = _itemStore.Get(playlistId);
+            if (workItem == null)
+                NotFound();
 
-            var beatmaps = matches.SelectMany(x => x.Matches).ToList();
+            if (workItem.State != SongMatchState.Finished)
+                BadRequest();
+
+            var playlist = await _spotifyRepository.GetPlaylist(playlistId);
+
+            var beatmaps = workItem.Result.Matches.SelectMany(x => x.BeatMaps).ToList();
             if (keys != null)
             {
                 var keysList = keys.Split(',');

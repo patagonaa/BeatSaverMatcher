@@ -5,19 +5,48 @@ import './style.css';
 class AppViewModel {
     public playlistId = ko.observable<string>();
     public playlistUri = ko.observable<string>('');
-    public matches = ko.observableArray<SongMatch>();
+    public stateName = ko.observable<string>('None');
+    public result = ko.observable<SongMatchResult>();
 
     public async run() {
-        var response = await fetch(`/api/Matches/${this.playlistId()}`);
-        var matches = <SongMatch[]>await response.json();
-        for (let match of matches) {
-            for (let beatSaberMatch of match.matches) {
-                beatSaberMatch.selected = ko.observable(true);
+        await fetch(`/api/Matches/${this.playlistId()}`, {
+            method: 'POST'
+        });
+
+        var result: SongMatchResult;
+
+        while (result == null) {
+            var response = await fetch(`/api/Matches/${this.playlistId()}`);
+            var item = <WorkResultItem>await response.json();
+            if (item.state == SongMatchState.Error) {
+                this.stateName(SongMatchState[item.state]);
+                throw 'Something went wrong!';
+            }
+
+            if (item.state == SongMatchState.Finished) {
+                result = item.result;
+                break;
+            }
+            this.stateName(SongMatchState[item.state]);
+            await new Promise(r => setTimeout(r, 1000));
+        }
+
+        for (let match of result.matches) {
+            let first = true;
+            for (let beatSaberMatch of match.beatMaps) {
+                if (first) {
+                    beatSaberMatch.selected = ko.observable(true);
+                    first = false;
+                } else {
+                    beatSaberMatch.selected = ko.observable(false);
+                }
+
                 beatSaberMatch.selected.subscribe(() => this.updatePlaylistUri());
             }
         }
-        this.matches(matches);
+        this.result(result);
         this.updatePlaylistUri();
+        this.stateName(SongMatchState[item.state]);
     }
 
     private updatePlaylistUri() {
@@ -25,8 +54,8 @@ class AppViewModel {
 
         let keys: string[] = [];
 
-        for (let match of this.matches()) {
-            for (let beatSaberMatch of match.matches) {
+        for (let match of this.result().matches) {
+            for (let beatSaberMatch of match.beatMaps) {
                 if (beatSaberMatch.selected())
                     keys.push(beatSaberMatch.beatSaverKey.toString(16));
             }
@@ -38,10 +67,32 @@ class AppViewModel {
     }
 }
 
+interface WorkResultItem {
+    playlistId: string;
+    state: SongMatchState;
+    result: SongMatchResult;
+}
+
+enum SongMatchState {
+    None,
+    Waiting,
+    LoadingSpotifySongs,
+    SearchingBeatMaps,
+    LoadingBeatMapRatings,
+    Finished,
+    Error
+}
+
+interface SongMatchResult {
+    matchedSpotifySongs: number;
+    totalSpotifySongs: number;
+    matches: SongMatch[];
+}
+
 interface SongMatch {
     spotifyArtist: string;
     spotifyTitle: string;
-    matches: BeatSaberSong[];
+    beatMaps: BeatSaberSong[];
 }
 
 interface BeatSaberSong {
@@ -56,6 +107,7 @@ interface BeatSaberSong {
     hash: string;
     beatSaverKey: number;
     selected: KnockoutObservable<boolean>;
+    rating: number;
 }
 
 function init() {

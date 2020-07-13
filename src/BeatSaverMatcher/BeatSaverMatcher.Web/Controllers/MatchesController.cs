@@ -1,9 +1,5 @@
-﻿using BeatSaverMatcher.Common.Models;
-using BeatSaverMatcher.Web.Models;
+﻿using BeatSaverMatcher.Web.Result;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BeatSaverMatcher.Web.Controllers
 {
@@ -11,17 +7,24 @@ namespace BeatSaverMatcher.Web.Controllers
     [ApiController]
     public class MatchesController : ControllerBase
     {
-        private readonly MatchingService _matchingService;
+        private readonly WorkItemStore _itemStore;
 
-        public MatchesController(MatchingService matchingService)
+        public MatchesController(WorkItemStore itemStore)
         {
-            _matchingService = matchingService;
+            _itemStore = itemStore;
+        }
+
+        [HttpPost("{playlistId}")]
+        public void StartMatch([FromRoute] string playlistId)
+        {
+            if (!_itemStore.Enqueue(new WorkResultItem(playlistId)))
+                Conflict();
         }
 
         [HttpGet("{playlistId}")]
-        public async Task<IList<SongMatch>> GetMatches([FromRoute] string playlistId)
+        public WorkResultItem GetMatchState([FromRoute] string playlistId)
         {
-            return await _matchingService.GetMatches(playlistId);
+            return _itemStore.Get(playlistId);
         }
     }
 }
