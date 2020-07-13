@@ -1,0 +1,7 @@
+.vs/
+*.user
+bin/
+obj/
+appSettings.json
+wwwroot
+node_modules/

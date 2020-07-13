@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "target": "ES2019"
+  },
+  "exclude": [
+    "node_modules",
+    "wwwroot"
+  ]
+}
