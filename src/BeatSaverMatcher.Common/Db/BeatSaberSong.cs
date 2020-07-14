@@ -1,4 +1,6 @@
-﻿namespace BeatSaverMatcher.Common.Models
+﻿using System;
+
+namespace BeatSaverMatcher.Common.Models
 {
     public class BeatSaberSong
     {
@@ -12,9 +14,12 @@
 
         public SongDifficulties Difficulties { get; set; }
         public string Uploader { get; set; }
+        public DateTime Uploaded { get; set; }
         public byte[] Hash { get; set; }
         public int BeatSaverKey { get; set; }
         public double? Rating { get; set; }
         public string AutoMapper { get; set; }
+
+        public string TextSearchValue => string.Join("|", LevelAuthorName, SongAuthorName, SongName, SongSubName, Name);
     }
 }

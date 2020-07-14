@@ -48,8 +48,7 @@ namespace BeatSaverMatcher.Crawler
 
         private async Task Worker()
         {
-            var startId = 48541;
-            //var startId = (await _songRepository.GetLatestBeatSaverKey() ?? 0) + 1;
+            var startId = (await _songRepository.GetLatestBeatSaverKey() ?? 0) + 1;
             var endId = await _beatSaverRepository.GetLatestKey();
             _logger.LogInformation("Starting crawl at key {Key}", startId.ToString("x"));
             for (int key = startId; key <= endId; key++)
@@ -100,6 +99,7 @@ namespace BeatSaverMatcher.Crawler
                 AutoMapper = song.Metadata.Automapper,
                 Difficulties = MapDifficulties(song.Metadata.Difficulties),
                 Uploader = song.Uploader.Username,
+                Uploaded = song.Uploaded,
                 Hash = MapHash(song.Hash),
                 BeatSaverKey = int.Parse(song.Key, NumberStyles.HexNumber)
             };

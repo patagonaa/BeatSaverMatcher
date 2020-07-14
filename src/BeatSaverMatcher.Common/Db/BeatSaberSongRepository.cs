@@ -51,26 +51,10 @@ namespace BeatSaverMatcher.Common
             {
                 var sqlStr = @"
     INSERT INTO [dbo].[BeatSaberSong]
-        ([Hash],[BeatSaverKey],[Uploader],[Difficulties],[LevelAuthorName],[SongAuthorName],[SongName],[SongSubName],[Bpm],[Name],[TextSearchValue],[AutoMapper])
-        VALUES (@hash, @key, @uploader, @difficulties, @levelAuthorName, @songAuthorName, @songName, @songSubName, @bpm, @name, @textSearchValue, @autoMapper)";
+        ([BeatSaverKey],[Hash],[Uploader],[Uploaded],[Difficulties],[Bpm],[TextSearchValue],[LevelAuthorName],[SongAuthorName],[SongName],[SongSubName],[Name],[AutoMapper])
+        VALUES (@BeatSaverKey, @Hash, @Uploader, @Uploaded, @Difficulties, @Bpm, @TextSearchValue, @LevelAuthorName, @SongAuthorName, @SongName, @SongSubName, @Name, @AutoMapper)";
 
-                using (var command = new SqlCommand(sqlStr, connection))
-                {
-                    command.Parameters.AddWithValue("hash", song.Hash);
-                    command.Parameters.AddWithValue("key", song.BeatSaverKey);
-                    command.Parameters.AddWithValue("uploader", song.Uploader);
-                    command.Parameters.AddWithValue("difficulties", (int)song.Difficulties);
-                    command.Parameters.AddWithValue("levelAuthorName", song.LevelAuthorName);
-                    command.Parameters.AddWithValue("songAuthorName", song.SongAuthorName);
-                    command.Parameters.AddWithValue("songName", song.SongName);
-                    command.Parameters.AddWithValue("songSubName", song.SongSubName);
-                    command.Parameters.AddWithValue("bpm", song.Bpm);
-                    command.Parameters.AddWithValue("name", song.Name);
-                    command.Parameters.AddWithValue("autoMapper", ((object)song.AutoMapper) ?? DBNull.Value);
-                    command.Parameters.AddWithValue("textSearchValue", string.Join("|", song.LevelAuthorName, song.SongAuthorName, song.SongName, song.SongSubName, song.Name));
-
-                    await command.ExecuteNonQueryAsync();
-                }
+                await connection.ExecuteAsync(sqlStr, song);
             }
         }
     }

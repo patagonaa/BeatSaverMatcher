@@ -9,7 +9,6 @@ namespace BeatSaverMatcher.Common.BeatSaver
         public BeatSaverMetadata Metadata { get; set; }
         public BeatSaverStats Stats { get; set; }
         public string? Description { get; set; }
-        public string? DeletedAt { get; set; }
         public string Key { get; set; }
         public string Name { get; set; }
         public BeatSaverUploader Uploader { get; set; }
