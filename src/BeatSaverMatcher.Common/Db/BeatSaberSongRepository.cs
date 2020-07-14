@@ -1,6 +1,7 @@
 ﻿using BeatSaverMatcher.Common.Models;
 using Dapper;
 using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -65,7 +66,7 @@ namespace BeatSaverMatcher.Common
                     command.Parameters.AddWithValue("songSubName", song.SongSubName);
                     command.Parameters.AddWithValue("bpm", song.Bpm);
                     command.Parameters.AddWithValue("name", song.Name);
-                    command.Parameters.AddWithValue("autoMapper", song.AutoMapper);
+                    command.Parameters.AddWithValue("autoMapper", ((object)song.AutoMapper) ?? DBNull.Value);
                     command.Parameters.AddWithValue("textSearchValue", string.Join("|", song.LevelAuthorName, song.SongAuthorName, song.SongName, song.SongSubName, song.Name));
 
                     await command.ExecuteNonQueryAsync();

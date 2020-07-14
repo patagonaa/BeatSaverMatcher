@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace BeatSaverMatcher.Common.Models
+﻿namespace BeatSaverMatcher.Common.Models
 {
     public class BeatSaberSong
     {
