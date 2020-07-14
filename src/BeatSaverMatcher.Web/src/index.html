@@ -22,6 +22,7 @@
                         <tr>
                             <th>Spotify artist(s)</th>
                             <th>Spotify title</th>
+                            <th>BeatSaber map author</th>
                             <th>BeatSaber song author</th>
                             <th>BeatSaber song name</th>
                             <th>BeatSaber song sub-name</th>
@@ -40,6 +41,7 @@
                             <td data-bind="attr: {rowspan: $parent.beatMaps.length}"><span data-bind="text: $parent.spotifyArtist"></span></td>
                             <td data-bind="attr: {rowspan: $parent.beatMaps.length}"><span data-bind="text: $parent.spotifyTitle"></span></td>
                             <!-- /ko -->
+                            <td><span data-bind="text: levelAuthorName"></span></td>
                             <td><span data-bind="text: songAuthorName"></span></td>
                             <td><span data-bind="text: songName"></span></td>
                             <td><span data-bind="text: songSubName"></span></td>
@@ -54,8 +56,8 @@
                     <!-- /ko -->
                 </table>
             </div>
+            <a href="https://github.com/patagonaa/BeatSaverMatcher">https://github.com/patagonaa/BeatSaverMatcher</a>
         </div>
-        <a href="https://github.com/patagonaa/BeatSaverMatcher">https://github.com/patagonaa/BeatSaverMatcher</a>
     </div>
 </body>
 </html>
