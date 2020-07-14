@@ -9,6 +9,13 @@ class AppViewModel {
     public result = ko.observable<SongMatchResult>();
 
     public async run() {
+        let matches = this.playlistId().match(/playlist[\/:]([\w]+)(?:\?.+)?$/);
+
+        if (matches) {
+            this.playlistId(matches[1]);
+        }
+
+
         await fetch(`/api/Matches/${this.playlistId()}`, {
             method: 'POST'
         });
