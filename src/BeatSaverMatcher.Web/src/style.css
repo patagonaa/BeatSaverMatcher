@@ -1,2 +1,27 @@
 ﻿body {
 }
+
+span.badge.is-easy {
+    color: #fff;
+    background-color: #3cb371;
+}
+
+span.badge.is-normal {
+    color: #fff;
+    background-color: #59b0f4;
+}
+
+span.badge.is-hard {
+    color: #fff;
+    background-color: tomato;
+}
+
+span.badge.is-expert {
+    color: #fff;
+    background-color: #bf2a42;
+}
+
+span.badge.is-expertplus {
+    color: #fff;
+    background-color: #8f48db;
+}
