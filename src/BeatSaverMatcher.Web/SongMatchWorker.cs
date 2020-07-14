@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using Prometheus;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -41,7 +42,7 @@ namespace BeatSaverMatcher.Web
         {
             while (!_cts.IsCancellationRequested)
             {
-                _runningMatchesGauge.Set(_runningTasks.Count);
+                _runningMatchesGauge.Set(_runningTasks.Count(x => x.Status == TaskStatus.Running));
                 if (_runningTasks.Count > _maxRunningTasks)
                 {
                     var task = await Task.WhenAny(_runningTasks);
