@@ -10,7 +10,7 @@
         <div class="container-fluid">
             Spotify playlist link, URI or ID:
             <input type="text" data-bind="value: playlistId" />
-            <button data-bind="click: run">Run!</button>
+            <button data-bind="click: run, enable: (stateName() == 'None' || stateName() == 'Finished')">Run!</button>
             <div data-bind="if: stateName() != 'Finished'">
                 Current State: <span data-bind="text: stateName()"></span>
             </div>
