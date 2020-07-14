@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Prometheus;
+using System;
 using System.Collections.Concurrent;
-using System.Linq;
 
 namespace BeatSaverMatcher.Web.Result
 {
@@ -10,23 +10,29 @@ namespace BeatSaverMatcher.Web.Result
 
         private readonly ConcurrentQueue<WorkResultItem> _pendingItems;
         private readonly ConcurrentDictionary<string, WorkResultItem> _items;
+        private readonly Gauge _pendingRequestsGauge;
 
         public WorkItemStore()
         {
             _pendingItems = new ConcurrentQueue<WorkResultItem>();
             _items = new ConcurrentDictionary<string, WorkResultItem>();
-            //TODO: items cleanup!
+
+            _pendingRequestsGauge = Metrics.CreateGauge("beatsaver_waiting_requests", "Requests waiting to be processed");
         }
 
         public bool TryDequeue(out WorkResultItem item)
         {
-            return _pendingItems.TryDequeue(out item);
+            bool dequeued = _pendingItems.TryDequeue(out item);
+            if (dequeued)
+                _pendingRequestsGauge.Dec();
+            return dequeued;
         }
 
         public bool Enqueue(WorkResultItem item)
         {
             _items.AddOrUpdate(item.PlaylistId, key => item, (key, oldItem) => item);
             _pendingItems.Enqueue(item);
+            _pendingRequestsGauge.Inc();
             return true;
         }
 

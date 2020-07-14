@@ -1,5 +1,7 @@
 ﻿using BeatSaverMatcher.Web.Result;
 using Microsoft.Extensions.Hosting;
+using Prometheus;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,14 +9,20 @@ namespace BeatSaverMatcher.Web
 {
     public class SongMatchWorker : IHostedService
     {
+        private const int _maxRunningTasks = 8;
+
         private readonly MatchingService _matchingService;
         private readonly WorkItemStore _itemStore;
+        private readonly Gauge _runningMatchesGauge;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
+
+        private readonly List<Task> _runningTasks = new List<Task>();
 
         public SongMatchWorker(MatchingService matchingService, WorkItemStore itemStore)
         {
             _matchingService = matchingService;
             _itemStore = itemStore;
+            _runningMatchesGauge = Metrics.CreateGauge("beatsaver_running_requests", "Requests currently running");
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -33,9 +41,16 @@ namespace BeatSaverMatcher.Web
         {
             while (!_cts.IsCancellationRequested)
             {
-                if(_itemStore.TryDequeue(out var item))
+                _runningMatchesGauge.Set(_runningTasks.Count);
+                if (_runningTasks.Count > _maxRunningTasks)
                 {
-                    await _matchingService.GetMatches(item);
+                    var task = await Task.WhenAny(_runningTasks);
+                    _runningTasks.Remove(task);
+                }
+                else if (_itemStore.TryDequeue(out var item))
+                {
+                    var task = Task.Run(() => _matchingService.GetMatches(item));
+                    _runningTasks.Add(task);
                 }
                 else
                 {
