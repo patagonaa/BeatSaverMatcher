@@ -25,6 +25,7 @@
                             <th>BeatSaber song author</th>
                             <th>BeatSaber song name</th>
                             <th>BeatSaber song sub-name</th>
+                            <th>BeatSaver difficulty</th>
                             <th>BeatSaver rating</th>
                             <th>BeatSaver key</th>
                             <th>Selected</th>
@@ -41,6 +42,7 @@
                             <td><span data-bind="text: songAuthorName"></span></td>
                             <td><span data-bind="text: songName"></span></td>
                             <td><span data-bind="text: songSubName"></span></td>
+                            <td><div data-bind="foreach: $root.getDifficulties(difficulties)"><span class="badge badge-secondary" data-bind="text: $data"></span> </div></td>
                             <td><span data-bind="text: (rating * 100).toFixed(1) + '%'"></span></td>
                             <td><a data-bind="text: beatSaverKey.toString(16), attr: {href: 'beatsaver://'+beatSaverKey.toString(16)}"></a></td>
                             <td><input type="checkbox" data-bind="checked: selected" /></td>

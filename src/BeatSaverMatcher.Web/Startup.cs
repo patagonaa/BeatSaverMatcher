@@ -28,6 +28,7 @@ namespace BeatSaverMatcher.Web
             services.AddTransient<BeatSaverRepository>();
             services.AddSingleton<WorkItemStore>();
             services.AddHostedService<SongMatchWorker>();
+            services.AddHostedService<MatchCleanupWorker>();
 
             services.AddDistributedRedisCache(options =>
             {

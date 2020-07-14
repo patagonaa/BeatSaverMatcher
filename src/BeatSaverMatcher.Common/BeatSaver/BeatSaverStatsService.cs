@@ -27,7 +27,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
                 if (song == null)
                     return null;
 
-                var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(1));
+                var options = new DistributedCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(1));
                 await _cache.SetStringAsync(CacheKeys.GetForBeatmapStats(key), JsonConvert.SerializeObject(song.Stats), options);
                 return song.Stats;
             }

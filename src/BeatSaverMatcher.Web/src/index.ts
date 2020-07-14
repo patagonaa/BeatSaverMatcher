@@ -49,9 +49,22 @@ class AppViewModel {
         this.stateName(SongMatchState[item.state]);
     }
 
-    private updatePlaylistUri() {
-        var uri = `bsplaylist://playlist/${window.location.protocol}//${window.location.host}/api/ModSaberPlaylist/${this.playlistId()}`;
+    public getDifficulties(difficulties: number) {
+        var toReturn = [];
+        if (difficulties & 1)
+            toReturn.push('Easy');
+        if (difficulties & 2)
+            toReturn.push('Normal');
+        if (difficulties & 4)
+            toReturn.push('Hard');
+        if (difficulties & 8)
+            toReturn.push('Expert');
+        if (difficulties & 16)
+            toReturn.push('ExpertPlus');
+        return toReturn;
+    }
 
+    private updatePlaylistUri() {
         let keys: string[] = [];
 
         for (let match of this.result().matches) {
@@ -60,8 +73,7 @@ class AppViewModel {
                     keys.push(beatSaberMatch.beatSaverKey.toString(16));
             }
         }
-
-        uri += '/' + keys.join(',');
+        var uri = `bsplaylist://playlist/${window.location.protocol}//${window.location.host}/api/ModSaberPlaylist/${keys.join(',')}/${this.playlistId()}.bplist`;
 
         this.playlistUri(uri);
     }

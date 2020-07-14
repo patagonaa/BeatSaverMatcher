@@ -1,4 +1,5 @@
 ﻿using BeatSaverMatcher.Web.Models;
+using System;
 
 namespace BeatSaverMatcher.Web.Result
 {
@@ -8,10 +9,12 @@ namespace BeatSaverMatcher.Web.Result
         {
             PlaylistId = playlistId;
             State = SongMatchState.Waiting;
+            CreatedAt = DateTime.UtcNow;
         }
 
         public string PlaylistId { get; }
         public SongMatchState State { get; set; }
         public SongMatchResult Result { get; set; }
+        public DateTime CreatedAt { get; }
     }
 }

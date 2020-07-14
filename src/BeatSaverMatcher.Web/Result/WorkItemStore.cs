@@ -1,11 +1,15 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Linq;
 
 namespace BeatSaverMatcher.Web.Result
 {
     public class WorkItemStore
     {
-        private ConcurrentQueue<WorkResultItem> _pendingItems;
-        private ConcurrentDictionary<string, WorkResultItem> _items;
+        private static readonly TimeSpan _resultKeepTime = TimeSpan.FromHours(1);
+
+        private readonly ConcurrentQueue<WorkResultItem> _pendingItems;
+        private readonly ConcurrentDictionary<string, WorkResultItem> _items;
 
         public WorkItemStore()
         {
@@ -31,6 +35,19 @@ namespace BeatSaverMatcher.Web.Result
             if (_items.TryGetValue(playlistId, out var item))
                 return item;
             return null;
+        }
+
+        public void DoCleanup()
+        {
+            var items = _items.Values;
+
+            foreach (var item in items)
+            {
+                if (item.CreatedAt < (DateTime.UtcNow - _resultKeepTime))
+                {
+                    _items.TryRemove(item.PlaylistId, out _);
+                }
+            }
         }
     }
 }

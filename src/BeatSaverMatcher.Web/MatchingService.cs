@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace BeatSaverMatcher.Web
@@ -43,7 +44,7 @@ namespace BeatSaverMatcher.Web
                         SpotifyTitle = track.Name
                     };
 
-                    var beatmaps = new HashSet<BeatSaberSong>();
+                    var beatmaps = new List<BeatSaberSong>();
 
                     if (track.Artists.Count == 1)
                     {
@@ -55,12 +56,19 @@ namespace BeatSaverMatcher.Web
                     }
                     else
                     {
-                        //TODO better search
+                        foreach (var artist in track.Artists)
+                        {
+                            var directMatches = await _songRepository.GetMatches(artist.Name, track.Name);
+                            foreach (var beatmap in directMatches)
+                            {
+                                beatmaps.Add(beatmap);
+                            }
+                        }
                     }
 
                     if (beatmaps.Any())
                     {
-                        match.BeatMaps = beatmaps.ToList();
+                        match.BeatMaps = beatmaps.GroupBy(x => Convert.ToBase64String(x.Hash)).Select(x => x.First()).ToList();
                         matches.Add(match);
                     }
                 }

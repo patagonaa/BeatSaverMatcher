@@ -20,8 +20,8 @@ namespace BeatSaverMatcher.Web.Controllers
             _spotifyRepository = spotifyRepository;
         }
 
-        [HttpGet("{playlistId}")]
-        [HttpGet("{playlistId}/{keys}")]
+        [HttpGet("{playlistId}.bplist")]
+        [HttpGet("{keys}/{playlistId}.bplist")]
         public async Task<ActionResult<ModSaberPlaylist>> GetMatchesAsPlaylistDownload([FromRoute] string playlistId, [FromRoute] string keys)
         {
             var workItem = _itemStore.Get(playlistId);

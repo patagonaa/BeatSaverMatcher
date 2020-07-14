@@ -1,20 +1,22 @@
 ﻿using BeatSaverMatcher.Web.Result;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace BeatSaverMatcher.Web
 {
-    public class SongMatchWorker : IHostedService
+    public class MatchCleanupWorker : IHostedService
     {
-        private readonly MatchingService _matchingService;
         private readonly WorkItemStore _itemStore;
+        private readonly ILogger<MatchCleanupWorker> _logger;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
-        public SongMatchWorker(MatchingService matchingService, WorkItemStore itemStore)
+        public MatchCleanupWorker(WorkItemStore itemStore, ILogger<MatchCleanupWorker> logger)
         {
-            _matchingService = matchingService;
             _itemStore = itemStore;
+            _logger = logger;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -33,14 +35,18 @@ namespace BeatSaverMatcher.Web
         {
             while (!_cts.IsCancellationRequested)
             {
-                if(_itemStore.TryDequeue(out var item))
+                try
                 {
-                    await _matchingService.GetMatches(item);
+                    _itemStore.DoCleanup();
+                    _logger.LogInformation("Cleanup successful!");
                 }
-                else
+                catch (Exception ex)
                 {
-                    await Task.Delay(1000);
+                    _logger.LogError("Error while doing cleanup!");
+                    throw;
                 }
+
+                await Task.Delay(TimeSpan.FromMinutes(10));
             }
         }
     }

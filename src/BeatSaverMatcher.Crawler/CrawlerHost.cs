@@ -52,7 +52,7 @@ namespace BeatSaverMatcher.Crawler
         private async Task Worker()
         {
             var startId = (await _songRepository.GetLatestBeatSaverKey() ?? 0) + 1;
-            var endId = 0xbef5; //TODO
+            var endId = await _beatSaverRepository.GetLatestKey();
             _logger.LogInformation("Starting crawl at key {Key}", startId.ToString("x"));
             for (int key = startId; key <= endId; key++)
             {
