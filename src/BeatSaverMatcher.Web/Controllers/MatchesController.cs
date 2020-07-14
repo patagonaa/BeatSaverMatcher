@@ -1,5 +1,6 @@
 ﻿using BeatSaverMatcher.Web.Result;
 using Microsoft.AspNetCore.Mvc;
+using Prometheus;
 
 namespace BeatSaverMatcher.Web.Controllers
 {
@@ -8,10 +9,12 @@ namespace BeatSaverMatcher.Web.Controllers
     public class MatchesController : ControllerBase
     {
         private readonly WorkItemStore _itemStore;
+        private readonly Counter _startMatchCounter;
 
         public MatchesController(WorkItemStore itemStore)
         {
             _itemStore = itemStore;
+            _startMatchCounter = Metrics.CreateCounter("beatsaver_start_match_count", "number of times match was started");
         }
 
         [HttpPost("{playlistId}")]
@@ -19,6 +22,8 @@ namespace BeatSaverMatcher.Web.Controllers
         {
             if (!_itemStore.Enqueue(new WorkResultItem(playlistId)))
                 Conflict();
+            else
+                _startMatchCounter.Inc();
         }
 
         [HttpGet("{playlistId}")]

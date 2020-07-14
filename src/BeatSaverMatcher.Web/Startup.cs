@@ -29,6 +29,9 @@ namespace BeatSaverMatcher.Web
             services.AddSingleton<WorkItemStore>();
             services.AddHostedService<SongMatchWorker>();
             services.AddHostedService<MatchCleanupWorker>();
+            services.AddHostedService<MetricsServer>();
+
+            services.AddSingleton<MetricsMiddleware>();
 
             services.AddDistributedRedisCache(options =>
             {
@@ -46,6 +49,8 @@ namespace BeatSaverMatcher.Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseMiddleware<MetricsMiddleware>();
+
             app.UseResponseCompression();
 
             if (env.IsDevelopment())
