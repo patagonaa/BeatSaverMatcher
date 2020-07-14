@@ -3,11 +3,8 @@ using BeatSaverMatcher.Common.BeatSaver;
 using BeatSaverMatcher.Common.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -99,6 +96,7 @@ namespace BeatSaverMatcher.Crawler
                 SongSubName = song.Metadata.SongSubName,
                 Bpm = song.Metadata.Bpm,
                 Name = song.Name,
+                AutoMapper = song.Automapper,
                 Difficulties = MapDifficulties(song.Metadata.Difficulties),
                 Uploader = song.Uploader.Username,
                 Hash = MapHash(song.Hash),

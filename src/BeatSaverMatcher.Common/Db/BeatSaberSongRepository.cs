@@ -50,8 +50,8 @@ namespace BeatSaverMatcher.Common
             {
                 var sqlStr = @"
     INSERT INTO [dbo].[BeatSaberSong]
-        ([Hash],[BeatSaverKey],[Uploader],[Difficulties],[LevelAuthorName],[SongAuthorName],[SongName],[SongSubName],[Bpm],[Name],[TextSearchValue])
-        VALUES (@hash, @key, @uploader, @difficulties, @levelAuthorName, @songAuthorName, @songName, @songSubName, @bpm, @name, @textSearchValue)";
+        ([Hash],[BeatSaverKey],[Uploader],[Difficulties],[LevelAuthorName],[SongAuthorName],[SongName],[SongSubName],[Bpm],[Name],[TextSearchValue],[AutoMapper])
+        VALUES (@hash, @key, @uploader, @difficulties, @levelAuthorName, @songAuthorName, @songName, @songSubName, @bpm, @name, @textSearchValue, @autoMapper)";
 
                 using (var command = new SqlCommand(sqlStr, connection))
                 {
@@ -65,6 +65,7 @@ namespace BeatSaverMatcher.Common
                     command.Parameters.AddWithValue("songSubName", song.SongSubName);
                     command.Parameters.AddWithValue("bpm", song.Bpm);
                     command.Parameters.AddWithValue("name", song.Name);
+                    command.Parameters.AddWithValue("autoMapper", song.AutoMapper);
                     command.Parameters.AddWithValue("textSearchValue", string.Join("|", song.LevelAuthorName, song.SongAuthorName, song.SongName, song.SongSubName, song.Name));
 
                     await command.ExecuteNonQueryAsync();

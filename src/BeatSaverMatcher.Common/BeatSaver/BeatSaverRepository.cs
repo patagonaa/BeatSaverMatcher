@@ -10,7 +10,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
     {
         public async Task<int> GetLatestKey()
         {
-            var request = WebRequest.CreateHttp($"https://beatsaver.com/api/maps/latest/0");
+            var request = WebRequest.CreateHttp($"https://beatsaver.com/api/maps/latest/0?automapper=1");
             request.Headers.Add(HttpRequestHeader.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36");
 
             BeatSaverSongPage page;

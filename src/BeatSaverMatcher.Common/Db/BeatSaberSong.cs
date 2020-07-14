@@ -17,5 +17,6 @@ namespace BeatSaverMatcher.Common.Models
         public byte[] Hash { get; set; }
         public int BeatSaverKey { get; set; }
         public double? Rating { get; set; }
+        public string AutoMapper { get; set; }
     }
 }

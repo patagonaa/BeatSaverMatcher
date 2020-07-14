@@ -15,6 +15,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
         public BeatSaverUploader Uploader { get; set; }
         public string Hash { get; set; }
         public DateTime Uploaded { get; set; }
+        public string Automapper { get; set; }
         //...
     }
 
