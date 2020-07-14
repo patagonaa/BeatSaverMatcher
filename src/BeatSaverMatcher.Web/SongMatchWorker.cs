@@ -42,7 +42,7 @@ namespace BeatSaverMatcher.Web
         {
             while (!_cts.IsCancellationRequested)
             {
-                _runningMatchesGauge.Set(_runningTasks.Count(x => x.Status == TaskStatus.Running));
+                _runningMatchesGauge.Set(_runningTasks.Count(x => x.Status == TaskStatus.Running || x.Status == TaskStatus.WaitingForActivation || x.Status == TaskStatus.WaitingForChildrenToComplete));
                 if (_runningTasks.Count > _maxRunningTasks)
                 {
                     var task = await Task.WhenAny(_runningTasks);
