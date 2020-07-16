@@ -17,11 +17,11 @@ namespace BeatSaverMatcher.Common
 
         public async Task<IList<BeatSaberSong>> GetMatches(string artistName, string trackName)
         {
-            artistName = new string(artistName.Where(x => x != '"').ToArray());
-            trackName = new string(trackName.Where(x => x != '"').ToArray());
+            artistName = "\"" + new string(artistName.Where(x => x != '"').ToArray()) + "\"";
+            trackName = "\"" + new string(trackName.Where(x => x != '"').ToArray()) + "\"";
             using (var connection = GetConnection())
             {
-                var results = await connection.QueryAsync<BeatSaberSong>("SELECT * FROM [dbo].[BeatSaberSong] WHERE CONTAINS(*, '\"' + @ArtistName + '\"') AND CONTAINS(*, '\"' + @TrackName + '\"')", new { ArtistName = artistName, TrackName = trackName });
+                var results = await connection.QueryAsync<BeatSaberSong>("SELECT * FROM [dbo].[BeatSaberSong] WHERE CONTAINS(*, @ArtistName) AND CONTAINS(*, @TrackName)", new { ArtistName = artistName, TrackName = trackName });
                 return results.ToList();
             }
         }
