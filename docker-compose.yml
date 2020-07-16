@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
 
   db:
-    image: mcr.microsoft.com/mssql/server:2019-latest
+    image: benjaminabt/mssql-fts:2019-ubuntu-1804
     ports:
       - "127.0.0.1:1433:1433"
     environment:

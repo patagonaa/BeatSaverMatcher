@@ -20,7 +20,7 @@ namespace BeatSaverMatcher.Common
         {
             using (var connection = GetConnection())
             {
-                var results = await connection.QueryAsync<BeatSaberSong>("SELECT * FROM [dbo].[BeatSaberSong] WHERE (TextSearchValue LIKE '%' + @ArtistName + '%' AND TextSearchValue LIKE '%' + @TrackName + '%')", new { ArtistName = artistName, TrackName = trackName });
+                var results = await connection.QueryAsync<BeatSaberSong>("SELECT * FROM [dbo].[BeatSaberSong] WHERE CONTAINS(*, @ArtistName) AND CONTAINS(*, @TrackName)", new { ArtistName = artistName, TrackName = trackName });
                 return results.ToList();
             }
         }
@@ -51,8 +51,8 @@ namespace BeatSaverMatcher.Common
             {
                 var sqlStr = @"
     INSERT INTO [dbo].[BeatSaberSong]
-        ([BeatSaverKey],[Hash],[Uploader],[Uploaded],[Difficulties],[Bpm],[TextSearchValue],[LevelAuthorName],[SongAuthorName],[SongName],[SongSubName],[Name],[AutoMapper])
-        VALUES (@BeatSaverKey, @Hash, @Uploader, @Uploaded, @Difficulties, @Bpm, @TextSearchValue, @LevelAuthorName, @SongAuthorName, @SongName, @SongSubName, @Name, @AutoMapper)";
+        ([BeatSaverKey],[Hash],[Uploader],[Uploaded],[Difficulties],[Bpm],[LevelAuthorName],[SongAuthorName],[SongName],[SongSubName],[Name],[AutoMapper])
+        VALUES (@BeatSaverKey, @Hash, @Uploader, @Uploaded, @Difficulties, @Bpm, @LevelAuthorName, @SongAuthorName, @SongName, @SongSubName, @Name, @AutoMapper)";
 
                 await connection.ExecuteAsync(sqlStr, song);
             }

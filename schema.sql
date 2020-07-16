@@ -5,7 +5,6 @@ CREATE TABLE [dbo].[BeatSaberSong](
     [Uploaded] [datetime2] NOT NULL,
     [Difficulties] [int] NOT NULL,
     [Bpm] [float] NOT NULL,
-    [TextSearchValue] [nvarchar](4000) NOT NULL,
     [LevelAuthorName] [nvarchar](4000) NOT NULL,
     [SongAuthorName] [nvarchar](4000) NOT NULL,
     [SongName] [nvarchar](4000) NOT NULL,
@@ -18,3 +17,8 @@ CREATE TABLE [dbo].[BeatSaberSong](
 )
 ) ON [PRIMARY]
 GO
+
+CREATE FULLTEXT CATALOG [BeatSaverCatalog] WITH ACCENT_SENSITIVITY = ON
+AS DEFAULT
+
+CREATE FULLTEXT INDEX ON BeatSaberSong(LevelAuthorName, SongAuthorName, SongName, SongSubName, Name) KEY INDEX PK_BeatSaberSong

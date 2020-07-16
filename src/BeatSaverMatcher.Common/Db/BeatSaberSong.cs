@@ -19,7 +19,5 @@ namespace BeatSaverMatcher.Common.Models
         public int BeatSaverKey { get; set; }
         public double? Rating { get; set; }
         public string AutoMapper { get; set; }
-
-        public string TextSearchValue => string.Join("|", LevelAuthorName, SongAuthorName, SongName, SongSubName, Name);
     }
 }
