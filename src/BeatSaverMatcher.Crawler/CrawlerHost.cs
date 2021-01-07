@@ -74,16 +74,28 @@ namespace BeatSaverMatcher.Crawler
                 {
                     var response = wex.Response as HttpWebResponse;
                     if (response == null)
-                        throw;
+                    {
+                        _logger.LogWarning(wex, "Unknown WebException");
+                        break;
+                    }
 
                     if ((int)response.StatusCode < 200 && (int)response.StatusCode >= 300)
                     {
-                        _logger.LogInformation("Error {StatusCode} - {StatusDescription} while scraping", response.StatusCode, response.StatusDescription);
+                        _logger.LogWarning("Error {StatusCode} - {StatusDescription} while scraping", response.StatusCode, response.StatusDescription);
                         break;
                     }
-                    throw;
+
+                    _logger.LogWarning(wex, "Unknown Exception");
+                    break;
+                }
+                catch(Exception ex)
+                {
+                    _logger.LogWarning(ex, "Unknown Exception");
+                    break;
                 }
             }
+
+            _logger.LogInformation("Scrape done.");
         }
 
         private BeatSaberSong MapSong(BeatSaverSong song)
