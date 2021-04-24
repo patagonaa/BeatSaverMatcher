@@ -93,12 +93,12 @@ namespace BeatSaverMatcher.Common.BeatSaver
 
                     if ((int)response.StatusCode == 429) // Too Many Requests
                     {
-                        var timeout = TimeSpan.FromSeconds(0);
+                        var timeout = TimeSpan.FromSeconds(1); // always wait a minimum of one second to account for time tolerances
                         if (response.Headers.AllKeys.Contains("Rate-Limit-Reset") && int.TryParse(response.Headers["Rate-Limit-Reset"], out int epochReset))
                         {
                             var resetTime = new DateTime(1970, 01, 01, 0, 0, 0, DateTimeKind.Utc).AddSeconds(epochReset);
                             var delayTime = resetTime - DateTime.UtcNow;
-                            if (delayTime > TimeSpan.Zero)
+                            if (delayTime > timeout)
                             {
                                 timeout = delayTime;
                             }
