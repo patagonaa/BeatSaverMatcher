@@ -93,7 +93,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
 
                     if ((int)response.StatusCode == 429) // Too Many Requests
                     {
-                        var timeout = TimeSpan.FromSeconds(1); // always wait a minimum of one second to account for time tolerances
+                        var timeout = TimeSpan.Zero;
                         if (response.Headers.AllKeys.Contains("Rate-Limit-Reset") && int.TryParse(response.Headers["Rate-Limit-Reset"], out int epochReset))
                         {
                             var resetTime = new DateTime(1970, 01, 01, 0, 0, 0, DateTimeKind.Utc).AddSeconds(epochReset);
@@ -105,8 +105,10 @@ namespace BeatSaverMatcher.Common.BeatSaver
                         }
                         else
                         {
-                            timeout = TimeSpan.FromSeconds(10);
+                            timeout = TimeSpan.FromSeconds(9);
                         }
+
+                        timeout += TimeSpan.FromSeconds(1); // always wait a minimum of one second to account for time tolerances
                         _logger.LogInformation("Rate Limit Reached. Waiting {Milliseconds} ms", timeout.TotalMilliseconds);
                         await Task.Delay(timeout);
                     }
