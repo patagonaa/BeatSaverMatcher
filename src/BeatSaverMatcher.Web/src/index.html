@@ -8,7 +8,7 @@
 <body>
     <div id="main">
         <div class="container-fluid">
-            Spotify playlist link, URI or ID:
+            Spotify playlist link, URI or ID (Note: Automapped Beatmaps are ignored):
             <input type="text" data-bind="value: playlistId" />
             <button data-bind="click: run, enable: (stateName() == 'None' || stateName() == 'Finished')">Run!</button>
             <div data-bind="if: stateName() != 'Finished'">
@@ -26,7 +26,7 @@
                             <th>BeatSaber song author</th>
                             <th>BeatSaber song name</th>
                             <th>BeatSaber song sub-name</th>
-                            <th>BeatSaver automapper</th>
+                            <!--<th>BeatSaver automapper</th>-->
                             <th>BeatSaver difficulty</th>
                             <th>BeatSaver rating</th>
                             <th>BeatSaver key</th>
@@ -45,10 +45,14 @@
                             <td><span data-bind="text: songAuthorName"></span></td>
                             <td><span data-bind="text: songName"></span></td>
                             <td><span data-bind="text: songSubName"></span></td>
-                            <td><span data-bind="text: autoMapper"></span></td>
+                            <!--<td><span data-bind="text: autoMapper"></span></td>-->
                             <td><div data-bind="foreach: $root.getDifficulties(difficulties)"><span class="badge" data-bind="text: $data, class: 'is-'+$data.toLowerCase()"></span> </div></td>
                             <td><span data-bind="text: (rating * 100).toFixed(1) + '%'"></span></td>
-                            <td><a data-bind="text: beatSaverKey.toString(16), attr: {href: 'beatsaver://'+beatSaverKey.toString(16)}"></a></td>
+                            <td>
+                                <span data-bind="text: beatSaverKey.toString(16)"></span>
+                                <a data-bind="attr: {href: 'beatsaver://'+beatSaverKey.toString(16)}">Download</a>
+                                <a data-bind="attr: {href: 'https://beatsaver.com/beatmap/'+beatSaverKey.toString(16)}">View</a>
+                            </td>
                             <td><input type="checkbox" data-bind="checked: selected" /></td>
                         </tr>
                         <!-- /ko -->

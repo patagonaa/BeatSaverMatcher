@@ -52,7 +52,7 @@ namespace BeatSaverMatcher.Web
 
                     if (track.Artists.Count == 1)
                     {
-                        var directMatches = await _songRepository.GetMatches(track.Artists[0].Name, track.Name);
+                        var directMatches = await _songRepository.GetMatches(track.Artists[0].Name, track.Name, false);
                         foreach (var beatmap in directMatches)
                         {
                             beatmaps.Add(beatmap);
@@ -62,7 +62,7 @@ namespace BeatSaverMatcher.Web
                     {
                         foreach (var artist in track.Artists)
                         {
-                            var directMatches = await _songRepository.GetMatches(artist.Name, track.Name);
+                            var directMatches = await _songRepository.GetMatches(artist.Name, track.Name, false);
                             foreach (var beatmap in directMatches)
                             {
                                 beatmaps.Add(beatmap);

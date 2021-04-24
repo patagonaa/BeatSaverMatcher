@@ -15,13 +15,17 @@ namespace BeatSaverMatcher.Common
         {
         }
 
-        public async Task<IList<BeatSaberSong>> GetMatches(string artistName, string trackName)
+        public async Task<IList<BeatSaberSong>> GetMatches(string artistName, string trackName, bool allowAutomapped)
         {
             artistName = "\"" + new string(artistName.Where(x => x != '"').ToArray()) + "\"";
             trackName = "\"" + new string(trackName.Where(x => x != '"').ToArray()) + "\"";
             using (var connection = GetConnection())
             {
-                var results = await connection.QueryAsync<BeatSaberSong>("SELECT * FROM [dbo].[BeatSaberSong] WHERE CONTAINS(*, @ArtistName) AND CONTAINS(*, @TrackName)", new { ArtistName = artistName, TrackName = trackName });
+                var query = allowAutomapped ?
+                    "SELECT * FROM [dbo].[BeatSaberSong] WHERE CONTAINS(*, @ArtistName) AND CONTAINS(*, @TrackName)" :
+                    "SELECT * FROM [dbo].[BeatSaberSong] WHERE CONTAINS(*, @ArtistName) AND CONTAINS(*, @TrackName) AND AutoMapper IS NULL";
+
+                var results = await connection.QueryAsync<BeatSaberSong>(query, new { ArtistName = artistName, TrackName = trackName });
                 return results.ToList();
             }
         }
