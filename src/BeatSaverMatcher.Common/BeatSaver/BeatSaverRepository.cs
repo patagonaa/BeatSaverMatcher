@@ -11,7 +11,10 @@ namespace BeatSaverMatcher.Common.BeatSaver
         public async Task<int> GetLatestKey()
         {
             var request = WebRequest.CreateHttp($"https://beatsaver.com/api/maps/latest/0?automapper=1");
-            request.Headers.Add(HttpRequestHeader.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36");
+            request.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36");
+            request.Headers.Add("sec-fetch-mode", "navigate");
+            request.Headers.Add("sec-fetch-user", "?1");
+            request.Headers.Add("accept-language", "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7");
 
             BeatSaverSongPage page;
             var response = (HttpWebResponse)await request.GetResponseAsync();
@@ -26,7 +29,10 @@ namespace BeatSaverMatcher.Common.BeatSaver
         public async Task<BeatSaverSong> GetSong(int key)
         {
             var request = WebRequest.CreateHttp($"https://beatsaver.com/api/maps/detail/{key:x}");
-            request.Headers.Add(HttpRequestHeader.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36");
+            request.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36");
+            request.Headers.Add("sec-fetch-mode", "navigate");
+            request.Headers.Add("sec-fetch-user", "?1");
+            request.Headers.Add("accept-language", "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7");
 
             BeatSaverSong song;
             try
