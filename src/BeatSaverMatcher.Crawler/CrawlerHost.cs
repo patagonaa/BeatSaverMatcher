@@ -19,7 +19,7 @@ namespace BeatSaverMatcher.Crawler
         private readonly ILogger<CrawlerHost> _logger;
         private readonly IBeatSaberSongRepository _songRepository;
         private readonly BeatSaverRepository _beatSaverRepository;
-        private readonly SemaphoreSlim _scrapeLock = new SemaphoreSlim(0, 1);
+        private readonly SemaphoreSlim _scrapeLock = new SemaphoreSlim(1, 1);
 
         public CrawlerHost(ILogger<CrawlerHost> logger, IBeatSaberSongRepository songRepository, BeatSaverRepository beatSaverRepository)
         {
