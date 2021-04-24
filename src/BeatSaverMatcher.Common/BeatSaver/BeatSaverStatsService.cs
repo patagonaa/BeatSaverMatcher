@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Threading;
@@ -11,11 +12,13 @@ namespace BeatSaverMatcher.Common.BeatSaver
     {
         private readonly BeatSaverRepository _beatSaverRepository;
         private readonly IDistributedCache _cache;
+        private readonly ILogger<BeatSaverStatsService> _logger;
 
-        public BeatSaverStatsService(BeatSaverRepository beatSaverRepository, IDistributedCache cache)
+        public BeatSaverStatsService(BeatSaverRepository beatSaverRepository, IDistributedCache cache, ILogger<BeatSaverStatsService> logger)
         {
             _beatSaverRepository = beatSaverRepository;
             _cache = cache;
+            _logger = logger;
         }
 
         public async Task<BeatSaverStats> GetStats(int key)
@@ -24,6 +27,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
             var cached = await _cache.GetStringAsync(CacheKeys.GetForBeatmapStats(key));
             if (cached == null)
             {
+                _logger.LogInformation("Loading Stats for Song 0x{SongKey:x}", key);
                 BeatSaverSong song;
                 try
                 {
