@@ -19,6 +19,7 @@ namespace BeatSaverMatcher.Crawler
         private readonly ILogger<CrawlerHost> _logger;
         private readonly IBeatSaberSongRepository _songRepository;
         private readonly BeatSaverRepository _beatSaverRepository;
+        private readonly SemaphoreSlim _scrapeLock = new SemaphoreSlim(0, 1);
 
         public CrawlerHost(ILogger<CrawlerHost> logger, IBeatSaberSongRepository songRepository, BeatSaverRepository beatSaverRepository)
         {
@@ -48,54 +49,63 @@ namespace BeatSaverMatcher.Crawler
 
         private async Task Worker()
         {
-            var startId = (await _songRepository.GetLatestBeatSaverKey() ?? 0) + 1;
-            var endId = await _beatSaverRepository.GetLatestKey(_cts.Token);
-            _logger.LogInformation("Starting crawl at key {Key}", startId.ToString("x"));
-            for (int key = startId; key <= endId; key++)
+            try
             {
-                _cts.Token.ThrowIfCancellationRequested();
+                await _scrapeLock.WaitAsync();
 
-                try
+                var startId = (await _songRepository.GetLatestBeatSaverKey() ?? 0) + 1;
+                var endId = await _beatSaverRepository.GetLatestKey(_cts.Token);
+                _logger.LogInformation("Starting crawl at key {Key}", startId.ToString("x"));
+                for (int key = startId; key <= endId; key++)
                 {
-                    var song = await _beatSaverRepository.GetSong(key, _cts.Token);
-                    if(song == null)
+                    _cts.Token.ThrowIfCancellationRequested();
+
+                    try
                     {
-                        _logger.LogInformation("Beatmap {Key} not found!", key.ToString("x"));
-                        continue;
+                        var song = await _beatSaverRepository.GetSong(key, _cts.Token);
+                        if (song == null)
+                        {
+                            _logger.LogInformation("Beatmap {Key} not found!", key.ToString("x"));
+                            continue;
+                        }
+
+                        var mappedSong = MapSong(song);
+
+                        await _songRepository.InsertSong(mappedSong);
+
+                        _logger.LogInformation("Inserted Song {Key}: {SongName}", key.ToString("x"), mappedSong.Name);
                     }
-
-                    var mappedSong = MapSong(song);
-
-                    await _songRepository.InsertSong(mappedSong);
-
-                    _logger.LogInformation("Inserted Song {Key}: {SongName}", key.ToString("x"), mappedSong.Name);
-                }
-                catch (WebException wex)
-                {
-                    var response = wex.Response as HttpWebResponse;
-                    if (response == null)
+                    catch (WebException wex)
                     {
-                        _logger.LogWarning(wex, "Unknown WebException");
+                        var response = wex.Response as HttpWebResponse;
+                        if (response == null)
+                        {
+                            _logger.LogWarning(wex, "Unknown WebException");
+                            break;
+                        }
+
+                        if ((int)response.StatusCode < 200 && (int)response.StatusCode >= 300)
+                        {
+                            _logger.LogWarning("Error {StatusCode} - {StatusDescription} while scraping", response.StatusCode, response.StatusDescription);
+                            break;
+                        }
+
+                        _logger.LogWarning(wex, "Unknown Exception");
                         break;
                     }
-
-                    if ((int)response.StatusCode < 200 && (int)response.StatusCode >= 300)
+                    catch (Exception ex)
                     {
-                        _logger.LogWarning("Error {StatusCode} - {StatusDescription} while scraping", response.StatusCode, response.StatusDescription);
+                        _logger.LogWarning(ex, "Unknown Exception");
                         break;
                     }
+                }
 
-                    _logger.LogWarning(wex, "Unknown Exception");
-                    break;
-                }
-                catch(Exception ex)
-                {
-                    _logger.LogWarning(ex, "Unknown Exception");
-                    break;
-                }
+                _logger.LogInformation("Scrape done.");
             }
-
-            _logger.LogInformation("Scrape done.");
+            finally
+            {
+                _scrapeLock.Release();
+            }
         }
 
         private BeatSaberSong MapSong(BeatSaverSong song)

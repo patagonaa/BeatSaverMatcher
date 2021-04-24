@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace BeatSaverMatcher.Web
@@ -97,7 +96,7 @@ namespace BeatSaverMatcher.Web
                     MatchedSpotifySongs = matches.Count,
                     Matches = matches
                 };
-                _logger.LogInformation("Found {TrackCount} / {MatchCount} Songs!", tracks.Count, matches.Count);
+                _logger.LogInformation("Found {MatchCount} / {TrackCount} Songs!", matches.Count, tracks.Count);
                 item.State = SongMatchState.Finished;
             }
             catch (Exception ex)
