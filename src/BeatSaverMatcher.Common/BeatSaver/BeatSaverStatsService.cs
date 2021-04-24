@@ -43,7 +43,25 @@ namespace BeatSaverMatcher.Common.BeatSaver
                 if (song == null)
                     return null;
 
-                var options = new DistributedCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(1));
+                TimeSpan cacheTime;
+                if (song.Uploaded < (DateTime.UtcNow - TimeSpan.FromDays(365)))
+                {
+                    cacheTime = TimeSpan.FromDays(30);
+                }
+                else if (song.Uploaded < (DateTime.UtcNow - TimeSpan.FromDays(90)))
+                {
+                    cacheTime = TimeSpan.FromDays(14);
+                }
+                else if (song.Uploaded < (DateTime.UtcNow - TimeSpan.FromDays(30)))
+                {
+                    cacheTime = TimeSpan.FromDays(7);
+                }
+                else
+                {
+                    cacheTime = TimeSpan.FromDays(1);
+                }
+
+                var options = new DistributedCacheEntryOptions().SetAbsoluteExpiration(cacheTime);
                 await _cache.SetStringAsync(CacheKeys.GetForBeatmapStats(key), JsonConvert.SerializeObject(song.Stats), options);
                 return song.Stats;
             }
