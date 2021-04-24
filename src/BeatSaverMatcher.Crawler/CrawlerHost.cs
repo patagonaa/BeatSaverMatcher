@@ -49,7 +49,7 @@ namespace BeatSaverMatcher.Crawler
         private async Task Worker()
         {
             var startId = (await _songRepository.GetLatestBeatSaverKey() ?? 0) + 1;
-            var endId = await _beatSaverRepository.GetLatestKey();
+            var endId = await _beatSaverRepository.GetLatestKey(_cts.Token);
             _logger.LogInformation("Starting crawl at key {Key}", startId.ToString("x"));
             for (int key = startId; key <= endId; key++)
             {
@@ -57,7 +57,7 @@ namespace BeatSaverMatcher.Crawler
 
                 try
                 {
-                    var song = await _beatSaverRepository.GetSong(key);
+                    var song = await _beatSaverRepository.GetSong(key, _cts.Token);
                     if(song == null)
                     {
                         _logger.LogInformation("Beatmap {Key} not found!", key.ToString("x"));

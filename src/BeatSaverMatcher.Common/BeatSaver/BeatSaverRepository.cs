@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BeatSaverMatcher.Common.BeatSaver
@@ -18,7 +19,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
             _logger = logger;
         }
 
-        public async Task<int> GetLatestKey()
+        public async Task<int> GetLatestKey(CancellationToken token)
         {
             return await DoWithRetries(async () =>
             {
@@ -36,10 +37,10 @@ namespace BeatSaverMatcher.Common.BeatSaver
                 }
 
                 return int.Parse(page.Docs[0].Key, NumberStyles.HexNumber);
-            });
+            }, token);
         }
 
-        public async Task<BeatSaverSong> GetSong(int key)
+        public async Task<BeatSaverSong> GetSong(int key, CancellationToken token)
         {
             return await DoWithRetries(async () =>
             {
@@ -71,10 +72,10 @@ namespace BeatSaverMatcher.Common.BeatSaver
                     }
                     throw;
                 }
-            });
+            }, token);
         }
 
-        private async Task<T> DoWithRetries<T>(Func<Task<T>> action)
+        private async Task<T> DoWithRetries<T>(Func<Task<T>> action, CancellationToken token)
         {
             int tries = 0;
             while (true)
@@ -110,7 +111,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
 
                         timeout += TimeSpan.FromSeconds(1); // always wait a minimum of one second to account for time tolerances
                         _logger.LogInformation("Rate Limit Reached. Waiting {Milliseconds} ms", timeout.TotalMilliseconds);
-                        await Task.Delay(timeout);
+                        await Task.Delay(timeout, token);
                     }
                     else
                     {

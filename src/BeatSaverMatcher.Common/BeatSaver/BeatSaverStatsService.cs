@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BeatSaverMatcher.Common.BeatSaver
@@ -23,7 +24,18 @@ namespace BeatSaverMatcher.Common.BeatSaver
             var cached = await _cache.GetStringAsync(CacheKeys.GetForBeatmapStats(key));
             if (cached == null)
             {
-                var song = await _beatSaverRepository.GetSong(key);
+                BeatSaverSong song;
+                try
+                {
+                    using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20)))
+                    {
+                        song = await _beatSaverRepository.GetSong(key, cts.Token);
+                    }
+                }
+                catch (TaskCanceledException)
+                {
+                    return null;
+                }
                 if (song == null)
                     return null;
 
