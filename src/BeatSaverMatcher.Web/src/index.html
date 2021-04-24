@@ -48,7 +48,7 @@
                             <!--<td><span data-bind="text: autoMapper"></span></td>-->
                             <td><div data-bind="foreach: $root.getDifficulties(difficulties)"><span class="badge" data-bind="text: $data, class: 'is-'+$data.toLowerCase()"></span> </div></td>
                             <td><span data-bind="text: (rating * 100).toFixed(1) + '%'"></span></td>
-                            <td>
+                            <td style="white-space: nowrap;">
                                 <span data-bind="text: beatSaverKey.toString(16)"></span>
                                 <a data-bind="attr: {href: 'beatsaver://'+beatSaverKey.toString(16)}">Download</a>
                                 <a data-bind="attr: {href: 'https://beatsaver.com/beatmap/'+beatSaverKey.toString(16)}">View</a>
