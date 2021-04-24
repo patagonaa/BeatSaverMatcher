@@ -25,7 +25,7 @@ namespace BeatSaverMatcher.Crawler
         {
             _timer = new Timer
             {
-                Interval = 60 * 1000,
+                Interval = 15 * 60 * 1000,
                 AutoReset = true
             };
             _timer.Elapsed += (sender, e) => Worker();
