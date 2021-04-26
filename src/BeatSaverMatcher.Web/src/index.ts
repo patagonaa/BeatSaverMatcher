@@ -6,6 +6,7 @@ class AppViewModel {
     public playlistId = ko.observable<string>();
     public playlistUri = ko.observable<string>('');
     public stateName = ko.observable<string>('None');
+    public workItem = ko.observable<WorkResultItem>();
     public result = ko.observable<SongMatchResult>();
 
     public async run() {
@@ -25,6 +26,7 @@ class AppViewModel {
         while (result == null) {
             var response = await fetch(`/api/Matches/${this.playlistId()}`);
             var item = <WorkResultItem>await response.json();
+            this.workItem(item);
             if (item.state == SongMatchState.Error) {
                 this.stateName(SongMatchState[item.state]);
                 throw 'Something went wrong!';
@@ -90,6 +92,8 @@ interface WorkResultItem {
     playlistId: string;
     state: SongMatchState;
     result: SongMatchResult;
+    itemsProcessed: number;
+    itemsTotal: number;
 }
 
 enum SongMatchState {

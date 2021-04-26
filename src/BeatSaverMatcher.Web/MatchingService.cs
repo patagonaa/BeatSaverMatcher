@@ -32,6 +32,8 @@ namespace BeatSaverMatcher.Web
             {
                 _logger.LogInformation("Loading Spotify Songs");
                 item.State = SongMatchState.LoadingSpotifySongs;
+                item.ItemsTotal = 1;
+                item.ItemsProcessed = 0;
 
                 var tracks = await _spotifyRepository.GetTracksForPlaylist(item.PlaylistId);
 
@@ -39,6 +41,9 @@ namespace BeatSaverMatcher.Web
                 item.State = SongMatchState.SearchingBeatMaps;
 
                 var matches = new List<SongMatch>();
+
+                item.ItemsTotal = tracks.Count;
+                item.ItemsProcessed = 0;
 
                 foreach (var track in tracks)
                 {
@@ -75,10 +80,15 @@ namespace BeatSaverMatcher.Web
                         match.BeatMaps = beatmaps.GroupBy(x => Convert.ToBase64String(x.Hash)).Select(x => x.First()).ToList();
                         matches.Add(match);
                     }
+
+                    item.ItemsProcessed++;
                 }
 
                 _logger.LogInformation("Loading Beatmap Ratings");
                 item.State = SongMatchState.LoadingBeatMapRatings;
+
+                item.ItemsTotal = matches.SelectMany(x => x.BeatMaps).Count();
+                item.ItemsProcessed = 0;
 
                 foreach (var match in matches)
                 {
@@ -88,7 +98,7 @@ namespace BeatSaverMatcher.Web
                         try
                         {
                             var stats = await _statsService.GetStats(beatmap.BeatSaverKey);
-                            if(stats != null)
+                            if (stats != null)
                             {
                                 beatmap.Rating = stats.Rating;
                                 beatmap.UpVotes = stats.UpVotes;
@@ -101,10 +111,12 @@ namespace BeatSaverMatcher.Web
                         {
                             foundBeatMaps.Add(beatmap);
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             _logger.LogError(ex, "Error while loading Beatmap Stats for 0x{BeatMapKey}", beatmap.BeatSaverKey.ToString("x"));
                         }
+
+                        item.ItemsProcessed++;
                     }
                     match.BeatMaps = foundBeatMaps.OrderByDescending(x => x.Rating ?? 0).ToList();
                 }

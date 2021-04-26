@@ -12,7 +12,7 @@
             <input type="text" data-bind="value: playlistId" />
             <button data-bind="click: run, enable: (stateName() == 'None' || stateName() == 'Finished')">Run!</button>
             <div data-bind="if: stateName() != 'Finished'">
-                Current State: <span data-bind="text: stateName()"></span>
+                Current State: <span data-bind="text: stateName()"></span> (<span data-bind="text: (workItem() && workItem().itemsProcessed) || 0"></span> / <span data-bind="text: (workItem() && workItem().itemsTotal) || 0"></span>)
             </div>
             <div data-bind="if: stateName() == 'Finished'">
                 <a data-bind="attr: {href: playlistUri}">Download selected as playlist</a><br />
@@ -26,9 +26,9 @@
                             <th>BeatSaber song author</th>
                             <th>BeatSaber song name</th>
                             <th>BeatSaber song sub-name</th>
-                            <!--<th>BeatSaver automapper</th>-->
                             <th>BeatSaver difficulty</th>
-                            <th>BeatSaver rating</th>
+                            <th>Rating</th>
+                            <th>👍/👎</th>
                             <th>BeatSaver key</th>
                             <th>Selected</th>
                         </tr>
@@ -45,16 +45,17 @@
                             <td><span data-bind="text: songAuthorName"></span></td>
                             <td><span data-bind="text: songName"></span></td>
                             <td><span data-bind="text: songSubName"></span></td>
-                            <!--<td><span data-bind="text: autoMapper"></span></td>-->
                             <td><div data-bind="foreach: $root.getDifficulties(difficulties)"><span class="badge" data-bind="text: $data, class: 'is-'+$data.toLowerCase()"></span> </div></td>
                             <td class="text-nowrap">
-                                <span data-bind="text: (rating * 100).toFixed(1) + '%'"></span>,
-                                <span data-bind="text: upVotes + '👍'"></span>,
+                                <span data-bind="text: (rating * 100).toFixed(1) + '%'"></span>
+                            </td>
+                            <td class="text-nowrap text-right">
+                                <span data-bind="text: upVotes + '👍'"></span><br />
                                 <span data-bind="text: downVotes + '👎'"></span>
                             </td>
                             <td class="text-nowrap">
-                                <span data-bind="text: beatSaverKey.toString(16)"></span>
-                                <a data-bind="attr: {href: 'beatsaver://'+beatSaverKey.toString(16)}">Download</a>
+                                <span data-bind="text: beatSaverKey.toString(16)"></span> |
+                                <a data-bind="attr: {href: 'beatsaver://'+beatSaverKey.toString(16)}">Download</a> |
                                 <a data-bind="attr: {href: 'https://beatsaver.com/beatmap/'+beatSaverKey.toString(16)}" target="_blank">View</a>
                             </td>
                             <td><input type="checkbox" data-bind="checked: selected" /></td>
