@@ -82,12 +82,31 @@ namespace BeatSaverMatcher.Web
 
                 foreach (var match in matches)
                 {
+                    var foundBeatMaps = new List<BeatSaberSong>();
                     foreach (var beatmap in match.BeatMaps)
                     {
-                        var stats = await _statsService.GetStats(beatmap.BeatSaverKey);
-                        beatmap.Rating = stats?.Rating;
+                        try
+                        {
+                            var stats = await _statsService.GetStats(beatmap.BeatSaverKey);
+                            if(stats != null)
+                            {
+                                beatmap.Rating = stats.Rating;
+                                beatmap.UpVotes = stats.UpVotes;
+                                beatmap.DownVotes = stats.DownVotes;
+                                foundBeatMaps.Add(beatmap);
+                            }
+                            // don't add beatmap if it wasn't found online (was deleted)
+                        }
+                        catch (TimeoutException)
+                        {
+                            foundBeatMaps.Add(beatmap);
+                        }
+                        catch(Exception ex)
+                        {
+                            _logger.LogError(ex, "Error while loading Beatmap Stats for 0x{BeatMapKey}", beatmap.BeatSaverKey.ToString("x"));
+                        }
                     }
-                    match.BeatMaps = match.BeatMaps.OrderByDescending(x => x.Rating ?? 0).ToList();
+                    match.BeatMaps = foundBeatMaps.OrderByDescending(x => x.Rating ?? 0).ToList();
                 }
 
                 item.Result = new SongMatchResult

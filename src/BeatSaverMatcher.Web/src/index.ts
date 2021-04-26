@@ -127,6 +127,8 @@ interface BeatSaberSong {
     beatSaverKey: number;
     selected: KnockoutObservable<boolean>;
     rating: number;
+    upVotes: number;
+    downVotes: number;
 }
 
 function init() {

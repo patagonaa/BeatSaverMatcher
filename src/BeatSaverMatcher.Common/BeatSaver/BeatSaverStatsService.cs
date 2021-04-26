@@ -38,7 +38,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
                 }
                 catch (TaskCanceledException)
                 {
-                    return null;
+                    throw new TimeoutException();
                 }
                 if (song == null)
                     return null;
