@@ -36,8 +36,10 @@ module.exports = {
             filename: "index.html",
             chunks: ['vendor', 'app']
         }),
-        new CopyWebpackPlugin([
-            { from: './src/icon.png' }
-        ])
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: './src/icon.png' }
+            ]
+        })
     ]
 };

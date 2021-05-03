@@ -30,19 +30,12 @@ namespace BeatSaverMatcher.Web
         {
             var toReturn = new List<FullTrack>();
 
-            Paging<PlaylistTrack<IPlayableItem>> page;
-            var offset = 0;
-            do
+            var request = new PlaylistGetItemsRequest(PlaylistGetItemsRequest.AdditionalTypes.Track);
+            var firstPage = await _spotifyClient.Playlists.GetItems(playlistId, request);
+            await foreach (var playlistTrack in _spotifyClient.Paginate(firstPage))
             {
-                PlaylistGetItemsRequest request = new PlaylistGetItemsRequest(PlaylistGetItemsRequest.AdditionalTypes.Track)
-                {
-                    Offset = offset
-                };
-                page = await _spotifyClient.Playlists.GetItems(playlistId, request);
-                offset += page.Limit;
-                toReturn.AddRange(page.Items.Select(x => (FullTrack)x.Track));
-            } while (toReturn.Count < page.Total);
-
+                toReturn.Add((FullTrack)playlistTrack.Track);
+            }
             return toReturn;
         }
     }
