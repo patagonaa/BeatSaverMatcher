@@ -34,7 +34,16 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: "./src/index.html",
             filename: "index.html",
-            chunks: ['vendor', 'app']
+            chunks: ['vendor', 'app'],
+            minify: {
+                collapseWhitespace: true,
+                keepClosingSlash: true,
+                removeComments: false,
+                removeRedundantAttributes: true,
+                removeScriptTypeAttributes: true,
+                removeStyleLinkTypeAttributes: true,
+                useShortDoctype: true
+            }
         }),
         new CopyWebpackPlugin({
             patterns: [
