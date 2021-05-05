@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using SpotifyAPI.Web;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BeatSaverMatcher.Web

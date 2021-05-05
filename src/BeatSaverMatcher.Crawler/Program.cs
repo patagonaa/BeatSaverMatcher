@@ -45,6 +45,7 @@ namespace BeatSaverMatcher.Crawler
             services.AddTransient<BeatSaverRepository>();
             services.AddTransient<IBeatSaberSongRepository, BeatSaberSongRepository>();
             services.AddHostedService<CrawlerHost>();
+            services.AddHostedService<MetricsServer>();
         }
     }
 }

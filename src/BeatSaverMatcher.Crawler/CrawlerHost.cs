@@ -3,6 +3,7 @@ using BeatSaverMatcher.Common.BeatSaver;
 using BeatSaverMatcher.Common.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Prometheus;
 using System;
 using System.Globalization;
 using System.Net;
@@ -20,6 +21,7 @@ namespace BeatSaverMatcher.Crawler
         private readonly IBeatSaberSongRepository _songRepository;
         private readonly BeatSaverRepository _beatSaverRepository;
         private readonly SemaphoreSlim _scrapeLock = new SemaphoreSlim(1, 1);
+        private readonly Counter _currentSongId = Metrics.CreateCounter("beatsaver_latest_song_id", "ID of the song that was most recently scraped", new CounterConfiguration { SuppressInitialValue = true });
 
         public CrawlerHost(ILogger<CrawlerHost> logger, IBeatSaberSongRepository songRepository, BeatSaverRepository beatSaverRepository)
         {
@@ -53,7 +55,12 @@ namespace BeatSaverMatcher.Crawler
             {
                 await _scrapeLock.WaitAsync();
 
-                var startId = (await _songRepository.GetLatestBeatSaverKey() ?? 0) + 1;
+                var lastScraped = await _songRepository.GetLatestBeatSaverKey() ?? 0;
+
+                _currentSongId.IncTo(lastScraped);
+
+                var startId = lastScraped + 1;
+
                 var endId = await _beatSaverRepository.GetLatestKey(_cts.Token);
                 _logger.LogInformation("Starting crawl at key {Key}", startId.ToString("x"));
                 for (int key = startId; key <= endId; key++)
@@ -74,6 +81,7 @@ namespace BeatSaverMatcher.Crawler
                         await _songRepository.InsertSong(mappedSong);
 
                         _logger.LogInformation("Inserted Song {Key}: {SongName}", key.ToString("x"), mappedSong.Name);
+                        _currentSongId.IncTo(key);
                     }
                     catch (WebException wex)
                     {
