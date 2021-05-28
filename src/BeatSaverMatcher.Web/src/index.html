@@ -15,6 +15,7 @@
                 Current State: <span data-bind="text: stateName()"></span> (<span data-bind="text: (workItem() && workItem().itemsProcessed) || 0"></span> / <span data-bind="text: (workItem() && workItem().itemsTotal) || 0"></span>)
             </div>
             <div data-bind="if: stateName() == 'Finished'">
+                <a data-bind="attr: {href: 'bsplaylist://playlist/'+playlistUri()}">Open selected as playlist</a><br />
                 <a data-bind="attr: {href: playlistUri}">Download selected as playlist</a><br />
                 <span data-bind="text: result().matchedSpotifySongs"></span> / <span data-bind="text: result().totalSpotifySongs"></span> matched!
                 <table class="table table-bordered">

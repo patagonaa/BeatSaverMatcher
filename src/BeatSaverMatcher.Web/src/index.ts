@@ -82,7 +82,7 @@ class AppViewModel {
                     keys.push(beatSaberMatch.beatSaverKey.toString(16));
             }
         }
-        var uri = `bsplaylist://playlist/${window.location.protocol}//${window.location.host}/api/ModSaberPlaylist/${keys.join(',')}/${this.playlistId()}.bplist`;
+        var uri = `${window.location.protocol}//${window.location.host}/api/ModSaberPlaylist/${keys.join(',')}/${this.playlistId()}.bplist`;
 
         this.playlistUri(uri);
     }
