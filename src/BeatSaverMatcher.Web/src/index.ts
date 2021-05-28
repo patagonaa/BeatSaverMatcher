@@ -5,7 +5,6 @@ import './style.css';
 class AppViewModel {
     public playlistId = ko.observable<string>();
     public playlistUri = ko.observable<string>('');
-    public playlistUrl = ko.observable<string>('');
     public stateName = ko.observable<string>('None');
     public workItem = ko.observable<WorkResultItem>();
     public result = ko.observable<SongMatchResult>();
@@ -83,11 +82,9 @@ class AppViewModel {
                     keys.push(beatSaberMatch.beatSaverKey.toString(16));
             }
         }
-        var uri = `bsplaylist://playlist/${window.location.protocol}//${window.location.host}/api/ModSaberPlaylist/${keys.join(',')}/${this.playlistId()}.bplist`;
-        var url = `${window.location.protocol}//${window.location.host}/api/ModSaberPlaylist/${keys.join(',')}/${this.playlistId()}.bplist`
+        var uri = `${window.location.protocol}//${window.location.host}/api/ModSaberPlaylist/${keys.join(',')}/${this.playlistId()}.bplist`;
 
         this.playlistUri(uri);
-        this.playlistUrl(url);
     }
 }
 
