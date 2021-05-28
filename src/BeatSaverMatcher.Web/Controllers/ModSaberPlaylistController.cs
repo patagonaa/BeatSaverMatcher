@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using BeatSaverMatcher.Web.Models;
 using BeatSaverMatcher.Web.Result;
@@ -39,6 +40,8 @@ namespace BeatSaverMatcher.Web.Controllers
                 var keysList = keys.Split(',');
                 beatmaps = beatmaps.Where(x => keysList.Contains(x.BeatSaverKey.ToString("x"))).ToList();
             }
+            var header = new ContentDispositionHeaderValue("attachment") { FileName = playlist.Id+".bplist", FileNameStar = playlist.Name+".bplist" };
+            Response.Headers.Add("Content-Disposition", header.ToString());
 
             return new ModSaberPlaylist
             {
