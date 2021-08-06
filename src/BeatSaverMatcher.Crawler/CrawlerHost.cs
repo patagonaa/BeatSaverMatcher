@@ -5,7 +5,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Prometheus;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -77,11 +79,13 @@ namespace BeatSaverMatcher.Crawler
                         }
 
                         var mappedSong = MapSong(song);
+                        if (mappedSong != null)
+                        {
+                            await _songRepository.InsertSong(mappedSong);
 
-                        await _songRepository.InsertSong(mappedSong);
-
-                        _logger.LogInformation("Inserted Song {Key}: {SongName}", key.ToString("x"), mappedSong.Name);
-                        _currentSongId.IncTo(key);
+                            _logger.LogInformation("Inserted Song {Key}: {SongName}", key.ToString("x"), mappedSong.Name);
+                            _currentSongId.IncTo(key);
+                        }
                     }
                     catch (WebException wex)
                     {
@@ -118,6 +122,14 @@ namespace BeatSaverMatcher.Crawler
 
         private BeatSaberSong MapSong(BeatSaverSong song)
         {
+            var currentVersion = song.Versions
+                .Where(x => x.State == "Published")
+                .OrderByDescending(x => x.CreatedAt)
+                .FirstOrDefault();
+
+            if (currentVersion == null)
+                return null;
+
             return new BeatSaberSong
             {
                 LevelAuthorName = song.Metadata.LevelAuthorName,
@@ -126,12 +138,12 @@ namespace BeatSaverMatcher.Crawler
                 SongSubName = song.Metadata.SongSubName,
                 Bpm = song.Metadata.Bpm,
                 Name = song.Name,
-                AutoMapper = song.Metadata.Automapper,
-                Difficulties = MapDifficulties(song.Metadata.Difficulties),
-                Uploader = song.Uploader.Username,
+                AutoMapper = song.Automapper ? song.Metadata.LevelAuthorName : null,
+                Difficulties = MapDifficulties(currentVersion.Diffs),
+                Uploader = song.Uploader.Name,
                 Uploaded = song.Uploaded,
-                Hash = MapHash(song.Hash),
-                BeatSaverKey = int.Parse(song.Key, NumberStyles.HexNumber)
+                Hash = MapHash(currentVersion.Hash),
+                BeatSaverKey = int.Parse(song.Id, NumberStyles.HexNumber)
             };
         }
 
@@ -143,18 +155,18 @@ namespace BeatSaverMatcher.Crawler
             return toReturn;
         }
 
-        private SongDifficulties MapDifficulties(BeatSaverDifficulties difficulties)
+        private SongDifficulties MapDifficulties(IList<BeatSaverDifficulty> difficulties)
         {
             SongDifficulties toReturn = 0;
-            if (difficulties.Easy)
+            if (difficulties.Any(x => x.Difficulty == BeatSaverDifficultyType.Easy))
                 toReturn |= SongDifficulties.Easy;
-            if (difficulties.Normal)
+            if (difficulties.Any(x => x.Difficulty == BeatSaverDifficultyType.Normal))
                 toReturn |= SongDifficulties.Normal;
-            if (difficulties.Hard)
+            if (difficulties.Any(x => x.Difficulty == BeatSaverDifficultyType.Hard))
                 toReturn |= SongDifficulties.Hard;
-            if (difficulties.Expert)
+            if (difficulties.Any(x => x.Difficulty == BeatSaverDifficultyType.Expert))
                 toReturn |= SongDifficulties.Expert;
-            if (difficulties.ExpertPlus)
+            if (difficulties.Any(x => x.Difficulty == BeatSaverDifficultyType.ExpertPlus))
                 toReturn |= SongDifficulties.ExpertPlus;
             return toReturn;
         }

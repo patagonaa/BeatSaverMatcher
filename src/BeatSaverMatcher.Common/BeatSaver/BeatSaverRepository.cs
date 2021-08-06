@@ -23,7 +23,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
         {
             return await DoWithRetries(async () =>
             {
-                var request = WebRequest.CreateHttp($"https://beatsaver.com/api/maps/latest/0?automapper=1");
+                var request = WebRequest.CreateHttp($"https://beatsaver.com/api/search/text/0?sortOrder=Latest&automapper=true");
                 request.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36");
                 request.Headers.Add("sec-fetch-mode", "navigate");
                 request.Headers.Add("sec-fetch-user", "?1");
@@ -36,7 +36,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
                     page = JsonConvert.DeserializeObject<BeatSaverSongPage>(sr.ReadToEnd());
                 }
 
-                return int.Parse(page.Docs[0].Key, NumberStyles.HexNumber);
+                return int.Parse(page.Docs[0].Id, NumberStyles.HexNumber);
             }, token);
         }
 
@@ -46,7 +46,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
             {
                 try
                 {
-                    var request = WebRequest.CreateHttp($"https://beatsaver.com/api/maps/detail/{key:x}");
+                    var request = WebRequest.CreateHttp($"https://beatsaver.com/api/maps/id/{key:x}");
                     request.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36");
                     request.Headers.Add("sec-fetch-mode", "navigate");
                     request.Headers.Add("sec-fetch-user", "?1");

@@ -100,9 +100,9 @@ namespace BeatSaverMatcher.Web
                             var stats = await _statsService.GetStats(beatmap.BeatSaverKey);
                             if (stats != null)
                             {
-                                beatmap.Rating = stats.Rating;
-                                beatmap.UpVotes = stats.UpVotes;
-                                beatmap.DownVotes = stats.DownVotes;
+                                beatmap.Rating = stats.Score;
+                                beatmap.UpVotes = stats.Upvotes;
+                                beatmap.DownVotes = stats.Downvotes;
                                 foundBeatMaps.Add(beatmap);
                             }
                             // don't add beatmap if it wasn't found online (was deleted)
