@@ -30,7 +30,7 @@ namespace BeatSaverMatcher.Web
         {
             try
             {
-                _logger.LogInformation("Loading Spotify Songs");
+                _logger.LogInformation("Loading Spotify Songs for Playlist {PlaylistId}", item.PlaylistId);
                 item.State = SongMatchState.LoadingSpotifySongs;
                 item.ItemsTotal = 1;
                 item.ItemsProcessed = 0;
@@ -84,6 +84,8 @@ namespace BeatSaverMatcher.Web
                     item.ItemsProcessed++;
                 }
 
+                _logger.LogInformation("Found {MatchCount} / {TrackCount} Songs!", matches.Count, tracks.Count);
+
                 _logger.LogInformation("Loading Beatmap Ratings");
                 item.State = SongMatchState.LoadingBeatMapRatings;
 
@@ -127,7 +129,7 @@ namespace BeatSaverMatcher.Web
                     MatchedSpotifySongs = matches.Count,
                     Matches = matches
                 };
-                _logger.LogInformation("Found {MatchCount} / {TrackCount} Songs!", matches.Count, tracks.Count);
+                _logger.LogInformation("Done.");
                 item.State = SongMatchState.Finished;
             }
             catch (Exception ex)

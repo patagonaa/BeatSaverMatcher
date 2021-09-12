@@ -38,7 +38,7 @@ namespace BeatSaverMatcher.Web
                 try
                 {
                     _itemStore.DoCleanup();
-                    _logger.LogInformation("Cleanup successful!");
+                    _logger.LogDebug("Cleanup successful!");
                 }
                 catch (Exception ex)
                 {

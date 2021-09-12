@@ -23,7 +23,6 @@ namespace BeatSaverMatcher.Common.BeatSaver
 
         public async Task<BeatSaverStats> GetStats(int key)
         {
-
             var cached = await _cache.GetStringAsync(CacheKeys.GetForBeatmapStats(key));
             if (cached == null)
             {
