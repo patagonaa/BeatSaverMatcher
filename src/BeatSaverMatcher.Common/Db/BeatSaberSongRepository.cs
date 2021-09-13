@@ -17,8 +17,8 @@ namespace BeatSaverMatcher.Common
 
         public async Task<IList<BeatSaberSong>> GetMatches(string artistName, string trackName, bool allowAutomapped)
         {
-            artistName = "\"" + new string(artistName.Where(x => x != '"').ToArray()) + "\"";
-            trackName = "\"" + new string(trackName.Where(x => x != '"').ToArray()) + "\"";
+            artistName = "\"" + new string(artistName.Where(x => x != '"' && x != '*').ToArray()) + "\"";
+            trackName = "\"" + new string(trackName.Where(x => x != '"' && x != '*').ToArray()) + "\"";
             using (var connection = GetConnection())
             {
                 var query = allowAutomapped ?

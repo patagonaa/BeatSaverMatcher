@@ -57,20 +57,36 @@ namespace BeatSaverMatcher.Web
 
                     if (track.Artists.Count == 1)
                     {
-                        var directMatches = await _songRepository.GetMatches(track.Artists[0].Name, track.Name, false);
-                        foreach (var beatmap in directMatches)
+                        try
                         {
-                            beatmaps.Add(beatmap);
+                            var directMatches = await _songRepository.GetMatches(track.Artists[0].Name, track.Name, false);
+                            foreach (var beatmap in directMatches)
+                            {
+                                beatmaps.Add(beatmap);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Error while searching song in DB: {ArtistName} - {SongName}", track.Artists[0].Name, track.Name);
+                            continue;
                         }
                     }
                     else
                     {
                         foreach (var artist in track.Artists)
                         {
-                            var directMatches = await _songRepository.GetMatches(artist.Name, track.Name, false);
-                            foreach (var beatmap in directMatches)
+                            try
                             {
-                                beatmaps.Add(beatmap);
+                                var directMatches = await _songRepository.GetMatches(artist.Name, track.Name, false);
+                                foreach (var beatmap in directMatches)
+                                {
+                                    beatmaps.Add(beatmap);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogWarning(ex, "Error while searching song in DB: {ArtistName} - {SongName}", artist.Name, track.Name);
+                                continue;
                             }
                         }
                     }
