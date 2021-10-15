@@ -9,7 +9,7 @@
     <div id="main">
         <div class="container-fluid">
             Spotify playlist link, URI or ID (Note: Automapped Beatmaps are ignored):
-            <input type="text" data-bind="value: playlistId" />
+            <input type="text" data-bind="textInput: playlistId, event: {keypress: uriKeyPress}" />
             <button data-bind="click: run, enable: (stateName() == 'None' || stateName() == 'Finished')">Run!</button>
             <div data-bind="if: stateName() != 'Finished'">
                 Current State: <span data-bind="text: stateName()"></span> (<span data-bind="text: (workItem() && workItem().itemsProcessed) || 0"></span> / <span data-bind="text: (workItem() && workItem().itemsTotal) || 0"></span>)

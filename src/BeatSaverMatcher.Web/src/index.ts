@@ -9,6 +9,13 @@ class AppViewModel {
     public workItem = ko.observable<WorkResultItem>();
     public result = ko.observable<SongMatchResult>();
 
+    public uriKeyPress(data: this, event: KeyboardEvent) {
+        if (event.which == 13) {
+            this.run();
+        }
+        return true;
+    }
+
     public async run() {
         let matches = this.playlistId().match(/playlist[\/:]([\w]+)(?:\?.+)?$/);
 
