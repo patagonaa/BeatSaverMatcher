@@ -35,7 +35,9 @@ namespace BeatSaverMatcher.Web
                 item.ItemsTotal = 1;
                 item.ItemsProcessed = 0;
 
-                var tracks = await _spotifyRepository.GetTracksForPlaylist(item.PlaylistId);
+                var tracks = (await _spotifyRepository.GetTracksForPlaylist(item.PlaylistId))
+                    .Where(x => x != null)
+                    .ToList();
 
                 _logger.LogInformation("Finding Beatmaps");
                 item.State = SongMatchState.SearchingBeatMaps;
