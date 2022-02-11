@@ -17,7 +17,7 @@ class AppViewModel {
     }
 
     public async run() {
-        let matches = this.playlistId().match(/playlist[\/:]([\w]+)(?:\?.+)?$/);
+        let matches = this.playlistId().match(/(?:playlist[\/:])?([\w]+)(?:\?.+)?$/);
 
         if (matches) {
             this.playlistId(matches[1]);
