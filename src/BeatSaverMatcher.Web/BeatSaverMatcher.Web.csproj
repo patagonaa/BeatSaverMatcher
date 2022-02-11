@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     </PropertyGroup>
 
     <ItemGroup>
-      <Content Remove="config\appSettings.json" />
+        <Content Remove="config\appSettings.json" />
     </ItemGroup>
 
     <ItemGroup>
@@ -15,21 +15,21 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Include="config\appSettings.json" />
+        <None Include="config\appSettings.json" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
         <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
         <PackageReference Include="Serilog" Version="2.10.0" />
-        <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
-        <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
-        <PackageReference Include="SpotifyAPI.Web" Version="6.2.0" />
+        <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
+        <PackageReference Include="SpotifyAPI.Web" Version="6.2.2" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BeatSaverMatcher.Common\BeatSaverMatcher.Common.csproj" />
+        <ProjectReference Include="..\BeatSaverMatcher.Common\BeatSaverMatcher.Common.csproj" />
     </ItemGroup>
 
     <Target Name="RunWebpack" AfterTargets="Build">
