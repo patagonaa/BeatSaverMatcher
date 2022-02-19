@@ -129,6 +129,7 @@ namespace BeatSaverMatcher.Web
                         }
                         catch (TimeoutException)
                         {
+                            _logger.LogInformation("Timeout while getting stats for 0x{BeatMapKey}", beatmap.BeatSaverKey.ToString("x"));
                             foundBeatMaps.Add(beatmap);
                         }
                         catch (Exception ex)

@@ -24,50 +24,49 @@ namespace BeatSaverMatcher.Common.BeatSaver
         public async Task<BeatSaverStats> GetStats(int key)
         {
             var cached = await _cache.GetStringAsync(CacheKeys.GetForBeatmapStats(key));
-            if (cached == null)
+            if (cached != null)
             {
-                _logger.LogInformation("Loading Stats for Song 0x{SongKey:x}", key);
-                BeatSaverSong song;
-                try
-                {
-                    using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20)))
-                    {
-                        song = await _beatSaverRepository.GetSong(key, cts.Token);
-                    }
-                }
-                catch (TaskCanceledException)
-                {
-                    throw new TimeoutException();
-                }
-                if (song == null)
-                    return null;
+                _logger.LogDebug("Got Stats for Song 0x{SongKey:x} from cache", key);
+                return JsonConvert.DeserializeObject<BeatSaverStats>(cached);
+            }
 
-                TimeSpan cacheTime;
-                if (song.Uploaded < (DateTime.UtcNow - TimeSpan.FromDays(365)))
+            _logger.LogInformation("Loading Stats for Song 0x{SongKey:x}", key);
+            BeatSaverSong song;
+            try
+            {
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20)))
                 {
-                    cacheTime = TimeSpan.FromDays(30);
+                    song = await _beatSaverRepository.GetSong(key, cts.Token);
                 }
-                else if (song.Uploaded < (DateTime.UtcNow - TimeSpan.FromDays(90)))
-                {
-                    cacheTime = TimeSpan.FromDays(14);
-                }
-                else if (song.Uploaded < (DateTime.UtcNow - TimeSpan.FromDays(30)))
-                {
-                    cacheTime = TimeSpan.FromDays(7);
-                }
-                else
-                {
-                    cacheTime = TimeSpan.FromDays(1);
-                }
+            }
+            catch (TaskCanceledException)
+            {
+                throw new TimeoutException();
+            }
+            if (song == null)
+                return null;
 
-                var options = new DistributedCacheEntryOptions().SetAbsoluteExpiration(cacheTime);
-                await _cache.SetStringAsync(CacheKeys.GetForBeatmapStats(key), JsonConvert.SerializeObject(song.Stats), options);
-                return song.Stats;
+            TimeSpan cacheTime;
+            if (song.Uploaded < (DateTime.UtcNow - TimeSpan.FromDays(365)))
+            {
+                cacheTime = TimeSpan.FromDays(30);
+            }
+            else if (song.Uploaded < (DateTime.UtcNow - TimeSpan.FromDays(90)))
+            {
+                cacheTime = TimeSpan.FromDays(14);
+            }
+            else if (song.Uploaded < (DateTime.UtcNow - TimeSpan.FromDays(30)))
+            {
+                cacheTime = TimeSpan.FromDays(7);
             }
             else
             {
-                return JsonConvert.DeserializeObject<BeatSaverStats>(cached);
+                cacheTime = TimeSpan.FromDays(1);
             }
+
+            var options = new DistributedCacheEntryOptions().SetAbsoluteExpiration(cacheTime);
+            await _cache.SetStringAsync(CacheKeys.GetForBeatmapStats(key), JsonConvert.SerializeObject(song.Stats), options);
+            return song.Stats;
         }
     }
 }
