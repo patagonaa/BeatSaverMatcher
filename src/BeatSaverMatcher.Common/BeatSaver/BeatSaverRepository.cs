@@ -94,6 +94,12 @@ namespace BeatSaverMatcher.Common.BeatSaver
 
                     if ((int)response.StatusCode == 429) // Too Many Requests
                     {
+                        if (_logger.IsEnabled(LogLevel.Debug))
+                        {
+                            var allHeaders = Environment.NewLine + string.Join(Environment.NewLine, response.Headers.AllKeys.Select(headerKey => $"{headerKey}: {response.Headers[headerKey]}"));
+                            _logger.LogDebug("Error 429 Too Many Requests. Headers: {Headers}", allHeaders);
+                        }
+
                         var timeout = TimeSpan.Zero;
                         if (response.Headers.AllKeys.Contains("Rate-Limit-Reset") && int.TryParse(response.Headers["Rate-Limit-Reset"], out int epochReset))
                         {
