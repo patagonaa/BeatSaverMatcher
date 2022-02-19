@@ -6,21 +6,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Content Remove="config\appSettings.json" />
-        <Content Remove="config\logging.json" />
-    </ItemGroup>
-
-    <ItemGroup>
         <Folder Include="src\" />
         <Folder Include="wwwroot\" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="config\appSettings.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Include="config\logging.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Content Remove="config\*.json" />
+        <None Include="config\*.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 

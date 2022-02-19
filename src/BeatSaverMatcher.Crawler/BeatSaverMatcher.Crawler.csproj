@@ -7,7 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Remove="config\appSettings.example.json" />
+        <Content Remove="config\*.json" />
+        <None Include="config\*.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
@@ -24,22 +27,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BeatSaverMatcher.Common\BeatSaverMatcher.Common.csproj" />
+        <ProjectReference Include="..\BeatSaverMatcher.Common\BeatSaverMatcher.Common.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="config\appSettings.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="config\logging.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </None>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="BeatSaverModels\" />
+        <Folder Include="BeatSaverModels\" />
     </ItemGroup>
 
 </Project>
