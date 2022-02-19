@@ -3,8 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using Serilog.Events;
-using Serilog.Filters;
 
 namespace BeatSaverMatcher.Web
 {
@@ -20,8 +18,9 @@ namespace BeatSaverMatcher.Web
             return Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration(config =>
                     config
-                    .AddEnvironmentVariables()
-                    .AddJsonFile("./config/appSettings.json", optional: true))
+                    .AddJsonFile("./config/appSettings.json", optional: true)
+                    .AddJsonFile("./config/logging.json", optional: true)
+                    .AddEnvironmentVariables())
                 .ConfigureLogging(ConfigureLogging)
                 .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
         }
@@ -31,9 +30,7 @@ namespace BeatSaverMatcher.Web
             loggingBuilder.ClearProviders();
 
             Log.Logger = new LoggerConfiguration()
-                .Enrich.FromLogContext()
-                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-                .WriteTo.Console()
+                .ReadFrom.Configuration(hostContext.Configuration)
                 .CreateLogger();
             loggingBuilder.AddSerilog(Log.Logger);
         }

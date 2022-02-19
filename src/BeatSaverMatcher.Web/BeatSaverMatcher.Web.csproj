@@ -7,6 +7,7 @@
 
     <ItemGroup>
         <Content Remove="config\appSettings.json" />
+        <Content Remove="config\logging.json" />
     </ItemGroup>
 
     <ItemGroup>
@@ -15,7 +16,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="config\appSettings.json" />
+        <None Include="config\appSettings.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Include="config\logging.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
@@ -24,6 +30,7 @@
         <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
         <PackageReference Include="Serilog" Version="2.10.0" />
         <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
+        <PackageReference Include="Serilog.Settings.Configuration" Version="3.3.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
         <PackageReference Include="SpotifyAPI.Web" Version="6.2.2" />
     </ItemGroup>

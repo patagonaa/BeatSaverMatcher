@@ -25,8 +25,7 @@ namespace BeatSaverMatcher.Crawler
             loggingBuilder.ClearProviders();
 
             Log.Logger = new LoggerConfiguration()
-                .Enrich.FromLogContext()
-                .WriteTo.Console()
+                .ReadFrom.Configuration(hostContext.Configuration)
                 .CreateLogger();
             loggingBuilder.AddSerilog(Log.Logger);
         }
@@ -34,8 +33,9 @@ namespace BeatSaverMatcher.Crawler
         private static void ConfigureAppConfiguration(HostBuilderContext ctx, IConfigurationBuilder configBuilder)
         {
             configBuilder
-                .AddEnvironmentVariables()
                 .AddJsonFile("./config/appSettings.json", optional: true)
+                .AddJsonFile("./config/logging.json", optional: true)
+                .AddEnvironmentVariables()
                 .Build();
         }
 

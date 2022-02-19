@@ -1,0 +1,12 @@
+{
+    "Serilog": {
+        "Using": [ "Serilog.Sinks.Console" ],
+        "MinimumLevel": {
+            "Default": "Information"
+        },
+        "WriteTo": [
+            { "Name": "Console" }
+        ],
+        "Enrich": [ "FromLogContext" ]
+    }
+}
