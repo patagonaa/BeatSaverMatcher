@@ -33,11 +33,20 @@ namespace BeatSaverMatcher.Web
 
             services.AddSingleton<MetricsMiddleware>();
 
-            services.AddDistributedRedisCache(options =>
+            var hasRedisConnection = !string.IsNullOrEmpty(Configuration["RedisConnection"]);
+
+            if (hasRedisConnection)
             {
-                options.Configuration = Configuration["RedisConnection"];
-                options.InstanceName = "BeatSaverMatcher";
-            });
+                services.AddDistributedRedisCache(options =>
+                {
+                    options.Configuration = Configuration["RedisConnection"];
+                    options.InstanceName = "BeatSaverMatcher";
+                });
+            }
+            else
+            {
+                services.AddDistributedMemoryCache();
+            }
 
             services.Configure<DbConfiguration>(Configuration);
             services.AddTransient<IBeatSaberSongRepository, BeatSaberSongRepository>();
