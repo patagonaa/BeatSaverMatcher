@@ -1,6 +1,14 @@
 ﻿body {
 }
 
+form {
+    max-width: 600px;
+}
+
+.subtitle {
+    margin-top: -0.375rem;
+}
+
 span.badge.is-easy {
     color: #fff;
     background-color: #3cb371;

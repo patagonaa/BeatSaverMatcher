@@ -3,16 +3,25 @@
 <head>
     <meta charset="utf-8" />
     <title>BeatSaverMatcher</title>
-    <link rel="shortcut icon" type="image/x-icon" href="icon.png">
+    <meta name="description" content="A web app to match Spotify playlists to Beatsaber songs from Beatsaver" />
+    <meta name="keywords" content="spotify, beatsaber, beat saber, beatsaver, beat saver, playlist, beatsaver.com" />
+    <link rel="shortcut icon" type="image/x-icon" href="icon.png" />
 </head>
 <body>
     <div id="main">
         <div class="container-fluid">
-            Spotify playlist link, URI or ID (Note: Automapped Beatmaps are ignored):
-            <input type="text" data-bind="textInput: playlistId, event: {keypress: uriKeyPress}" />
-            <button data-bind="click: run, enable: (stateName() == 'None' || stateName() == 'Finished')">Run!</button>
-            <div data-bind="if: stateName() != 'Finished'">
-                Current State: <span data-bind="text: stateName()"></span> (<span data-bind="text: (workItem() && workItem().itemsProcessed) || 0"></span> / <span data-bind="text: (workItem() && workItem().itemsTotal) || 0"></span>)
+            <h1>BeatSaverMatcher</h1>
+            <h6 class="subtitle text-muted">Match Spotify playlists to songs on beatsaver.com</h6>
+            <form>
+                <div class="form-group">
+                    <label for="urlInput">Spotify playlist link, URI or ID:</label>
+                    <input id="urlInput" class="form-control" type="text" data-bind="textInput: playlistId, event: {keypress: uriKeyPress}, enable: (stateName() == 'None' || stateName() == 'Finished')" placeholder="https://open.spotify.com/playlist/xxxxxxxxxxxxxxxxxxxxxx" />
+                    <small class="form-text text-muted">Note: Automapped Beatmaps are ignored</small>
+                </div>
+                <button class="btn btn-primary" data-bind="click: run, enable: (stateName() == 'None' || stateName() == 'Finished')">Run!</button>
+            </form>
+            <div data-bind="if: stateName() != 'Finished' && stateName() != 'None'">
+                Status: <span data-bind="text: stateName()"></span> (<span data-bind="text: (workItem() && workItem().itemsProcessed) || 0"></span> / <span data-bind="text: (workItem() && workItem().itemsTotal) || 0"></span>)
             </div>
             <div data-bind="if: stateName() == 'Finished'">
                 <a data-bind="attr: {href: 'bsplaylist://playlist/'+playlistUri()}">Open selected as playlist</a><br />
