@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title>BeatSaverMatcher</title>
     <meta name="description" content="A web app to match Spotify playlists to Beatsaber songs from Beatsaver" />
-    <meta name="keywords" content="spotify, beatsaber, beat saber, beatsaver, beat saver, playlist, beatsaver.com" />
+    <meta name="keywords" content="spotify, beatsaber, beat saber, beatsaver, beat saver, playlist, beatsaver.com, modassistant" />
     <link rel="shortcut icon" type="image/x-icon" href="icon.png" />
 </head>
 <body>
@@ -14,14 +14,15 @@
             <h6 class="subtitle text-muted">Match Spotify playlists to songs on beatsaver.com</h6>
             <form>
                 <div class="form-group">
-                    <label for="urlInput">Spotify playlist link, URI or ID:</label>
+                    <label for="urlInput">Spotify playlist link or playlist URI:</label>
                     <input id="urlInput" class="form-control" type="text" data-bind="textInput: playlistId, event: {keypress: uriKeyPress}, enable: (stateName() == 'None' || stateName() == 'Finished')" placeholder="https://open.spotify.com/playlist/xxxxxxxxxxxxxxxxxxxxxx" />
                     <small class="form-text text-muted">Note: Automapped Beatmaps are ignored</small>
                 </div>
                 <button class="btn btn-primary" data-bind="click: run, enable: (stateName() == 'None' || stateName() == 'Finished')">Run!</button>
             </form>
             <div data-bind="if: stateName() != 'Finished' && stateName() != 'None'">
-                Status: <span data-bind="text: stateName()"></span> (<span data-bind="text: (workItem() && workItem().itemsProcessed) || 0"></span> / <span data-bind="text: (workItem() && workItem().itemsTotal) || 0"></span>)
+                Status: <span data-bind="text: stateName()"></span><br />
+                <progress data-bind="attr: {value: (workItem() && workItem().itemsProcessed) || 0, max: (workItem() && workItem().itemsTotal) || 1}"></progress>&nbsp;(<span data-bind="text: (workItem() && workItem().itemsProcessed) || 0"></span> / <span data-bind="text: (workItem() && workItem().itemsTotal) || 0"></span>)
             </div>
             <div data-bind="if: stateName() == 'Finished'">
                 <a data-bind="attr: {href: 'bsplaylist://playlist/'+playlistUri()}">Open selected as playlist</a><br />
@@ -75,7 +76,18 @@
                     <!-- /ko -->
                 </table>
             </div>
-            <a href="https://github.com/patagonaa/BeatSaverMatcher">https://github.com/patagonaa/BeatSaverMatcher</a>
+            <hr />
+            <div class="links">
+                <a href="https://patagona.dev/" target="_blank">Website</a>
+                <a href="https://github.com/patagonaa/BeatSaverMatcher" target="_blank">Github</a>
+                <a href="https://twitter.com/patagona" target="_blank">Twitter</a>
+            </div>
+            <div>
+                <small>
+                    <a href="https://patagona.dev/datenschutz.html" target="_blank">Privacy policy (DE)</a><br />
+                    TLDR: everything your browser transmits (your IP, your browser, form data, etc.) is transferred encrypted and may be logged, for example to fix bugs in this software.
+                </small>
+            </div>
         </div>
     </div>
 </body>

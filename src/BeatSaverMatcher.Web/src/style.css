@@ -5,6 +5,15 @@ form {
     max-width: 600px;
 }
 
+progress {
+    vertical-align: middle;
+}
+
+.links a {
+    display: inline-block;
+    margin: 0 5px 0 0;
+}
+
 .subtitle {
     margin-top: -0.375rem;
 }
