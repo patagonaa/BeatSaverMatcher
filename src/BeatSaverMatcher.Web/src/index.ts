@@ -29,10 +29,15 @@ class AppViewModel {
         });
 
         var result: SongMatchResult;
-
+        var item: WorkResultItem = null;
         while (result == null) {
-            var response = await fetch(`/api/Matches/${this.playlistId()}`);
-            var item = <WorkResultItem>await response.json();
+            try {
+                var response = await fetch(`/api/Matches/${this.playlistId()}`);
+                item = <WorkResultItem>await response.json();
+            } catch (e) {
+                item.state = SongMatchState.Error;
+            }
+
             this.workItem(item);
             if (item.state == SongMatchState.Error) {
                 this.stateName(SongMatchState[item.state]);
