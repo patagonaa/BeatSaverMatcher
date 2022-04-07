@@ -33,11 +33,11 @@ namespace BeatSaverMatcher.Common.BeatSaver
                     return null;
                 }
 
-                _logger.LogDebug("Got Stats for Song 0x{SongKey:x} from cache", key);
+                _logger.LogDebug("Got stats for song 0x{SongKey:x} from cache", key);
                 return JsonConvert.DeserializeObject<BeatSaverStats>(cached);
             }
 
-            _logger.LogInformation("Loading Stats for Song 0x{SongKey:x}", key);
+            _logger.LogInformation("Loading stats for song 0x{SongKey:x}", key);
             BeatSaverSong song;
             try
             {

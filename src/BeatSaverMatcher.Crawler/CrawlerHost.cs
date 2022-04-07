@@ -83,7 +83,7 @@ namespace BeatSaverMatcher.Crawler
                         {
                             await _songRepository.InsertSong(mappedSong);
 
-                            _logger.LogInformation("Inserted Song {Key}: {SongName}", key.ToString("x"), mappedSong.Name);
+                            _logger.LogInformation("Inserted song {Key}: {SongName}", key.ToString("x"), mappedSong.Name);
                             _currentSongId.IncTo(key);
                         }
                     }

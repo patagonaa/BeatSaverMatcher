@@ -30,7 +30,7 @@ namespace BeatSaverMatcher.Web
         {
             try
             {
-                _logger.LogInformation("Loading Spotify Songs for Playlist {PlaylistId}", item.PlaylistId);
+                _logger.LogInformation("Loading Spotify songs for playlist {PlaylistId}", item.PlaylistId);
                 item.State = SongMatchState.LoadingSpotifySongs;
                 item.ItemsTotal = 1;
                 item.ItemsProcessed = 0;
@@ -39,7 +39,7 @@ namespace BeatSaverMatcher.Web
                     .Where(x => x != null)
                     .ToList();
 
-                _logger.LogInformation("Finding Beatmaps");
+                _logger.LogInformation("Finding beatmaps");
                 item.State = SongMatchState.SearchingBeatMaps;
 
                 var matches = new List<SongMatch>();
@@ -102,9 +102,9 @@ namespace BeatSaverMatcher.Web
                     item.ItemsProcessed++;
                 }
 
-                _logger.LogInformation("Found {MatchCount} / {TrackCount} Songs!", matches.Count, tracks.Count);
+                _logger.LogInformation("Found {MatchCount} / {TrackCount} songs!", matches.Count, tracks.Count);
 
-                _logger.LogInformation("Loading Beatmap Ratings");
+                _logger.LogInformation("Loading beatmap ratings");
                 item.State = SongMatchState.LoadingBeatMapRatings;
 
                 item.ItemsTotal = matches.SelectMany(x => x.BeatMaps).Count();
@@ -134,7 +134,7 @@ namespace BeatSaverMatcher.Web
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogError(ex, "Error while loading Beatmap Stats for 0x{BeatMapKey}", beatmap.BeatSaverKey.ToString("x"));
+                            _logger.LogError(ex, "Error while loading beatmap stats for 0x{BeatMapKey}", beatmap.BeatSaverKey.ToString("x"));
                         }
 
                         item.ItemsProcessed++;
@@ -154,7 +154,7 @@ namespace BeatSaverMatcher.Web
             catch (Exception ex)
             {
                 item.State = SongMatchState.Error;
-                _logger.LogError(ex, "Error while Matching!");
+                _logger.LogError(ex, "Error while matching!");
             }
         }
     }

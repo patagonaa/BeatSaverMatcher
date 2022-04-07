@@ -32,7 +32,7 @@ namespace BeatSaverMatcher.Common
             }
             catch (HttpListenerException ex)
             {
-                _logger.LogWarning(ex, "Metrics Server could not be started");
+                _logger.LogWarning(ex, "Metrics server could not be started");
             }
         }
 
