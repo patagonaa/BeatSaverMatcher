@@ -15,10 +15,10 @@
             <form>
                 <div class="form-group">
                     <label for="urlInput">Spotify playlist link or playlist URI:</label>
-                    <input id="urlInput" class="form-control" type="text" data-bind="textInput: playlistId, event: {keypress: uriKeyPress}, enable: (stateName() == 'None' || stateName() == 'Finished')" placeholder="https://open.spotify.com/playlist/xxxxxxxxxxxxxxxxxxxxxx" />
+                    <input id="urlInput" class="form-control" type="text" data-bind="textInput: playlistId, enable: (stateName() == 'None' || stateName() == 'Finished')" placeholder="https://open.spotify.com/playlist/xxxxxxxxxxxxxxxxxxxxxx" />
                     <small class="form-text text-muted">Note: Automapped Beatmaps are ignored</small>
                 </div>
-                <button class="btn btn-primary" data-bind="click: run, enable: (stateName() == 'None' || stateName() == 'Finished')">Run!</button>
+                <button type="submit" class="btn btn-primary" data-bind="click: run, enable: (stateName() == 'None' || stateName() == 'Finished')">Run!</button>
             </form>
             <div data-bind="if: stateName() != 'Finished' && stateName() != 'None'">
                 Status: <span data-bind="text: stateName()"></span><br />
