@@ -1,6 +1,8 @@
 # BeatSaverMatcher
 Web app to match Beat Saber beatmaps to Spotify playlists.
 
+Currently hosted at [beat-saver-matcher.uwu.industries](https://beat-saver-matcher.uwu.industries/)
+
 ## Features
 - find all Beatsaver beatmaps for each song in a Spotify playlist
 - progress indicator
