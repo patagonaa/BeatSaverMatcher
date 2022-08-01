@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.web
+    ports:
+      - "8080:80"
     environment:
       - "Spotity__ClientId="
       - "Spotity__ClientSecret="
