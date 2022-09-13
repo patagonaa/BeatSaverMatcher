@@ -5,6 +5,8 @@ import './style.css';
 class AppViewModel {
     public playlistId = ko.observable<string>();
     public playlistUri = ko.observable<string>('');
+    public preferredDifficulties = ko.observableArray<string>(['1', '2', '4', '8', '16']);
+    public preferredDifficultiesFlags = ko.computed(() => this.preferredDifficulties().map(x => +x).reduce((a, b) => a | b, 0));
     public stateName = ko.observable<string>('None');
     public workItem = ko.observable<WorkResultItem>();
     public result = ko.observable<SongMatchResult>();
@@ -45,17 +47,13 @@ class AppViewModel {
         }
 
         for (let match of result.matches) {
-            let first = true;
-            for (let beatSaberMatch of match.beatMaps) {
-                if (first) {
-                    beatSaberMatch.selected = ko.observable(true);
-                    first = false;
-                } else {
-                    beatSaberMatch.selected = ko.observable(false);
-                }
+            match.beatMaps.forEach(x => x.selected = ko.observable(false));
 
-                beatSaberMatch.selected.subscribe(() => this.updatePlaylistUri());
-            }
+            let firstPreferredDifficulty = match.beatMaps.find(x => (x.difficulties & this.preferredDifficultiesFlags()) > 0);
+            if (firstPreferredDifficulty != null)
+                firstPreferredDifficulty.selected(true);
+
+            match.beatMaps.forEach(x => x.selected.subscribe(() => this.updatePlaylistUri()));
         }
         this.result(result);
         this.updatePlaylistUri();

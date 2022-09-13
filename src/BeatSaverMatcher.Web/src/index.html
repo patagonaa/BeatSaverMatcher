@@ -18,6 +18,30 @@
                     <input id="urlInput" class="form-control" type="text" data-bind="textInput: playlistId, enable: (stateName() == 'None' || stateName() == 'Finished')" placeholder="https://open.spotify.com/playlist/xxxxxxxxxxxxxxxxxxxxxx" />
                     <small class="form-text text-muted">Note: Automapped Beatmaps are ignored</small>
                 </div>
+                <div class="form-group">
+                    <label>Preferred difficulty:</label>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="preferred_easy" value="1" data-bind="checked: preferredDifficulties" />
+                        <label class="form-check-label" for="preferred_easy">Easy</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="preferred_normal" value="2" data-bind="checked: preferredDifficulties" />
+                        <label class="form-check-label" for="preferred_normal">Normal</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="preferred_hard" value="4" data-bind="checked: preferredDifficulties" />
+                        <label class="form-check-label" for="preferred_hard">Hard</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="preferred_expert" value="8" data-bind="checked: preferredDifficulties" />
+                        <label class="form-check-label" for="preferred_expert">Expert</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="preferred_expertplus" value="16" data-bind="checked: preferredDifficulties" />
+                        <label class="form-check-label" for="preferred_expertplus">ExpertPlus</label>
+                    </div>
+                    <small class="text-muted">Beatmaps with other difficulties will still be shown, but not preselected</small>
+                </div>
                 <button type="submit" class="btn btn-primary" data-bind="click: run, enable: (stateName() == 'None' || stateName() == 'Finished')">Run!</button>
             </form>
             <div data-bind="if: stateName() != 'Finished' && stateName() != 'None'">
