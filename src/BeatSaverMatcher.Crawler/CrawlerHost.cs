@@ -41,8 +41,7 @@ namespace BeatSaverMatcher.Crawler
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             cancellationToken.Register(() => _cts.Cancel());
-            await Worker();
-            _timer.Start();
+            _ = Task.Run(() => Worker()).ContinueWith(x => _timer.Start());
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
