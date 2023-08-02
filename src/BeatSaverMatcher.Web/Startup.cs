@@ -37,7 +37,7 @@ namespace BeatSaverMatcher.Web
 
             if (hasRedisConnection)
             {
-                services.AddDistributedRedisCache(options =>
+                services.AddStackExchangeRedisCache(options =>
                 {
                     options.Configuration = Configuration["RedisConnection"];
                     options.InstanceName = "BeatSaverMatcher";
