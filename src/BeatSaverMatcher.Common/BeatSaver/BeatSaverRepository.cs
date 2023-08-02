@@ -62,8 +62,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
                 }
                 catch (WebException wex)
                 {
-                    var response = wex.Response as HttpWebResponse;
-                    if (response == null)
+                    if (!(wex.Response is HttpWebResponse response))
                         throw;
 
                     if (response.StatusCode == HttpStatusCode.NotFound)

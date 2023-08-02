@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BeatSaverMatcher.Web
@@ -26,7 +27,7 @@ namespace BeatSaverMatcher.Web
             _logger = logger;
         }
 
-        public async Task GetMatches(WorkResultItem item)
+        public async Task GetMatches(WorkResultItem item, CancellationToken cancellationToken)
         {
             try
             {
@@ -35,7 +36,7 @@ namespace BeatSaverMatcher.Web
                 item.ItemsTotal = 1;
                 item.ItemsProcessed = 0;
 
-                var tracks = (await _spotifyRepository.GetTracksForPlaylist(item.PlaylistId))
+                var tracks = (await _spotifyRepository.GetTracksForPlaylist(item.PlaylistId, cancellationToken))
                     .Where(x => x != null)
                     .ToList();
 
@@ -49,6 +50,7 @@ namespace BeatSaverMatcher.Web
 
                 foreach (var track in tracks)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     var match = new SongMatch
                     {
                         SpotifyArtist = string.Join(", ", track.Artists.Select(x => x.Name)),
@@ -112,12 +114,13 @@ namespace BeatSaverMatcher.Web
 
                 foreach (var match in matches)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     var foundBeatMaps = new List<BeatSaberSong>();
                     foreach (var beatmap in match.BeatMaps)
                     {
                         try
                         {
-                            var stats = await _statsService.GetStats(beatmap.BeatSaverKey);
+                            var stats = await _statsService.GetStats(beatmap.BeatSaverKey, cancellationToken);
                             if (stats != null)
                             {
                                 beatmap.Rating = stats.Score;

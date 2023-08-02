@@ -22,9 +22,9 @@ namespace BeatSaverMatcher.Common.BeatSaver
             _logger = logger;
         }
 
-        public async Task<BeatSaverStats> GetStats(int key)
+        public async Task<BeatSaverStats> GetStats(int key, CancellationToken cancellationToken)
         {
-            var cached = await _cache.GetStringAsync(CacheKeys.GetForBeatmapStats(key));
+            var cached = await _cache.GetStringAsync(CacheKeys.GetForBeatmapStats(key), cancellationToken);
             if (cached != null)
             {
                 if (cached == NegativeCacheEntryValue)
@@ -41,13 +41,14 @@ namespace BeatSaverMatcher.Common.BeatSaver
             BeatSaverSong song;
             try
             {
-                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20)))
-                {
-                    song = await _beatSaverRepository.GetSong(key, cts.Token);
-                }
+                using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                cts.CancelAfter(TimeSpan.FromSeconds(20));
+                song = await _beatSaverRepository.GetSong(key, cts.Token);
             }
             catch (TaskCanceledException)
             {
+                if (cancellationToken.IsCancellationRequested)
+                    throw;
                 throw new TimeoutException();
             }
 
@@ -74,7 +75,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
             }
 
             var options = new DistributedCacheEntryOptions().SetAbsoluteExpiration(cacheTime);
-            await _cache.SetStringAsync(CacheKeys.GetForBeatmapStats(key), song == null ? NegativeCacheEntryValue : JsonConvert.SerializeObject(song.Stats), options);
+            await _cache.SetStringAsync(CacheKeys.GetForBeatmapStats(key), song == null ? NegativeCacheEntryValue : JsonConvert.SerializeObject(song.Stats), options, cancellationToken);
             return song?.Stats;
         }
     }

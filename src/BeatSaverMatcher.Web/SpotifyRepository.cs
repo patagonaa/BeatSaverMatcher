@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using SpotifyAPI.Web;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BeatSaverMatcher.Web
@@ -25,13 +26,13 @@ namespace BeatSaverMatcher.Web
             return await _spotifyClient.Playlists.Get(playlistId);
         }
 
-        public async Task<IList<FullTrack>> GetTracksForPlaylist(string playlistId)
+        public async Task<IList<FullTrack>> GetTracksForPlaylist(string playlistId, CancellationToken cancellationToken)
         {
             var toReturn = new List<FullTrack>();
 
             var request = new PlaylistGetItemsRequest(PlaylistGetItemsRequest.AdditionalTypes.Track);
             var firstPage = await _spotifyClient.Playlists.GetItems(playlistId, request);
-            await foreach (var playlistTrack in _spotifyClient.Paginate(firstPage))
+            await foreach (var playlistTrack in _spotifyClient.Paginate(firstPage, cancellationToken: cancellationToken))
             {
                 toReturn.Add((FullTrack)playlistTrack.Track);
             }
