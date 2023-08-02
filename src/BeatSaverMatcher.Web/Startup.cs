@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Prometheus;
 
 namespace BeatSaverMatcher.Web
 {
@@ -30,8 +31,6 @@ namespace BeatSaverMatcher.Web
             services.AddHostedService<SongMatchWorker>();
             services.AddHostedService<MatchCleanupWorker>();
             services.AddHostedService<MetricsServer>();
-
-            services.AddSingleton<MetricsMiddleware>();
 
             var hasRedisConnection = !string.IsNullOrEmpty(Configuration["RedisConnection"]);
 
@@ -58,8 +57,6 @@ namespace BeatSaverMatcher.Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseMiddleware<MetricsMiddleware>();
-
             app.UseResponseCompression();
 
             if (env.IsDevelopment())
@@ -68,6 +65,7 @@ namespace BeatSaverMatcher.Web
             }
 
             app.UseRouting();
+            app.UseHttpMetrics();
 
             app.UseDefaultFiles();
 
