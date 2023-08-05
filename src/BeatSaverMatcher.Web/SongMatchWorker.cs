@@ -39,7 +39,13 @@ namespace BeatSaverMatcher.Web
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             _cts.Cancel();
-            await _workTask.WaitAsync(cancellationToken);
+            try
+            {
+                await _workTask.WaitAsync(cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+            }
         }
 
         private async Task DoWork()
