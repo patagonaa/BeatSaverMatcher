@@ -36,7 +36,8 @@ namespace BeatSaverMatcher.Web
                 item.ItemsTotal = 1;
                 item.ItemsProcessed = 0;
 
-                var tracks = (await _spotifyRepository.GetTracksForPlaylist(item.PlaylistId, cancellationToken))
+                var progressCallback = (int current, int total) => { item.ItemsProcessed = current; item.ItemsTotal = total; };
+                var tracks = (await _spotifyRepository.GetTracksForPlaylist(item.PlaylistId, progressCallback, cancellationToken))
                     .Where(x => x != null)
                     .ToList();
 

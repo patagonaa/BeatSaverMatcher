@@ -1,6 +1,9 @@
 ﻿using Microsoft.Extensions.Options;
 using SpotifyAPI.Web;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,16 +29,24 @@ namespace BeatSaverMatcher.Web
             return await _spotifyClient.Playlists.Get(playlistId);
         }
 
-        public async Task<IList<FullTrack>> GetTracksForPlaylist(string playlistId, CancellationToken cancellationToken)
+        public async Task<IList<FullTrack>> GetTracksForPlaylist(string playlistId, Action<int, int> progress, CancellationToken cancellationToken)
         {
             var toReturn = new List<FullTrack>();
 
             var request = new PlaylistGetItemsRequest(PlaylistGetItemsRequest.AdditionalTypes.Track);
-            var firstPage = await _spotifyClient.Playlists.GetItems(playlistId, request);
-            await foreach (var playlistTrack in _spotifyClient.Paginate(firstPage, cancellationToken: cancellationToken))
+
+            var currentPage = await _spotifyClient.Playlists.GetItems(playlistId, request);
+            while (currentPage != null)
             {
-                toReturn.Add((FullTrack)playlistTrack.Track);
+                if (currentPage.Offset.HasValue && currentPage.Total.HasValue)
+                {
+                    progress(currentPage.Offset.Value + currentPage.Items.Count, currentPage.Total.Value);
+                }
+                cancellationToken.ThrowIfCancellationRequested();
+                toReturn.AddRange(currentPage.Items.Select(x => x.Track).Cast<FullTrack>());
+                currentPage = currentPage.Next != null ? await _spotifyClient.NextPage(currentPage) : null;
             }
+
             return toReturn;
         }
     }
