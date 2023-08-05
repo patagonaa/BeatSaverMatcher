@@ -28,10 +28,14 @@ namespace BeatSaverMatcher.Web.Result
             return dequeued;
         }
 
-        public bool Enqueue(WorkResultItem item)
+        public bool Enqueue(string playlistId)
         {
-            _items.AddOrUpdate(item.PlaylistId, key => item, (key, oldItem) => item);
-            _pendingItems.Enqueue(item);
+            if (_items.TryGetValue(playlistId, out WorkResultItem existingItem) && !existingItem.IsFinished)
+            {
+                return false;
+            }
+            var newWorkItem = _items.AddOrUpdate(playlistId, key => new WorkResultItem(playlistId), (key, oldItem) => new WorkResultItem(playlistId));
+            _pendingItems.Enqueue(newWorkItem);
             _pendingRequestsGauge.Inc();
             return true;
         }

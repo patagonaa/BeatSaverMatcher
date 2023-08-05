@@ -20,7 +20,7 @@ namespace BeatSaverMatcher.Web.Controllers
         [HttpPost("{playlistId}")]
         public void StartMatch([FromRoute] string playlistId)
         {
-            if (!_itemStore.Enqueue(new WorkResultItem(playlistId)))
+            if (!_itemStore.Enqueue(playlistId))
                 Conflict();
             else
                 _startMatchCounter.Inc();
