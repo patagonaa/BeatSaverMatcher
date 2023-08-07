@@ -46,11 +46,18 @@
                 </div>
                 <button type="submit" class="btn btn-primary" data-bind="click: run, enable: (stateName() == 'None' || stateName() == 'Finished')">Run!</button>
             </form>
-            <div data-bind="if: stateName() != 'Finished' && stateName() != 'None'">
-                Status: <span data-bind="text: stateName()"></span><br />
-                <progress data-bind="attr: {value: (workItem() && workItem().itemsProcessed) || 0, max: (workItem() && workItem().itemsTotal) || 1}"></progress>&nbsp;(<span data-bind="text: (workItem() && workItem().itemsProcessed) || 0"></span> / <span data-bind="text: (workItem() && workItem().itemsTotal) || 0"></span>)
+            <div class="status" data-bind="visible: stateName() != 'Finished' && stateName() != 'None'">
+                <div>
+                    Status: <span data-bind="text: stateName()"></span><br />
+                    <progress data-bind="attr: {value: (workItem() && workItem().itemsProcessed) || 0, max: (workItem() && workItem().itemsTotal) || 1}"></progress>&nbsp;(<span data-bind="text: (workItem() && workItem().itemsProcessed) || 0"></span> / <span data-bind="text: (workItem() && workItem().itemsTotal) || 0"></span>)
+                </div>
+                <div data-bind="visible: stateName() == 'Error' && workItem() && workItem().errorMessage">
+                    <div class="alert alert-danger">
+                        Error: <span data-bind="text: workItem() && workItem().errorMessage"></span>
+                    </div>
+                </div>
             </div>
-            <div data-bind="if: stateName() == 'Finished'">
+            <div data-bind="visible: stateName() == 'Finished', if: stateName() == 'Finished'">
                 <a data-bind="attr: {href: 'bsplaylist://playlist/'+playlistUri()}">Open selected as playlist</a><br />
                 <a data-bind="attr: {href: playlistUri}">Download selected as playlist</a><br />
                 <span data-bind="text: result().matchedSpotifySongs"></span> / <span data-bind="text: result().totalSpotifySongs"></span> matched!

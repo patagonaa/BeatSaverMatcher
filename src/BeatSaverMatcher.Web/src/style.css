@@ -2,7 +2,15 @@
 }
 
 form {
+    margin-bottom: 5px;
+}
+
+form, .status {
     max-width: 600px;
+}
+
+.status > div {
+    padding: 5px 0;
 }
 
 progress {

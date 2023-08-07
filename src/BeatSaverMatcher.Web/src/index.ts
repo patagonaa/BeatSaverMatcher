@@ -93,6 +93,7 @@ class AppViewModel {
 interface WorkResultItem {
     playlistId: string;
     state: SongMatchState;
+    errorMessage: string;
     result: SongMatchResult;
     itemsProcessed: number;
     itemsTotal: number;

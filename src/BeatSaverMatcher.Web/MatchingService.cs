@@ -4,6 +4,7 @@ using BeatSaverMatcher.Common.Models;
 using BeatSaverMatcher.Web.Models;
 using BeatSaverMatcher.Web.Result;
 using Microsoft.Extensions.Logging;
+using SpotifyAPI.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,10 +37,19 @@ namespace BeatSaverMatcher.Web
                 item.ItemsTotal = 1;
                 item.ItemsProcessed = 0;
 
-                var progressCallback = (int current, int total) => { item.ItemsProcessed = current; item.ItemsTotal = total; };
-                var tracks = (await _spotifyRepository.GetTracksForPlaylist(item.PlaylistId, progressCallback, cancellationToken))
-                    .Where(x => x != null)
-                    .ToList();
+                IList<FullTrack> tracks;
+
+                try
+                {
+                    var progressCallback = (int current, int total) => { item.ItemsProcessed = current; item.ItemsTotal = total; };
+                    tracks = (await _spotifyRepository.GetTracksForPlaylist(item.PlaylistId, progressCallback, cancellationToken))
+                        .Where(x => x != null)
+                        .ToList();
+                }
+                catch (APIException aex)
+                {
+                    throw new MatchingException($"Error while loading playlist: {aex.Message}");
+                }
 
                 _logger.LogInformation("Finding beatmaps");
                 item.State = SongMatchState.SearchingBeatMaps;
@@ -155,10 +165,24 @@ namespace BeatSaverMatcher.Web
                 _logger.LogInformation("Done.");
                 item.State = SongMatchState.Finished;
             }
+            catch (MatchingException ex)
+            {
+                item.State = SongMatchState.Error;
+                item.ErrorMessage = ex.Message;
+                _logger.LogError(ex, "Error while matching!");
+            }
             catch (Exception ex)
             {
                 item.State = SongMatchState.Error;
                 _logger.LogError(ex, "Error while matching!");
+            }
+        }
+
+        private class MatchingException : Exception
+        {
+            public MatchingException(string message)
+                : base(message)
+            {
             }
         }
     }
