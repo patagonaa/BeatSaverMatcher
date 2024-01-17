@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatSaverMatcher.Web.Models;
 using BeatSaverMatcher.Web.Result;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using SpotifyAPI.Web;
 
 namespace BeatSaverMatcher.Web.Controllers
 {
@@ -15,11 +18,15 @@ namespace BeatSaverMatcher.Web.Controllers
     {
         private readonly WorkItemStore _itemStore;
         private readonly SpotifyRepository _spotifyRepository;
+        private readonly ILogger<ModSaberPlaylistController> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public ModSaberPlaylistController(WorkItemStore itemStore, SpotifyRepository spotifyRepository)
+        public ModSaberPlaylistController(WorkItemStore itemStore, SpotifyRepository spotifyRepository, ILogger<ModSaberPlaylistController> logger, IHttpClientFactory httpClientFactory)
         {
             _itemStore = itemStore;
             _spotifyRepository = spotifyRepository;
+            _logger = logger;
+            _httpClientFactory = httpClientFactory;
         }
 
         [HttpGet("{playlistId}.bplist")]
@@ -48,7 +55,7 @@ namespace BeatSaverMatcher.Web.Controllers
             {
                 PlaylistTitle = playlist.Name,
                 PlaylistAuthor = (playlist.Owner?.DisplayName ?? "") + " using https://github.com/patagonaa/BeatSaverMatcher",
-                Image = null, //TODO
+                Image = await GetImage(playlist, cancellationToken),
                 Songs = beatmaps.Select(x => new ModSaberSong
                 {
                     Hash = string.Join("", x.Hash.Select(x => x.ToString("x2"))),
@@ -57,6 +64,27 @@ namespace BeatSaverMatcher.Web.Controllers
                     Uploader = x.Uploader
                 }).ToList()
             };
+        }
+
+        private async Task<string> GetImage(FullPlaylist playlist, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var imageUrl = playlist.Images?.LastOrDefault(x => Math.Max(x.Width, x.Height) >= 256)?.Url;
+                if (imageUrl == null)
+                {
+                    return null;
+                }
+
+                var imageBytes = await _httpClientFactory.CreateClient().GetByteArrayAsync(imageUrl, cancellationToken);
+
+                return Convert.ToBase64String(imageBytes);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Couldn't get image for playlist");
+                return null;
+            }
         }
     }
 }

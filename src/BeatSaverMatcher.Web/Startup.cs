@@ -31,6 +31,7 @@ namespace BeatSaverMatcher.Web
             services.AddHostedService<SongMatchWorker>();
             services.AddHostedService<MatchCleanupWorker>();
             services.AddHostedService<MetricsServer>();
+            services.AddHttpClient();
 
             var hasRedisConnection = !string.IsNullOrEmpty(Configuration["RedisConnection"]);
 
