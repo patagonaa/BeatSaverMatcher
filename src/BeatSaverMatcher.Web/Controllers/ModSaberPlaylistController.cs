@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
 using BeatSaverMatcher.Web.Models;
 using BeatSaverMatcher.Web.Result;
@@ -23,7 +24,7 @@ namespace BeatSaverMatcher.Web.Controllers
 
         [HttpGet("{playlistId}.bplist")]
         [HttpGet("{keys}/{playlistId}.bplist")]
-        public async Task<ActionResult<ModSaberPlaylist>> GetMatchesAsPlaylistDownload([FromRoute] string playlistId, [FromRoute] string keys)
+        public async Task<ActionResult<ModSaberPlaylist>> GetMatchesAsPlaylistDownload([FromRoute] string playlistId, [FromRoute] string keys, CancellationToken cancellationToken)
         {
             var workItem = _itemStore.Get(playlistId);
             if (workItem == null)
@@ -32,7 +33,7 @@ namespace BeatSaverMatcher.Web.Controllers
             if (workItem.State != SongMatchState.Finished)
                 BadRequest();
 
-            var playlist = await _spotifyRepository.GetPlaylist(playlistId);
+            var playlist = await _spotifyRepository.GetPlaylist(playlistId, cancellationToken);
 
             var beatmaps = workItem.Result.Matches.SelectMany(x => x.BeatMaps).ToList();
             if (keys != null)
@@ -40,7 +41,7 @@ namespace BeatSaverMatcher.Web.Controllers
                 var keysList = keys.Split(',');
                 beatmaps = beatmaps.Where(x => keysList.Contains(x.BeatSaverKey.ToString("x"))).ToList();
             }
-            var header = new ContentDispositionHeaderValue("attachment") { FileName = playlist.Id+".bplist", FileNameStar = playlist.Name+".bplist" };
+            var header = new ContentDispositionHeaderValue("attachment") { FileName = playlist.Id + ".bplist", FileNameStar = playlist.Name + ".bplist" };
             Response.Headers.Add("Content-Disposition", header.ToString());
 
             return new ModSaberPlaylist

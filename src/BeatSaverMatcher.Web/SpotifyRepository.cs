@@ -24,9 +24,9 @@ namespace BeatSaverMatcher.Web
             _spotifyClient = new SpotifyClient(config);
         }
 
-        public async Task<FullPlaylist> GetPlaylist(string playlistId)
+        public async Task<FullPlaylist> GetPlaylist(string playlistId, CancellationToken cancellationToken)
         {
-            return await _spotifyClient.Playlists.Get(playlistId);
+            return await _spotifyClient.Playlists.Get(playlistId, cancellationToken);
         }
 
         public async Task<IList<FullTrack>> GetTracksForPlaylist(string playlistId, Action<int, int> progress, CancellationToken cancellationToken)
@@ -35,7 +35,7 @@ namespace BeatSaverMatcher.Web
 
             var request = new PlaylistGetItemsRequest(PlaylistGetItemsRequest.AdditionalTypes.Track);
 
-            var currentPage = await _spotifyClient.Playlists.GetItems(playlistId, request);
+            var currentPage = await _spotifyClient.Playlists.GetItems(playlistId, request, cancellationToken);
             while (currentPage != null)
             {
                 if (currentPage.Offset.HasValue && currentPage.Total.HasValue)

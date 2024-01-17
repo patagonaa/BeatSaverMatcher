@@ -10,17 +10,14 @@ using System.Threading.Tasks;
 
 namespace BeatSaverMatcher.Web
 {
-    public sealed class SongMatchWorker : IHostedService, IDisposable
+    public sealed class SongMatchWorker : BackgroundService, IDisposable
     {
         private const int _maxRunningTasks = 8;
         private readonly ILogger<SongMatchWorker> _logger;
         private readonly MatchingService _matchingService;
         private readonly WorkItemStore _itemStore;
         private readonly Gauge _runningMatchesGauge;
-        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private readonly List<Task> _runningTasks = new List<Task>();
-
-        private Task _workTask;
 
         public SongMatchWorker(ILogger<SongMatchWorker> logger, MatchingService matchingService, WorkItemStore itemStore)
         {
@@ -30,27 +27,8 @@ namespace BeatSaverMatcher.Web
             _runningMatchesGauge = Metrics.CreateGauge("beatsaver_running_requests", "Requests currently running");
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken cancelToken)
         {
-            _workTask = Task.Run(DoWork, cancellationToken);
-            return Task.CompletedTask;
-        }
-
-        public async Task StopAsync(CancellationToken cancellationToken)
-        {
-            _cts.Cancel();
-            try
-            {
-                await _workTask.WaitAsync(cancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
-
-        private async Task DoWork()
-        {
-            var cancelToken = _cts.Token;
             while (true)
             {
                 try
@@ -81,11 +59,6 @@ namespace BeatSaverMatcher.Web
                     _logger.LogError(ex, "Error while managing matching");
                 }
             }
-        }
-
-        public void Dispose()
-        {
-            _cts?.Dispose();
         }
     }
 }

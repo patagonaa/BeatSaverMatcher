@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 
 namespace BeatSaverMatcher.Web
 {
-    public class MatchCleanupWorker : IHostedService
+    public class MatchCleanupWorker : BackgroundService
     {
         private readonly WorkItemStore _itemStore;
         private readonly ILogger<MatchCleanupWorker> _logger;
-        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
         public MatchCleanupWorker(WorkItemStore itemStore, ILogger<MatchCleanupWorker> logger)
         {
@@ -19,22 +18,11 @@ namespace BeatSaverMatcher.Web
             _logger = logger;
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            Task.Factory.StartNew(() => DoWork(), TaskCreationOptions.LongRunning);
-            return Task.CompletedTask;
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            _cts.Cancel();
-            return Task.CompletedTask;
-        }
-
-        private async Task DoWork()
-        {
-            while (!_cts.IsCancellationRequested)
+            while (true)
             {
+                stoppingToken.ThrowIfCancellationRequested();
                 try
                 {
                     _itemStore.DoCleanup();
@@ -42,11 +30,10 @@ namespace BeatSaverMatcher.Web
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError("Error while doing cleanup!");
-                    throw;
+                    _logger.LogError(ex, "Error while doing cleanup!");
                 }
 
-                await Task.Delay(TimeSpan.FromMinutes(10));
+                await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
             }
         }
     }
