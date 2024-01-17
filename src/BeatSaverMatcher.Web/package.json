@@ -8,22 +8,22 @@
         "build:prod": "webpack --mode production"
     },
     "devDependencies": {
-        "@types/knockout": "^3.4.70",
-        "clean-webpack-plugin": "^3.0.0",
-        "copy-webpack-plugin": "^8.1.1",
-        "css-loader": "^5.2.4",
-        "html-webpack-plugin": "^5.3.1",
-        "minimist": "^1.2.5",
-        "source-map-loader": "^2.0.1",
-        "style-loader": "^2.0.0",
-        "ts-loader": "^9.1.1",
-        "typescript": "^4.2.4",
-        "webpack": "^5.36.2",
-        "webpack-cli": "^4.6.0"
+        "@types/knockout": "^3.4.77",
+        "clean-webpack-plugin": "^4.0.0",
+        "copy-webpack-plugin": "^12.0.1",
+        "css-loader": "^6.9.0",
+        "html-webpack-plugin": "^5.6.0",
+        "minimist": "^1.2.8",
+        "source-map-loader": "^5.0.0",
+        "style-loader": "^3.3.4",
+        "ts-loader": "^9.5.1",
+        "typescript": "^5.3.3",
+        "webpack": "^5.89.0",
+        "webpack-cli": "^5.1.4"
     },
     "dependencies": {
-        "bootstrap": "^4.4.1",
-        "jquery": "^3.5.0",
+        "bootstrap": "^4.6.2",
+        "jquery": "^3.7.1",
         "knockout": "^3.5.1",
         "popper.js": "^1.16.1"
     }
