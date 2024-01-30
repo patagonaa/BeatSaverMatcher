@@ -34,6 +34,7 @@ namespace BeatSaverMatcher.Crawler
             {
                 stoppingToken.ThrowIfCancellationRequested();
                 await Scrape(stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken);
             }
         }
 
