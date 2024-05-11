@@ -43,7 +43,7 @@ namespace BeatSaverMatcher.Web
                     progress(currentPage.Offset.Value + currentPage.Items.Count, currentPage.Total.Value);
                 }
                 cancellationToken.ThrowIfCancellationRequested();
-                toReturn.AddRange(currentPage.Items.Select(x => x.Track).Cast<FullTrack>());
+                toReturn.AddRange(currentPage.Items.Select(x => x.Track).OfType<FullTrack>()); // OfType instead of Cast because there may be Episodes, etc.
                 currentPage = currentPage.Next != null ? await _spotifyClient.NextPage(currentPage) : null;
             }
 
