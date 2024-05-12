@@ -60,20 +60,47 @@
             <div data-bind="visible: stateName() == 'Finished', if: stateName() == 'Finished'">
                 <a data-bind="attr: {href: 'bsplaylist://playlist/'+playlistUri()}">Open selected as playlist</a><br />
                 <a data-bind="attr: {href: playlistUri}">Download selected as playlist</a><br />
-                <span data-bind="text: result().matchedSpotifySongs"></span> / <span data-bind="text: result().totalSpotifySongs"></span> matched!
+                <span data-bind="text: result().matchedSpotifySongs"></span> / <span data-bind="text: result().totalSpotifySongs"></span> matched!<br />
+
+                Columns:
+                <label><input type="checkbox" data-bind="checked: visibleColumns" value="songAuthorName" /> Song author</label>
+                <label><input type="checkbox" data-bind="checked: visibleColumns" value="songName" /> Song name</label>
+                <label><input type="checkbox" data-bind="checked: visibleColumns" value="songSubName" /> Song sub-name</label>
+                <label><input type="checkbox" data-bind="checked: visibleColumns" value="levelAuthorName" /> Map author</label>
+                <label><input type="checkbox" data-bind="checked: visibleColumns" value="uploaded" /> Upload Date</label>
+
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>Spotify artist(s)</th>
-                            <th>Spotify title</th>
-                            <th>BeatSaber map author</th>
-                            <th>BeatSaber song author</th>
-                            <th>BeatSaber song name</th>
-                            <th>BeatSaber song sub-name</th>
-                            <th>BeatSaver difficulty</th>
+                            <th colspan="2">Spotify</th>
+                            <th data-bind="attr: {colspan: visibleColumns().length + 5}">BeatSaber</th>
+                            <th></th>
+                        </tr>
+                        <tr>
+                            <th>Artist(s)</th>
+                            <th>Title</th>
+                            <th>Map&nbsp;name</th>
+
+                            <!-- ko if: $root.visibleColumns().includes('songAuthorName') -->
+                            <th>Song&nbsp;author</th>
+                            <!-- /ko -->
+                            <!-- ko if: $root.visibleColumns().includes('songName') -->
+                            <th>Song&nbsp;name</th>
+                            <!-- /ko -->
+                            <!-- ko if: $root.visibleColumns().includes('songSubName') -->
+                            <th>Song&nbsp;sub-name</th>
+                            <!-- /ko -->
+                            <!-- ko if: $root.visibleColumns().includes('levelAuthorName') -->
+                            <th>Map&nbsp;author</th>
+                            <!-- /ko -->
+                            <!-- ko if: visibleColumns().includes('uploaded') -->
+                            <th>Upload&nbsp;date</th>
+                            <!-- /ko -->
+
+                            <th>Difficulty</th>
                             <th>Rating</th>
                             <th>👍/👎</th>
-                            <th>BeatSaver key</th>
+                            <th>Key</th>
                             <th>Selected</th>
                         </tr>
                     </thead>
@@ -85,11 +112,28 @@
                             <td data-bind="attr: {rowspan: $parent.beatMaps.length}"><span data-bind="text: $parent.spotifyArtist"></span></td>
                             <td data-bind="attr: {rowspan: $parent.beatMaps.length}"><span data-bind="text: $parent.spotifyTitle"></span></td>
                             <!-- /ko -->
-                            <td><span data-bind="text: levelAuthorName"></span></td>
+
+                            <td><span data-bind="text: name"></span></td>
+
+                            <!-- ko if: $root.visibleColumns().includes('songAuthorName') -->
                             <td><span data-bind="text: songAuthorName"></span></td>
+                            <!-- /ko -->
+                            <!-- ko if: $root.visibleColumns().includes('songName') -->
                             <td><span data-bind="text: songName"></span></td>
+                            <!-- /ko -->
+                            <!-- ko if: $root.visibleColumns().includes('songSubName') -->
                             <td><span data-bind="text: songSubName"></span></td>
-                            <td><div data-bind="foreach: $root.getDifficulties(difficulties)"><span class="badge" data-bind="text: $data, class: 'is-'+$data.toLowerCase()"></span> </div></td>
+                            <!-- /ko -->
+                            <!-- ko if: $root.visibleColumns().includes('levelAuthorName') -->
+                            <td><span data-bind="text: levelAuthorName"></span></td>
+                            <!-- /ko -->
+                            <!-- ko if: $root.visibleColumns().includes('uploaded') -->
+                            <td><span data-bind="text: new Date(uploaded).toLocaleDateString()"></span></td>
+                            <!-- /ko -->
+
+                            <td>
+                                <div data-bind="foreach: $root.getDifficulties(difficulties)"><span class="badge" data-bind="text: $data, class: 'is-'+$data.toLowerCase()"></span> </div>
+                            </td>
                             <td class="text-nowrap">
                                 <span data-bind="text: (rating * 100).toFixed(1) + '%'"></span>
                             </td>

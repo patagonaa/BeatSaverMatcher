@@ -10,6 +10,8 @@ class AppViewModel {
     public stateName = ko.observable<string>('None');
     public workItem = ko.observable<WorkResultItem>();
     public result = ko.observable<SongMatchResult>();
+    public visibleColumns = ko.observableArray<string>(['uploaded', 'levelAuthorName']);
+
 
     public async run() {
         let matches = this.playlistId().match(/(?:playlist[\/:])?([\w]+)(?:\?.+)?$/);
@@ -130,6 +132,7 @@ interface BeatSaberSong {
     name: string;
     difficulties: number;
     uploader: string;
+    uploaded: string;
     hash: string;
     beatSaverKey: number;
     selected: KnockoutObservable<boolean>;
