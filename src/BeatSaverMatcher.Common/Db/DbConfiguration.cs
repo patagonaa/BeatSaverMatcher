@@ -1,4 +1,4 @@
-﻿namespace BeatSaverMatcher.Common
+﻿namespace BeatSaverMatcher.Common.Db
 {
     public class DbConfiguration
     {

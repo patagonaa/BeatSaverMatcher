@@ -1,5 +1,6 @@
 ﻿using BeatSaverMatcher.Common;
 using BeatSaverMatcher.Common.BeatSaver;
+using BeatSaverMatcher.Common.Db;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

@@ -1,6 +1,5 @@
-﻿using BeatSaverMatcher.Common;
-using BeatSaverMatcher.Common.BeatSaver;
-using BeatSaverMatcher.Common.Models;
+﻿using BeatSaverMatcher.Common.BeatSaver;
+using BeatSaverMatcher.Common.Db;
 using BeatSaverMatcher.Web.Models;
 using BeatSaverMatcher.Web.Result;
 using Microsoft.Extensions.Logging;

@@ -1,4 +1,4 @@
-﻿using BeatSaverMatcher.Common.Models;
+﻿using BeatSaverMatcher.Common.Db;
 using System.Collections.Generic;
 
 namespace BeatSaverMatcher.Web.Models

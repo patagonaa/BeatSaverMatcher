@@ -1,5 +1,6 @@
 using BeatSaverMatcher.Common;
 using BeatSaverMatcher.Common.BeatSaver;
+using BeatSaverMatcher.Common.Db;
 using BeatSaverMatcher.Web.Result;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

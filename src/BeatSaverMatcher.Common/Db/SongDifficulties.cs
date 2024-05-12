@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BeatSaverMatcher.Common.Models
+namespace BeatSaverMatcher.Common.Db
 {
     [Flags]
     public enum SongDifficulties

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 
-namespace BeatSaverMatcher.Common
+namespace BeatSaverMatcher.Common.Db
 {
     public abstract class SqlServerRepository
     {

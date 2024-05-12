@@ -1,6 +1,5 @@
-﻿using BeatSaverMatcher.Common;
-using BeatSaverMatcher.Common.BeatSaver;
-using BeatSaverMatcher.Common.Models;
+﻿using BeatSaverMatcher.Common.BeatSaver;
+using BeatSaverMatcher.Common.Db;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Prometheus;

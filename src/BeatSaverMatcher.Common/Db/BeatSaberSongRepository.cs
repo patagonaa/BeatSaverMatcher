@@ -1,12 +1,11 @@
-﻿using BeatSaverMatcher.Common.Models;
-using Dapper;
+﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BeatSaverMatcher.Common
+namespace BeatSaverMatcher.Common.Db
 {
     public class BeatSaberSongRepository : SqlServerRepository, IBeatSaberSongRepository
     {

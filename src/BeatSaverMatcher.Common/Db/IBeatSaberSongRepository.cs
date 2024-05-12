@@ -1,8 +1,7 @@
-﻿using BeatSaverMatcher.Common.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace BeatSaverMatcher.Common
+namespace BeatSaverMatcher.Common.Db
 {
     public interface IBeatSaberSongRepository
     {
