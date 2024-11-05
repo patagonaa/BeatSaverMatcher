@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,6 +14,14 @@ namespace BeatSaverMatcher.Common.BeatSaver
     public class BeatSaverRepository
     {
         private readonly ILogger<BeatSaverRepository> _logger;
+        private static readonly JsonSerializerOptions _beatSaverSerializerOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            Converters =
+            {
+                new JsonStringEnumConverter()
+            }
+        };
 
         public BeatSaverRepository(ILogger<BeatSaverRepository> logger)
         {
@@ -33,7 +42,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
                 var response = (HttpWebResponse)await request.GetResponseAsync();
                 using (var sr = new StreamReader(response.GetResponseStream()))
                 {
-                    page = JsonConvert.DeserializeObject<BeatSaverSongPage>(sr.ReadToEnd());
+                    page = JsonSerializer.Deserialize<BeatSaverSongPage>(sr.ReadToEnd(), _beatSaverSerializerOptions);
                 }
 
                 return int.Parse(page.Docs[0].Id, NumberStyles.HexNumber);
@@ -56,7 +65,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
                     var response = (HttpWebResponse)await request.GetResponseAsync();
                     using (var sr = new StreamReader(response.GetResponseStream()))
                     {
-                        song = JsonConvert.DeserializeObject<BeatSaverSong>(sr.ReadToEnd());
+                        song = JsonSerializer.Deserialize<BeatSaverSong>(sr.ReadToEnd(), _beatSaverSerializerOptions);
                     }
                     return song;
                 }

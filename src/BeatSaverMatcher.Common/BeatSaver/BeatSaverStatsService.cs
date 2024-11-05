@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -34,7 +34,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
                 }
 
                 _logger.LogDebug("Got stats for song 0x{SongKey:x} from cache", key);
-                return JsonConvert.DeserializeObject<BeatSaverStats>(cached);
+                return JsonSerializer.Deserialize<BeatSaverStats>(cached);
             }
 
             _logger.LogInformation("Loading stats for song 0x{SongKey:x}", key);
@@ -75,7 +75,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
             }
 
             var options = new DistributedCacheEntryOptions().SetAbsoluteExpiration(cacheTime);
-            await _cache.SetStringAsync(CacheKeys.GetForBeatmapStats(key), song == null ? NegativeCacheEntryValue : JsonConvert.SerializeObject(song.Stats), options, cancellationToken);
+            await _cache.SetStringAsync(CacheKeys.GetForBeatmapStats(key), song == null ? NegativeCacheEntryValue : JsonSerializer.Serialize(song.Stats), options, cancellationToken);
             return song?.Stats;
         }
     }
