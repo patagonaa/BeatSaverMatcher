@@ -17,9 +17,6 @@ namespace BeatSaverMatcher.Common.Db
         public DateTime Uploaded { get; set; }
         public byte[] Hash { get; set; }
         public int BeatSaverKey { get; set; }
-        public double? Rating { get; set; }
-        public int? UpVotes { get; set; }
-        public int? DownVotes { get; set; }
         public string AutoMapper { get; set; }
     }
 }

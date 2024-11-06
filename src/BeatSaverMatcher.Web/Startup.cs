@@ -26,7 +26,7 @@ namespace BeatSaverMatcher.Web
             services.Configure<SpotifyConfiguration>(Configuration.GetSection("Spotify"));
             services.AddTransient<SpotifyRepository>();
             services.AddTransient<MatchingService>();
-            services.AddTransient<BeatSaverStatsService>();
+            services.AddTransient<BeatSaverSongService>();
             services.AddTransient<BeatSaverRepository>();
             services.AddSingleton<WorkItemStore>();
             services.AddHostedService<SongMatchWorker>();

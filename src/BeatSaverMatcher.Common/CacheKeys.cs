@@ -2,9 +2,9 @@
 {
     public class CacheKeys
     {
-        public static string GetForBeatmapStats(int key)
+        public static string GetForBeatmap(int key)
         {
-            return $"BeatmapStats_{key}";
+            return $"Beatmap_{key}";
         }
     }
 }

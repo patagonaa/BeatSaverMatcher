@@ -1,5 +1,6 @@
 ﻿using BeatSaverMatcher.Common.Db;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace BeatSaverMatcher.Web.Models
 {
@@ -7,6 +8,8 @@ namespace BeatSaverMatcher.Web.Models
     {
         public string SpotifyArtist { get; set; }
         public string SpotifyTitle { get; set; }
-        public IList<BeatSaberSong> BeatMaps { get; set; }
+        [JsonIgnore]
+        public IList<BeatSaberSong> DbBeatMaps { get; set; }
+        public IList<BeatSaberSongViewModel> BeatMaps { get; set; }
     }
 }

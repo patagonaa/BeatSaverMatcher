@@ -4,7 +4,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Prometheus;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -116,36 +115,12 @@ namespace BeatSaverMatcher.Crawler
                 Bpm = song.Metadata.Bpm,
                 Name = song.Name,
                 AutoMapper = song.Automapper ? song.Metadata.LevelAuthorName : null,
-                Difficulties = MapDifficulties(currentVersion.Diffs),
+                Difficulties = BeatSaverUtils.MapDifficulties(currentVersion.Diffs),
                 Uploader = song.Uploader.Name,
                 Uploaded = song.Uploaded,
-                Hash = MapHash(currentVersion.Hash),
+                Hash = BeatSaverUtils.MapHash(currentVersion.Hash),
                 BeatSaverKey = int.Parse(song.Id, NumberStyles.HexNumber)
             };
-        }
-
-        private byte[] MapHash(string hash)
-        {
-            byte[] toReturn = new byte[hash.Length / 2];
-            for (int i = 0; i < hash.Length; i += 2)
-                toReturn[i / 2] = Convert.ToByte(hash.Substring(i, 2), 16);
-            return toReturn;
-        }
-
-        private SongDifficulties MapDifficulties(IList<BeatSaverDifficulty> difficulties)
-        {
-            SongDifficulties toReturn = 0;
-            if (difficulties.Any(x => x.Difficulty == BeatSaverDifficultyType.Easy))
-                toReturn |= SongDifficulties.Easy;
-            if (difficulties.Any(x => x.Difficulty == BeatSaverDifficultyType.Normal))
-                toReturn |= SongDifficulties.Normal;
-            if (difficulties.Any(x => x.Difficulty == BeatSaverDifficultyType.Hard))
-                toReturn |= SongDifficulties.Hard;
-            if (difficulties.Any(x => x.Difficulty == BeatSaverDifficultyType.Expert))
-                toReturn |= SongDifficulties.Expert;
-            if (difficulties.Any(x => x.Difficulty == BeatSaverDifficultyType.ExpertPlus))
-                toReturn |= SongDifficulties.ExpertPlus;
-            return toReturn;
         }
     }
 }

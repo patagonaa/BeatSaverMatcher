@@ -16,14 +16,14 @@ namespace BeatSaverMatcher.Web
     {
         private readonly SpotifyRepository _spotifyRepository;
         private readonly IBeatSaberSongRepository _songRepository;
-        private readonly BeatSaverStatsService _statsService;
+        private readonly BeatSaverSongService _songService;
         private readonly ILogger<MatchingService> _logger;
 
-        public MatchingService(SpotifyRepository spotifyRepository, IBeatSaberSongRepository songRepository, BeatSaverStatsService statsService, ILogger<MatchingService> logger)
+        public MatchingService(SpotifyRepository spotifyRepository, IBeatSaberSongRepository songRepository, BeatSaverSongService songService, ILogger<MatchingService> logger)
         {
             _spotifyRepository = spotifyRepository;
             _songRepository = songRepository;
-            _statsService = statsService;
+            _songService = songService;
             _logger = logger;
         }
 
@@ -107,7 +107,7 @@ namespace BeatSaverMatcher.Web
 
                     if (beatmaps.Any())
                     {
-                        match.BeatMaps = beatmaps.GroupBy(x => Convert.ToBase64String(x.Hash)).Select(x => x.First()).ToList();
+                        match.DbBeatMaps = beatmaps.GroupBy(x => x.BeatSaverKey).Select(x => x.First()).ToList();
                         matches.Add(match);
                     }
 
@@ -119,35 +119,70 @@ namespace BeatSaverMatcher.Web
                 _logger.LogInformation("Loading beatmap ratings");
                 item.State = SongMatchState.LoadingBeatMapRatings;
 
-                item.ItemsTotal = matches.SelectMany(x => x.BeatMaps).Count();
+                item.ItemsTotal = matches.SelectMany(x => x.DbBeatMaps).Count();
                 item.ItemsProcessed = 0;
 
                 foreach (var match in matches)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    var foundBeatMaps = new List<BeatSaberSong>();
-                    foreach (var beatmap in match.BeatMaps)
+                    var foundBeatMaps = new List<BeatSaberSongViewModel>();
+                    foreach (var dbBeatmap in match.DbBeatMaps)
                     {
                         try
                         {
-                            var stats = await _statsService.GetStats(beatmap.BeatSaverKey, cancellationToken);
-                            if (stats != null)
+                            var beatSaverSong = await _songService.GetSong(dbBeatmap.BeatSaverKey, cancellationToken);
+
+                            if (beatSaverSong != null)
                             {
-                                beatmap.Rating = stats.Score;
-                                beatmap.UpVotes = stats.Upvotes;
-                                beatmap.DownVotes = stats.Downvotes;
-                                foundBeatMaps.Add(beatmap);
+                                var currentVersion = beatSaverSong.Versions
+                                    .Where(x => x.State == "Published")
+                                    .OrderByDescending(x => x.CreatedAt)
+                                    .FirstOrDefault();
+
+                                if (currentVersion != null)
+                                {
+                                    foundBeatMaps.Add(new BeatSaberSongViewModel
+                                    {
+                                        BeatSaverKey = dbBeatmap.BeatSaverKey,
+                                        Hash = BeatSaverUtils.MapHash(currentVersion.Hash),
+                                        Uploader = beatSaverSong.Uploader.Name,
+                                        Uploaded = beatSaverSong.Uploaded,
+                                        Difficulties = BeatSaverUtils.MapDifficulties(currentVersion.Diffs),
+                                        Bpm = beatSaverSong.Metadata.Bpm,
+                                        LevelAuthorName = beatSaverSong.Metadata.LevelAuthorName,
+                                        SongAuthorName = beatSaverSong.Metadata.SongAuthorName,
+                                        SongName = beatSaverSong.Metadata.SongName,
+                                        SongSubName = beatSaverSong.Metadata.SongSubName,
+                                        Name = beatSaverSong.Name,
+                                        Rating = beatSaverSong.Stats.Score,
+                                        UpVotes = beatSaverSong.Stats.Upvotes,
+                                        DownVotes = beatSaverSong.Stats.Downvotes
+                                    });
+                                }
                             }
                             // don't add beatmap if it wasn't found online (was deleted)
                         }
                         catch (TimeoutException)
                         {
-                            _logger.LogInformation("Timeout while getting stats for 0x{BeatMapKey}", beatmap.BeatSaverKey.ToString("x"));
-                            foundBeatMaps.Add(beatmap);
+                            _logger.LogInformation("Timeout while fetching 0x{BeatMapKey}", dbBeatmap.BeatSaverKey.ToString("x"));
+                            foundBeatMaps.Add(new BeatSaberSongViewModel
+                            {
+                                BeatSaverKey = dbBeatmap.BeatSaverKey,
+                                Hash = dbBeatmap.Hash,
+                                Uploader = dbBeatmap.Uploader,
+                                Uploaded = dbBeatmap.Uploaded,
+                                Difficulties = dbBeatmap.Difficulties,
+                                Bpm = dbBeatmap.Bpm,
+                                LevelAuthorName = dbBeatmap.LevelAuthorName,
+                                SongAuthorName = dbBeatmap.SongAuthorName,
+                                SongName = dbBeatmap.SongName,
+                                SongSubName = dbBeatmap.SongSubName,
+                                Name = dbBeatmap.Name
+                            });
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogError(ex, "Error while loading beatmap stats for 0x{BeatMapKey}", beatmap.BeatSaverKey.ToString("x"));
+                            _logger.LogError(ex, "Error while fetching beatmap 0x{BeatMapKey}", dbBeatmap.BeatSaverKey.ToString("x"));
                         }
 
                         item.ItemsProcessed++;

@@ -58,9 +58,7 @@ namespace BeatSaverMatcher.Web.Controllers
                 Image = await GetImage(playlist, cancellationToken),
                 Songs = beatmaps.Select(x => new ModSaberSong
                 {
-                    // don't set hash as it might change when the map is updated.
-                    // at least ModAssistant can deal with there not being a hash (and fetches by key instead)
-                    //Hash = string.Join("", x.Hash.Select(x => x.ToString("x2"))),
+                    Hash = string.Join("", x.Hash.Select(x => x.ToString("x2"))),
                     Key = x.BeatSaverKey.ToString("x"),
                     SongName = x.Name,
                     Uploader = x.Uploader
