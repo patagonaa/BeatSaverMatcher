@@ -2,8 +2,8 @@
 using BeatSaverMatcher.Common.Db;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Prometheus;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -17,7 +17,9 @@ namespace BeatSaverMatcher.Crawler
         private readonly ILogger<CrawlerHost> _logger;
         private readonly IBeatSaberSongRepository _songRepository;
         private readonly BeatSaverRepository _beatSaverRepository;
-        private readonly Counter _currentSongId = Metrics.CreateCounter("beatsaver_latest_song_id", "ID of the song that was most recently scraped", new CounterConfiguration { SuppressInitialValue = true });
+
+        private readonly HashSet<int> _keysInDb = new HashSet<int>();
+        private static readonly TimeSpan _rescrapeTimeRange = TimeSpan.FromDays(30);
 
         public CrawlerHost(ILogger<CrawlerHost> logger, IBeatSaberSongRepository songRepository, BeatSaverRepository beatSaverRepository)
         {
@@ -28,27 +30,53 @@ namespace BeatSaverMatcher.Crawler
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            uint i = 0;
             while (true)
             {
                 stoppingToken.ThrowIfCancellationRequested();
-                await Scrape(stoppingToken);
+                await Scrape(stoppingToken, (i % 96) == 0);
                 await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken);
+                i++;
             }
         }
 
-        private async Task Scrape(CancellationToken token)
+        private async Task Scrape(CancellationToken token, bool rescrape)
         {
-            var lastScraped = await _songRepository.GetLatestBeatSaverKey() ?? 0;
+            int startId;
 
-            _currentSongId.IncTo(lastScraped);
+            if (rescrape)
+            {
+                // scrape gaps in map keys sometimes, as it seems like since some time 2021
+                // beatmaps can be uploaded, creating a key, without being published.
+                // due to 404 in both cases, we can't know if the map was deleted or hasn't been published yet
+                // so we just retry scraping missing maps for a month and hope nobody publishes maps after the rescrape time range
 
-            var startId = lastScraped + 1;
+                startId = (await _songRepository.GetLatestBeatSaverKeyBefore(DateTime.UtcNow - _rescrapeTimeRange) ?? 0) + 1;
+            }
+            else
+            {
+                startId = (await _songRepository.GetLatestBeatSaverKey() ?? 0) + 1;
+            }
 
             var endId = await _beatSaverRepository.GetLatestKey(token);
-            _logger.LogInformation("Starting crawl at key {Key}", startId.ToString("x"));
+            _logger.LogInformation("Starting crawl at key {Key} {ScrapeType}", startId.ToString("x"), rescrape ? "(rescrape)" : "(latest)");
             for (int key = startId; key <= endId; key++)
             {
                 token.ThrowIfCancellationRequested();
+
+                if (_keysInDb.Contains(key))
+                {
+                    // keep track of keys already in db so we don't have to ask the database if we're scraping the time range again
+                    _logger.LogDebug("Beatmap {Key} is already in DB!", key.ToString("x"));
+                    continue;
+                }
+
+                if (await _songRepository.HasSong(key))
+                {
+                    _keysInDb.Add(key);
+                    _logger.LogInformation("Beatmap {Key} is already in DB!", key.ToString("x"));
+                    continue;
+                }
 
                 try
                 {
@@ -63,9 +91,9 @@ namespace BeatSaverMatcher.Crawler
                     if (mappedSong != null)
                     {
                         await _songRepository.InsertSong(mappedSong);
+                        _keysInDb.Add(key);
 
                         _logger.LogInformation("Inserted song {Key}: {SongName}", key.ToString("x"), mappedSong.Name);
-                        _currentSongId.IncTo(key);
                     }
                 }
                 catch (WebException wex)
@@ -77,7 +105,7 @@ namespace BeatSaverMatcher.Crawler
                         break;
                     }
 
-                    if ((int)response.StatusCode < 200 && (int)response.StatusCode >= 300)
+                    if ((int)response.StatusCode < 200 || (int)response.StatusCode >= 300)
                     {
                         _logger.LogWarning("Error {StatusCode} - {StatusDescription} while scraping", response.StatusCode, response.StatusDescription);
                         break;

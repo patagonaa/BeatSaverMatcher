@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -46,6 +47,26 @@ namespace BeatSaverMatcher.Common.Db
                         return reader.GetInt32(0);
                     }
                 }
+            }
+        }
+
+        public async Task<int?> GetLatestBeatSaverKeyBefore(DateTime date)
+        {
+            using (var connection = GetConnection())
+            {
+                var sqlStr = @"SELECT TOP 1 BeatSaverKey FROM [dbo].[BeatSaberSong] WHERE [Uploaded] < @Uploaded ORDER BY BeatSaverKey DESC";
+
+                return await connection.QueryFirstOrDefaultAsync<int?>(sqlStr, new { Uploaded = date });
+            }
+        }
+
+        public async Task<bool> HasSong(int key)
+        {
+            using (var connection = GetConnection())
+            {
+                var sqlStr = @"SELECT TOP 1 BeatSaverKey FROM [dbo].[BeatSaberSong] WHERE BeatSaverKey = @Key";
+
+                return (await connection.QueryAsync(sqlStr, new { Key = key })).Count() > 0;
             }
         }
 

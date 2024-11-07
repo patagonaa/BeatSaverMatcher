@@ -55,7 +55,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
             TimeSpan cacheTime;
             if (song == null)
             {
-                cacheTime = TimeSpan.FromDays(30);
+                cacheTime = TimeSpan.FromDays(1);
             }
             else if (song.Uploaded < (DateTime.UtcNow - TimeSpan.FromDays(365)))
             {
