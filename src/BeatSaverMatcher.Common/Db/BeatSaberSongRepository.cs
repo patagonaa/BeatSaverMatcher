@@ -76,8 +76,8 @@ namespace BeatSaverMatcher.Common.Db
             {
                 var sqlStr = @"
     INSERT INTO [dbo].[BeatSaberSong]
-        ([BeatSaverKey],[Hash],[Uploader],[Uploaded],[Difficulties],[Bpm],[LevelAuthorName],[SongAuthorName],[SongName],[SongSubName],[Name],[AutoMapper])
-        VALUES (@BeatSaverKey, @Hash, @Uploader, @Uploaded, @Difficulties, @Bpm, @LevelAuthorName, @SongAuthorName, @SongName, @SongSubName, @Name, @AutoMapper)";
+        ([BeatSaverKey],[Hash],[Uploader],[Uploaded],[Difficulties],[Bpm],[LevelAuthorName],[SongAuthorName],[SongName],[SongSubName],[Name],[AutoMapper],[CreatedAt],[UpdatedAt],[LastPublishedAt])
+        VALUES (@BeatSaverKey, @Hash, @Uploader, @Uploaded, @Difficulties, @Bpm, @LevelAuthorName, @SongAuthorName, @SongName, @SongSubName, @Name, @AutoMapper, @CreatedAt, @UpdatedAt, @LastPublishedAt)";
 
                 await connection.ExecuteAsync(sqlStr, song);
             }

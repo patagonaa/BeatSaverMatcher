@@ -13,6 +13,9 @@ namespace BeatSaverMatcher.Common.BeatSaver
         public BeatSaverMetadata Metadata { get; set; }
         public BeatSaverStats Stats { get; set; }
         public DateTime Uploaded { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public DateTime LastPublishedAt { get; set; }
         public bool Automapper { get; set; }
         public bool Ranked { get; set; }
         public IList<BeatSaverVersion> Versions { get; set; }

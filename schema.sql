@@ -22,3 +22,12 @@ CREATE FULLTEXT CATALOG [BeatSaverCatalog] WITH ACCENT_SENSITIVITY = ON
 AS DEFAULT
 
 CREATE FULLTEXT INDEX ON BeatSaberSong(LevelAuthorName, SongAuthorName, SongName, SongSubName, Name) KEY INDEX PK_BeatSaberSong
+
+BEGIN TRANSACTION
+GO
+ALTER TABLE dbo.BeatSaberSong ADD
+	CreatedAt datetime2(7) NULL,
+	UpdatedAt datetime2(7) NULL,
+	LastPublishedAt datetime2(7) NULL
+GO
+COMMIT

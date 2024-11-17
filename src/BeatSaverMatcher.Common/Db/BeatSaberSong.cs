@@ -18,5 +18,8 @@ namespace BeatSaverMatcher.Common.Db
         public byte[] Hash { get; set; }
         public int BeatSaverKey { get; set; }
         public string AutoMapper { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public DateTime? LastPublishedAt { get; set; }
     }
 }

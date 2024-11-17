@@ -30,7 +30,7 @@ namespace BeatSaverMatcher.Crawler
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            uint i = 0;
+            uint i = 1; // don't do full scrape immediately
             while (true)
             {
                 stoppingToken.ThrowIfCancellationRequested();
@@ -146,6 +146,9 @@ namespace BeatSaverMatcher.Crawler
                 Difficulties = BeatSaverUtils.MapDifficulties(currentVersion.Diffs),
                 Uploader = song.Uploader.Name,
                 Uploaded = song.Uploaded,
+                CreatedAt = song.CreatedAt,
+                UpdatedAt = song.UpdatedAt,
+                LastPublishedAt = song.LastPublishedAt,
                 Hash = BeatSaverUtils.MapHash(currentVersion.Hash),
                 BeatSaverKey = int.Parse(song.Id, NumberStyles.HexNumber)
             };
