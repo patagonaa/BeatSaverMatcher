@@ -38,6 +38,7 @@ namespace BeatSaverMatcher.Crawler
             var lastUpdatedAt = await _songRepository.GetLatestScoreUpdatedAt(token) ?? DateTime.UnixEpoch;
             _logger.LogInformation("Starting ratings crawl at {Key}", lastUpdatedAt);
 
+            var now = DateTime.UtcNow;
             var scores = await _beatSaverRepository.GetScoresAfter(lastUpdatedAt, token);
 
             foreach (var score in scores)
@@ -49,7 +50,7 @@ namespace BeatSaverMatcher.Crawler
                     Score = score.Score,
                     Downvotes = score.Downvotes,
                     Upvotes = score.Upvotes,
-                    UpdatedAt = DateTime.UtcNow // technically this isn't 100% safe. if this crashes, we miss some votes but whatever
+                    UpdatedAt = now // technically this isn't 100% safe. if this crashes, we miss some votes but whatever
                 };
 
                 var inserted = await _songRepository.InsertOrUpdateSongRatings(rating);
