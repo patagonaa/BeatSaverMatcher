@@ -16,14 +16,12 @@ namespace BeatSaverMatcher.Web
     {
         private readonly SpotifyRepository _spotifyRepository;
         private readonly IBeatSaberSongRepository _songRepository;
-        private readonly BeatSaverSongService _songService;
         private readonly ILogger<MatchingService> _logger;
 
-        public MatchingService(SpotifyRepository spotifyRepository, IBeatSaberSongRepository songRepository, BeatSaverSongService songService, ILogger<MatchingService> logger)
+        public MatchingService(SpotifyRepository spotifyRepository, IBeatSaberSongRepository songRepository, ILogger<MatchingService> logger)
         {
             _spotifyRepository = spotifyRepository;
             _songRepository = songRepository;
-            _songService = songService;
             _logger = logger;
         }
 
@@ -67,13 +65,13 @@ namespace BeatSaverMatcher.Web
                         SpotifyTitle = track.Name
                     };
 
-                    var beatmaps = new List<BeatSaberSong>();
+                    var beatmaps = new List<BeatSaberSongWithRatings>();
 
                     if (track.Artists.Count == 1)
                     {
                         try
                         {
-                            var directMatches = await _songRepository.GetMatches(track.Artists[0].Name, track.Name, false);
+                            var directMatches = await _songRepository.GetMatches(track.Artists[0].Name, track.Name);
                             foreach (var beatmap in directMatches)
                             {
                                 beatmaps.Add(beatmap);
@@ -91,7 +89,7 @@ namespace BeatSaverMatcher.Web
                         {
                             try
                             {
-                                var directMatches = await _songRepository.GetMatches(artist.Name, track.Name, false);
+                                var directMatches = await _songRepository.GetMatches(artist.Name, track.Name);
                                 foreach (var beatmap in directMatches)
                                 {
                                     beatmaps.Add(beatmap);
@@ -122,9 +120,6 @@ namespace BeatSaverMatcher.Web
                 item.ItemsTotal = matches.SelectMany(x => x.DbBeatMaps).Count();
                 item.ItemsProcessed = 0;
 
-                var beatSaverProgressCallback = (int current, int total) => { item.ItemsProcessed = current; item.ItemsTotal = total; };
-                var beatSaverSongs = await _songService.GetSongs(matches.SelectMany(x => x.DbBeatMaps).Select(x => x.BeatSaverKey).Distinct().ToList(), beatSaverProgressCallback, cancellationToken);
-
                 foreach (var match in matches)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -133,37 +128,24 @@ namespace BeatSaverMatcher.Web
                     {
                         try
                         {
-                            var beatSaverSong = beatSaverSongs.TryGetValue(dbBeatmap.BeatSaverKey, out var tmp) ? tmp : null;
-
-                            if (beatSaverSong != null)
+                            foundBeatMaps.Add(new BeatSaberSongViewModel
                             {
-                                var currentVersion = beatSaverSong.Versions
-                                    .Where(x => x.State == "Published")
-                                    .OrderByDescending(x => x.CreatedAt)
-                                    .FirstOrDefault();
-
-                                if (currentVersion != null)
-                                {
-                                    foundBeatMaps.Add(new BeatSaberSongViewModel
-                                    {
-                                        BeatSaverKey = dbBeatmap.BeatSaverKey,
-                                        Hash = BeatSaverUtils.MapHash(currentVersion.Hash),
-                                        Uploader = beatSaverSong.Uploader.Name,
-                                        Uploaded = beatSaverSong.Uploaded,
-                                        Difficulties = BeatSaverUtils.MapDifficulties(currentVersion.Diffs),
-                                        Bpm = beatSaverSong.Metadata.Bpm,
-                                        LevelAuthorName = beatSaverSong.Metadata.LevelAuthorName,
-                                        SongAuthorName = beatSaverSong.Metadata.SongAuthorName,
-                                        SongName = beatSaverSong.Metadata.SongName,
-                                        SongSubName = beatSaverSong.Metadata.SongSubName,
-                                        Name = beatSaverSong.Name,
-                                        Rating = beatSaverSong.Stats.Score,
-                                        UpVotes = beatSaverSong.Stats.Upvotes,
-                                        DownVotes = beatSaverSong.Stats.Downvotes
-                                    });
-                                }
-                            }
-                            // don't add beatmap if it wasn't found online (was deleted)
+                                BeatSaverKey = dbBeatmap.BeatSaverKey,
+                                Hash = dbBeatmap.Hash,
+                                Uploader = dbBeatmap.Uploader,
+                                Uploaded = dbBeatmap.Uploaded,
+                                Difficulties = dbBeatmap.Difficulties,
+                                Bpm = dbBeatmap.Bpm,
+                                LevelAuthorName = dbBeatmap.LevelAuthorName,
+                                SongAuthorName = dbBeatmap.SongAuthorName,
+                                SongName = dbBeatmap.SongName,
+                                SongSubName = dbBeatmap.SongSubName,
+                                Name = dbBeatmap.Name,
+                                Rating = dbBeatmap.Score,
+                                UpVotes = dbBeatmap.Upvotes,
+                                DownVotes = dbBeatmap.Downvotes
+                            });
+                            item.ItemsProcessed++;
                         }
                         catch (Exception ex)
                         {

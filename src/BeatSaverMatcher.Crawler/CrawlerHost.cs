@@ -17,17 +17,14 @@ namespace BeatSaverMatcher.Crawler
         private readonly ILogger<CrawlerHost> _logger;
         private readonly IBeatSaberSongRepository _songRepository;
         private readonly BeatSaverRepository _beatSaverRepository;
-        private readonly BeatSaverSongService _beatSaverSongService;
 
         public CrawlerHost(ILogger<CrawlerHost> logger,
             IBeatSaberSongRepository songRepository,
-            BeatSaverRepository beatSaverRepository,
-            BeatSaverSongService beatSaverSongService)
+            BeatSaverRepository beatSaverRepository)
         {
             _logger = logger;
             _songRepository = songRepository;
             _beatSaverRepository = beatSaverRepository;
-            _beatSaverSongService = beatSaverSongService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -122,7 +119,6 @@ namespace BeatSaverMatcher.Crawler
         private async Task InsertOrUpdate(BeatSaverSong song, CancellationToken cancellationToken)
         {
             var mappedSong = MapSong(song);
-            await _beatSaverSongService.UpdateSongCache(mappedSong.BeatSaverKey, song, cancellationToken);
             if (mappedSong != null)
             {
                 var inserted = await _songRepository.InsertOrUpdateSong(mappedSong);

@@ -107,6 +107,28 @@ namespace BeatSaverMatcher.Common.BeatSaver
             }, token);
         }
 
+        public async Task<IList<BeatSaverScore>> GetScoresAfter(DateTime lastUpdatedAt, CancellationToken token)
+        {
+            return await DoWithRetries(async () =>
+            {
+                var url = $"https://beatsaver.com/api/vote?since={HttpUtility.UrlEncode(DateTime.SpecifyKind(lastUpdatedAt, DateTimeKind.Utc).ToString("o"))}";
+                var request = WebRequest.CreateHttp(url);
+                request.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36");
+                request.Headers.Add("sec-fetch-mode", "navigate");
+                request.Headers.Add("sec-fetch-user", "?1");
+                request.Headers.Add("accept-language", "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7");
+
+                IList<BeatSaverScore> result;
+                var response = (HttpWebResponse)await request.GetResponseAsync();
+                using (var sr = new StreamReader(response.GetResponseStream()))
+                {
+                    result = JsonSerializer.Deserialize<IList<BeatSaverScore>>(sr.ReadToEnd(), _beatSaverSerializerOptions);
+                }
+
+                return result;
+            }, token);
+        }
+
         private async Task<T> DoWithRetries<T>(Func<Task<T>> action, CancellationToken token)
         {
             int tries = 0;

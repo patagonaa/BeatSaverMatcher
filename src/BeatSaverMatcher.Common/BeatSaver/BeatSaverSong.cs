@@ -55,6 +55,16 @@ namespace BeatSaverMatcher.Common.BeatSaver
         public IList<BeatSaverDifficulty> Diffs { get; set; }
     }
 
+    public class BeatSaverScore
+    {
+        //Hash
+        public int MapId { get; set; }
+        // Key64
+        public int Upvotes { get; set; }
+        public int Downvotes { get; set; }
+        public double Score { get; set; }
+    }
+
     public class BeatSaverDifficulty
     {
         public BeatSaverDifficultyType Difficulty { get; set; }

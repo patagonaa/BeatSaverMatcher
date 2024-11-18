@@ -18,17 +18,27 @@ namespace BeatSaverMatcher.Common.Db
             SqlMapper.AddTypeMap(typeof(DateTime), DbType.DateTime2); // use datetime2 so datetimes are saved with max. precision
         }
 
-        public async Task<IList<BeatSaberSong>> GetMatches(string artistName, string trackName, bool allowAutomapped)
+        public async Task<IList<BeatSaberSongWithRatings>> GetMatches(string artistName, string trackName)
         {
             artistName = "\"" + new string(artistName.Where(x => x != '"' && x != '*').ToArray()) + "\"";
             trackName = "\"" + new string(trackName.Where(x => x != '"' && x != '*').ToArray()) + "\"";
             using (var connection = GetConnection())
             {
-                var query = allowAutomapped ?
-                    "SELECT * FROM [dbo].[BeatSaberSong] WHERE CONTAINS(*, @ArtistName) AND CONTAINS(*, @TrackName)" :
-                    "SELECT * FROM [dbo].[BeatSaberSong] WHERE CONTAINS(*, @ArtistName) AND CONTAINS(*, @TrackName) AND AutoMapper IS NULL";
+                var query =
+                    @"
+SELECT
+	song.*,
+	rating.Upvotes,
+	rating.Downvotes,
+	rating.Score
+FROM [BeatSaberSong] song
+LEFT JOIN [BeatSaberSongRatings] rating ON song.[BeatSaverKey] = rating.[BeatSaverKey]
+WHERE [DeletedAt] IS NULL AND
+    CONTAINS(song.*, @ArtistName) AND
+    CONTAINS(song.*, @TrackName) AND
+    song.AutoMapper IS NULL";
 
-                var results = await connection.QueryAsync<BeatSaberSong>(query, new { ArtistName = artistName, TrackName = trackName });
+                var results = await connection.QueryAsync<BeatSaberSongWithRatings>(query, new { ArtistName = artistName, TrackName = trackName });
                 return results.ToList();
             }
         }
@@ -48,6 +58,27 @@ namespace BeatSaverMatcher.Common.Db
                             return null;
                         }
                         return reader.GetInt32(0);
+                    }
+                }
+            }
+        }
+
+        public async Task<IList<int>> GetAllKeys(CancellationToken cancellationToken)
+        {
+            using (var connection = GetConnection())
+            {
+                var sqlStr = @"SELECT BeatSaverKey FROM [dbo].[BeatSaberSong] WHERE [DeletedAt] IS NULL ORDER BY BeatSaverKey ASC";
+
+                using (var command = new SqlCommand(sqlStr, connection))
+                {
+                    using (var reader = await command.ExecuteReaderAsync(cancellationToken))
+                    {
+                        var toReturn = new List<int>();
+                        while (await reader.ReadAsync(cancellationToken))
+                        {
+                            toReturn.Add(reader.GetInt32(0));
+                        }
+                        return toReturn;
                     }
                 }
             }
@@ -73,7 +104,8 @@ namespace BeatSaverMatcher.Common.Db
         [AutoMapper] = @AutoMapper,
         [CreatedAt] = @CreatedAt,
         [UpdatedAt] = @UpdatedAt,
-        [LastPublishedAt] = @LastPublishedAt
+        [LastPublishedAt] = @LastPublishedAt,
+        [DeletedAt] = NULL
     WHERE [BeatSaverKey] = @BeatSaverKey
 ";
 
@@ -97,6 +129,48 @@ namespace BeatSaverMatcher.Common.Db
             }
         }
 
+        public async Task<bool> InsertOrUpdateSongRatings(BeatSaberSongRatings ratings)
+        {
+            using (var connection = GetConnection())
+            {
+                var sqlUpdate = @"
+    UPDATE [dbo].[BeatSaberSongRatings]
+    SET
+        [Upvotes] = @Upvotes,
+        [Downvotes] = @Downvotes,
+        [Score] = @Score,
+        [UpdatedAt] = @UpdatedAt
+    WHERE [BeatSaverKey] = @BeatSaverKey
+";
+
+                var sqlInsert = @"
+    INSERT INTO [dbo].[BeatSaberSongRatings]
+        ([BeatSaverKey],[Upvotes],[Downvotes],[Score],[UpdatedAt])
+        VALUES (@BeatSaverKey,@Upvotes,@Downvotes,@Score,@UpdatedAt)
+";
+
+                bool inserted = false;
+                using (var transaction = connection.BeginTransaction(IsolationLevel.Serializable))
+                {
+                    if (await connection.ExecuteAsync(sqlUpdate, ratings, transaction) == 0)
+                    {
+                        await connection.ExecuteAsync(sqlInsert, ratings, transaction);
+                        inserted = true;
+                    }
+                    transaction.Commit();
+                }
+                return inserted;
+            }
+        }
+
+        public async Task MarkDeleted(int key, DateTime deletedAt)
+        {
+            using var connection = GetConnection();
+            var query = "UPDATE [dbo].[BeatSaberSong] SET DeletedAt = @DeletedAt WHERE BeatSaverKey = @BeatSaverKey";
+
+            await connection.ExecuteAsync(query, new { DeletedAt = deletedAt, BeatSaverKey = key});
+        }
+
         public async Task<IList<(bool AutoMapper, SongDifficulties Difficulties, int Count)>> GetSongCount()
         {
             using var connection = GetConnection();
@@ -111,6 +185,16 @@ namespace BeatSaverMatcher.Common.Db
             using (var connection = GetConnection())
             {
                 var sqlStr = @"SELECT TOP 1 [UpdatedAt] FROM [dbo].[BeatSaberSong] ORDER BY [UpdatedAt] DESC";
+
+                return await connection.QueryFirstOrDefaultAsync<DateTime?>(sqlStr);
+            }
+        }
+
+        public async Task<DateTime?> GetLatestScoreUpdatedAt(CancellationToken token)
+        {
+            using (var connection = GetConnection())
+            {
+                var sqlStr = @"SELECT TOP 1 [UpdatedAt] FROM [dbo].[BeatSaberSongRatings] ORDER BY [UpdatedAt] DESC";
 
                 return await connection.QueryFirstOrDefaultAsync<DateTime?>(sqlStr);
             }
