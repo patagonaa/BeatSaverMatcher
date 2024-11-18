@@ -81,6 +81,12 @@ namespace BeatSaverMatcher.Crawler
                     break;
                 }
 
+                if(songs.Count > 0 && songs.Last().UpdatedAt <= lastUpdatedAt)
+                {
+                    _logger.LogError("Beatsaver returned map before or at last update date, this would cause an endless loop!");
+                    break;
+                }
+
                 try
                 {
                     foreach (var song in songs.Reverse())
@@ -101,6 +107,11 @@ namespace BeatSaverMatcher.Crawler
                 catch (Exception ex)
                 {
                     _logger.LogWarning(ex, "Unknown Exception");
+                    break;
+                }
+
+                if (songs.Count == 0)
+                {
                     break;
                 }
             }
