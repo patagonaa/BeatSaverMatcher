@@ -45,9 +45,26 @@ namespace BeatSaverMatcher.Crawler
             services.Configure<DbConfiguration>(ctx.Configuration);
             services.AddTransient<BeatSaverRepository>();
             services.AddTransient<IBeatSaberSongRepository, BeatSaberSongRepository>();
+            services.AddTransient<BeatSaverSongService>();
             services.AddHostedService<CrawlerHost>();
             services.AddHostedService<MetricsScrapeHost>();
             services.AddHostedService<MetricsServer>();
+
+
+            var hasRedisConnection = !string.IsNullOrEmpty(ctx.Configuration["RedisConnection"]);
+
+            if (hasRedisConnection)
+            {
+                services.AddStackExchangeRedisCache(options =>
+                {
+                    options.Configuration = ctx.Configuration["RedisConnection"];
+                    options.InstanceName = "BeatSaverMatcher";
+                });
+            }
+            else
+            {
+                services.AddDistributedMemoryCache();
+            }
         }
     }
 }

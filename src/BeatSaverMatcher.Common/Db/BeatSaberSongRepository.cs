@@ -3,7 +3,9 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BeatSaverMatcher.Common.Db
@@ -13,6 +15,7 @@ namespace BeatSaverMatcher.Common.Db
         public BeatSaberSongRepository(IOptions<DbConfiguration> options)
             : base(options)
         {
+            SqlMapper.AddTypeMap(typeof(DateTime), DbType.DateTime2); // use datetime2 so datetimes are saved with max. precision
         }
 
         public async Task<IList<BeatSaberSong>> GetMatches(string artistName, string trackName, bool allowAutomapped)
@@ -50,36 +53,47 @@ namespace BeatSaverMatcher.Common.Db
             }
         }
 
-        public async Task<int?> GetLatestBeatSaverKeyBefore(DateTime date)
+        public async Task<bool> InsertOrUpdateSong(BeatSaberSong song)
         {
             using (var connection = GetConnection())
             {
-                var sqlStr = @"SELECT TOP 1 BeatSaverKey FROM [dbo].[BeatSaberSong] WHERE [Uploaded] < @Uploaded ORDER BY BeatSaverKey DESC";
+                var sqlUpdate = @"
+    UPDATE [dbo].[BeatSaberSong]
+    SET
+        [Hash] = @Hash,
+        [Uploader] = @Uploader,
+        [Uploaded] = @Uploaded,
+        [Difficulties] = @Difficulties,
+        [Bpm] = @Bpm,
+        [LevelAuthorName] = @LevelAuthorName,
+        [SongAuthorName] = @SongAuthorName,
+        [SongName] = @SongName,
+        [SongSubName] = @SongSubName,
+        [Name] = @Name,
+        [AutoMapper] = @AutoMapper,
+        [CreatedAt] = @CreatedAt,
+        [UpdatedAt] = @UpdatedAt,
+        [LastPublishedAt] = @LastPublishedAt
+    WHERE [BeatSaverKey] = @BeatSaverKey
+";
 
-                return await connection.QueryFirstOrDefaultAsync<int?>(sqlStr, new { Uploaded = date });
-            }
-        }
-
-        public async Task<bool> HasSong(int key)
-        {
-            using (var connection = GetConnection())
-            {
-                var sqlStr = @"SELECT TOP 1 BeatSaverKey FROM [dbo].[BeatSaberSong] WHERE BeatSaverKey = @Key";
-
-                return (await connection.QueryAsync(sqlStr, new { Key = key })).Count() > 0;
-            }
-        }
-
-        public async Task InsertSong(BeatSaberSong song)
-        {
-            using (var connection = GetConnection())
-            {
-                var sqlStr = @"
+                var sqlInsert = @"
     INSERT INTO [dbo].[BeatSaberSong]
         ([BeatSaverKey],[Hash],[Uploader],[Uploaded],[Difficulties],[Bpm],[LevelAuthorName],[SongAuthorName],[SongName],[SongSubName],[Name],[AutoMapper],[CreatedAt],[UpdatedAt],[LastPublishedAt])
-        VALUES (@BeatSaverKey, @Hash, @Uploader, @Uploaded, @Difficulties, @Bpm, @LevelAuthorName, @SongAuthorName, @SongName, @SongSubName, @Name, @AutoMapper, @CreatedAt, @UpdatedAt, @LastPublishedAt)";
+        VALUES (@BeatSaverKey, @Hash, @Uploader, @Uploaded, @Difficulties, @Bpm, @LevelAuthorName, @SongAuthorName, @SongName, @SongSubName, @Name, @AutoMapper, @CreatedAt, @UpdatedAt, @LastPublishedAt)
+";
 
-                await connection.ExecuteAsync(sqlStr, song);
+                bool inserted = false;
+                using (var transaction = connection.BeginTransaction(IsolationLevel.Serializable))
+                {
+                    if (await connection.ExecuteAsync(sqlUpdate, song, transaction) == 0)
+                    {
+                        await connection.ExecuteAsync(sqlInsert, song, transaction);
+                        inserted = true;
+                    }
+                    transaction.Commit();
+                }
+                return inserted;
             }
         }
 
@@ -90,6 +104,16 @@ namespace BeatSaverMatcher.Common.Db
 
             var results = await connection.QueryAsync<(bool AutoMapper, SongDifficulties Difficulties, int Count)>(query);
             return results.ToList();
+        }
+
+        public async Task<DateTime?> GetLatestUpdatedAt(CancellationToken token)
+        {
+            using (var connection = GetConnection())
+            {
+                var sqlStr = @"SELECT TOP 1 [UpdatedAt] FROM [dbo].[BeatSaberSong] ORDER BY [UpdatedAt] DESC";
+
+                return await connection.QueryFirstOrDefaultAsync<DateTime?>(sqlStr);
+            }
         }
     }
 }

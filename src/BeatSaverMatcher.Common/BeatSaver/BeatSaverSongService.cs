@@ -52,6 +52,12 @@ namespace BeatSaverMatcher.Common.BeatSaver
                 throw new TimeoutException();
             }
 
+            await UpdateSongCache(key, song, cancellationToken);
+            return song;
+        }
+
+        public async Task UpdateSongCache(int key, BeatSaverSong song, CancellationToken cancellationToken)
+        {
             TimeSpan cacheTime;
             if (song == null)
             {
@@ -76,7 +82,6 @@ namespace BeatSaverMatcher.Common.BeatSaver
 
             var options = new DistributedCacheEntryOptions().SetAbsoluteExpiration(cacheTime);
             await _cache.SetStringAsync(CacheKeys.GetForBeatmap(key), song == null ? NegativeCacheEntryValue : JsonSerializer.Serialize(song), options, cancellationToken);
-            return song;
         }
     }
 }

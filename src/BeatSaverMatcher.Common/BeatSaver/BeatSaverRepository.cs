@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Globalization;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace BeatSaverMatcher.Common.BeatSaver
 {
@@ -26,27 +27,6 @@ namespace BeatSaverMatcher.Common.BeatSaver
         public BeatSaverRepository(ILogger<BeatSaverRepository> logger)
         {
             _logger = logger;
-        }
-
-        public async Task<int> GetLatestKey(CancellationToken token)
-        {
-            return await DoWithRetries(async () =>
-            {
-                var request = WebRequest.CreateHttp($"https://beatsaver.com/api/search/text/0?sortOrder=Latest&automapper=true");
-                request.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36");
-                request.Headers.Add("sec-fetch-mode", "navigate");
-                request.Headers.Add("sec-fetch-user", "?1");
-                request.Headers.Add("accept-language", "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7");
-
-                BeatSaverSongPage page;
-                var response = (HttpWebResponse)await request.GetResponseAsync();
-                using (var sr = new StreamReader(response.GetResponseStream()))
-                {
-                    page = JsonSerializer.Deserialize<BeatSaverSongPage>(sr.ReadToEnd(), _beatSaverSerializerOptions);
-                }
-
-                return int.Parse(page.Docs[0].Id, NumberStyles.HexNumber);
-            }, token);
         }
 
         public async Task<BeatSaverSong> GetSong(int key, CancellationToken token)
@@ -80,6 +60,28 @@ namespace BeatSaverMatcher.Common.BeatSaver
                     }
                     throw;
                 }
+            }, token);
+        }
+
+        public async Task<IList<BeatSaverSong>> GetSongsUpdatedAfter(DateTime lastUpdatedAt, CancellationToken token)
+        {
+            return await DoWithRetries(async () =>
+            {
+                var url = $"https://beatsaver.com/api/maps/latest?sort=UPDATED&automapper=true&pageSize=100&after={HttpUtility.UrlEncode(DateTime.SpecifyKind(lastUpdatedAt, DateTimeKind.Utc).ToString("o"))}";
+                var request = WebRequest.CreateHttp(url);
+                request.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36");
+                request.Headers.Add("sec-fetch-mode", "navigate");
+                request.Headers.Add("sec-fetch-user", "?1");
+                request.Headers.Add("accept-language", "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7");
+
+                BeatSaverSongSearchResponse page;
+                var response = (HttpWebResponse)await request.GetResponseAsync();
+                using (var sr = new StreamReader(response.GetResponseStream()))
+                {
+                    page = JsonSerializer.Deserialize<BeatSaverSongSearchResponse>(sr.ReadToEnd(), _beatSaverSerializerOptions);
+                }
+
+                return page.Docs;
             }, token);
         }
 
