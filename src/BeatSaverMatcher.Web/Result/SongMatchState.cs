@@ -6,8 +6,7 @@
         Waiting,
         LoadingSpotifySongs,
         SearchingBeatMaps,
-        LoadingBeatMapRatings,
-        Finished,
+        Finished = 5,
         Error
     }
 }

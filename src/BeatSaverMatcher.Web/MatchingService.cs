@@ -67,11 +67,11 @@ namespace BeatSaverMatcher.Web
 
                     var beatmaps = new List<BeatSaberSongWithRatings>();
 
-                    if (track.Artists.Count == 1)
+                    foreach (var artist in track.Artists)
                     {
                         try
                         {
-                            var directMatches = await _songRepository.GetMatches(track.Artists[0].Name, track.Name);
+                            var directMatches = await _songRepository.GetMatches(artist.Name, track.Name);
                             foreach (var beatmap in directMatches)
                             {
                                 beatmaps.Add(beatmap);
@@ -79,27 +79,8 @@ namespace BeatSaverMatcher.Web
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogWarning(ex, "Error while searching song in DB: {ArtistName} - {SongName}", track.Artists[0].Name, track.Name);
+                            _logger.LogWarning(ex, "Error while searching song in DB: {ArtistName} - {SongName}", artist.Name, track.Name);
                             continue;
-                        }
-                    }
-                    else
-                    {
-                        foreach (var artist in track.Artists)
-                        {
-                            try
-                            {
-                                var directMatches = await _songRepository.GetMatches(artist.Name, track.Name);
-                                foreach (var beatmap in directMatches)
-                                {
-                                    beatmaps.Add(beatmap);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogWarning(ex, "Error while searching song in DB: {ArtistName} - {SongName}", artist.Name, track.Name);
-                                continue;
-                            }
                         }
                     }
 
@@ -113,12 +94,6 @@ namespace BeatSaverMatcher.Web
                 }
 
                 _logger.LogInformation("Found {MatchCount} / {TrackCount} songs!", matches.Count, tracks.Count);
-
-                _logger.LogInformation("Loading beatmap ratings");
-                item.State = SongMatchState.LoadingBeatMapRatings;
-
-                item.ItemsTotal = matches.SelectMany(x => x.DbBeatMaps).Count();
-                item.ItemsProcessed = 0;
 
                 foreach (var match in matches)
                 {
