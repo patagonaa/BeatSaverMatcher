@@ -5,6 +5,7 @@ using BeatSaverMatcher.Web.Result;
 using Microsoft.Extensions.Logging;
 using SpotifyAPI.Web;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -51,47 +52,52 @@ namespace BeatSaverMatcher.Web
                 _logger.LogInformation("Finding beatmaps");
                 item.State = SongMatchState.SearchingBeatMaps;
 
-                var matches = new List<SongMatch>();
+                var matches = new ConcurrentBag<SongMatch>();
 
                 item.ItemsTotal = tracks.Count;
                 item.ItemsProcessed = 0;
 
-                foreach (var track in tracks)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    var match = new SongMatch
+                var processed = 0;
+                await Parallel.ForEachAsync(
+                    tracks,
+                    new ParallelOptions { CancellationToken = cancellationToken, MaxDegreeOfParallelism = 8 },
+                    async (track, _) =>
                     {
-                        SpotifyArtist = string.Join(", ", track.Artists.Select(x => x.Name)),
-                        SpotifyTitle = track.Name
-                    };
-
-                    var beatmaps = new List<BeatSaberSongWithRatings>();
-
-                    foreach (var artist in track.Artists)
-                    {
-                        try
+                        var match = new SongMatch
                         {
-                            var directMatches = await _songRepository.GetMatches(artist.Name, track.Name);
-                            foreach (var beatmap in directMatches)
+                            SpotifyArtist = string.Join(", ", track.Artists.Select(x => x.Name)),
+                            SpotifyTitle = track.Name
+                        };
+
+                        var beatmaps = new List<BeatSaberSongWithRatings>();
+
+                        foreach (var artist in track.Artists)
+                        {
+                            try
                             {
-                                beatmaps.Add(beatmap);
+                                var directMatches = await _songRepository.GetMatches(artist.Name, track.Name);
+                                foreach (var beatmap in directMatches)
+                                {
+                                    beatmaps.Add(beatmap);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogWarning(ex, "Error while searching song in DB: {ArtistName} - {SongName}", artist.Name, track.Name);
+                                continue;
                             }
                         }
-                        catch (Exception ex)
+
+                        if (beatmaps.Any())
                         {
-                            _logger.LogWarning(ex, "Error while searching song in DB: {ArtistName} - {SongName}", artist.Name, track.Name);
-                            continue;
+                            match.DbBeatMaps = beatmaps.GroupBy(x => x.BeatSaverKey).Select(x => x.First()).ToList();
+                            matches.Add(match);
                         }
-                    }
+                        Interlocked.Increment(ref processed);
 
-                    if (beatmaps.Any())
-                    {
-                        match.DbBeatMaps = beatmaps.GroupBy(x => x.BeatSaverKey).Select(x => x.First()).ToList();
-                        matches.Add(match);
-                    }
-
-                    item.ItemsProcessed++;
-                }
+                        item.ItemsProcessed = processed;
+                    });
+                item.ItemsProcessed = processed;
 
                 _logger.LogInformation("Found {MatchCount} / {TrackCount} songs!", matches.Count, tracks.Count);
 
@@ -134,7 +140,7 @@ namespace BeatSaverMatcher.Web
                 {
                     TotalSpotifySongs = tracks.Count,
                     MatchedSpotifySongs = matches.Count,
-                    Matches = matches
+                    Matches = matches.ToList()
                 };
                 _logger.LogInformation("Done.");
                 item.State = SongMatchState.Finished;
