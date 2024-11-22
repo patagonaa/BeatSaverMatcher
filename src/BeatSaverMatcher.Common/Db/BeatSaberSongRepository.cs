@@ -63,27 +63,6 @@ WHERE [DeletedAt] IS NULL AND
             }
         }
 
-        public async Task<IList<int>> GetAllKeys(CancellationToken cancellationToken)
-        {
-            using (var connection = GetConnection())
-            {
-                var sqlStr = @"SELECT BeatSaverKey FROM [dbo].[BeatSaberSong] WHERE [DeletedAt] IS NULL ORDER BY BeatSaverKey ASC";
-
-                using (var command = new SqlCommand(sqlStr, connection))
-                {
-                    using (var reader = await command.ExecuteReaderAsync(cancellationToken))
-                    {
-                        var toReturn = new List<int>();
-                        while (await reader.ReadAsync(cancellationToken))
-                        {
-                            toReturn.Add(reader.GetInt32(0));
-                        }
-                        return toReturn;
-                    }
-                }
-            }
-        }
-
         public async Task<bool> InsertOrUpdateSong(BeatSaberSong song)
         {
             using (var connection = GetConnection())
@@ -185,6 +164,16 @@ WHERE [DeletedAt] IS NULL AND
             using (var connection = GetConnection())
             {
                 var sqlStr = @"SELECT TOP 1 [UpdatedAt] FROM [dbo].[BeatSaberSong] ORDER BY [UpdatedAt] DESC";
+
+                return await connection.QueryFirstOrDefaultAsync<DateTime?>(sqlStr);
+            }
+        }
+
+        public async Task<DateTime?> GetLatestDeletedAt(CancellationToken token)
+        {
+            using (var connection = GetConnection())
+            {
+                var sqlStr = @"SELECT TOP 1 [DeletedAt] FROM [dbo].[BeatSaberSong] ORDER BY [DeletedAt] DESC";
 
                 return await connection.QueryFirstOrDefaultAsync<DateTime?>(sqlStr);
             }

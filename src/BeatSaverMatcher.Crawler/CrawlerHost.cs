@@ -41,7 +41,7 @@ namespace BeatSaverMatcher.Crawler
         {
             DateTime lastUpdatedAt = await _songRepository.GetLatestUpdatedAt(token) ?? DateTime.UnixEpoch;
 
-            _logger.LogInformation("Starting crawl at {Key}", lastUpdatedAt);
+            _logger.LogInformation("Starting update crawl at {Date}", lastUpdatedAt);
 
             while (true)
             {
