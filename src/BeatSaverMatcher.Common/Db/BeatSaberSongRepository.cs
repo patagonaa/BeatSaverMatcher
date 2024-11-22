@@ -153,7 +153,14 @@ WHERE [DeletedAt] IS NULL AND
         public async Task<IList<(bool AutoMapper, SongDifficulties Difficulties, int Count)>> GetSongCount()
         {
             using var connection = GetConnection();
-            var query = "SELECT CAST(IIF(AutoMapper IS NOT NULL, '1', '0') AS bit) AS AutoMapper, Difficulties, COUNT(*) AS Count FROM [dbo].[BeatSaberSong] GROUP BY AutoMapper, Difficulties";
+            var query = @"
+SELECT
+    CAST(IIF(AutoMapper IS NOT NULL, '1', '0') AS bit) AS AutoMapper,
+    Difficulties,
+    COUNT(*) AS Count
+FROM [dbo].[BeatSaberSong]
+WHERE [DeletedAt] IS NULL
+GROUP BY AutoMapper, Difficulties";
 
             var results = await connection.QueryAsync<(bool AutoMapper, SongDifficulties Difficulties, int Count)>(query);
             return results.ToList();
