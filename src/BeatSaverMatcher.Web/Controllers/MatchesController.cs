@@ -18,12 +18,13 @@ namespace BeatSaverMatcher.Web.Controllers
         }
 
         [HttpPost("{playlistId}")]
-        public void StartMatch([FromRoute] string playlistId)
+        public ActionResult StartMatch([FromRoute] string playlistId)
         {
             if (!_itemStore.Enqueue(playlistId))
-                Conflict();
-            else
-                _startMatchCounter.Inc();
+                return Conflict();
+
+            _startMatchCounter.Inc();
+            return Ok();
         }
 
         [HttpGet("{playlistId}")]

@@ -35,10 +35,10 @@ namespace BeatSaverMatcher.Web.Controllers
         {
             var workItem = _itemStore.Get(playlistId);
             if (workItem == null)
-                NotFound();
+                return NotFound();
 
             if (workItem.State != SongMatchState.Finished)
-                BadRequest();
+                return BadRequest();
 
             var playlist = await _spotifyRepository.GetPlaylist(playlistId, cancellationToken);
 

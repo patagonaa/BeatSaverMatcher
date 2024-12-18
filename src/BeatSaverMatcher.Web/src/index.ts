@@ -31,7 +31,8 @@ class AppViewModel {
                 var response = await fetch(`/api/Matches/${this.playlistId()}`);
                 item = <WorkResultItem>await response.json();
             } catch (e) {
-                item.state = SongMatchState.Error;
+                this.stateName(SongMatchState[SongMatchState.Error]);
+                throw 'Something went wrong!';
             }
 
             this.workItem(item);
