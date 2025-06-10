@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     </PropertyGroup>
 
@@ -26,11 +26,12 @@
         <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
         <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.4" />
         <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-        <PackageReference Include="SpotifyAPI.Web" Version="7.2.1" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\BeatSaverMatcher.Common\BeatSaverMatcher.Common.csproj" />
+        <ProjectReference Include="..\BeatSaverMatcher.Api\BeatSaverMatcher.Api.csproj" />
+        <ProjectReference Include="..\BeatSaverMatcher.Api.Spotify\BeatSaverMatcher.Api.Spotify.csproj" />
     </ItemGroup>
 
     <Target Name="RunWebpack" AfterTargets="Build">

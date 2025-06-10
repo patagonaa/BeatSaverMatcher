@@ -1,4 +1,4 @@
-﻿namespace BeatSaverMatcher.Web
+﻿namespace BeatSaverMatcher.Api.Spotify
 {
     public class SpotifyConfiguration
     {

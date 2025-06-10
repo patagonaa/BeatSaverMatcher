@@ -1,3 +1,5 @@
+using BeatSaverMatcher.Api.Spotify;
+using BeatSaverMatcher.Api.Tidal;
 using BeatSaverMatcher.Common;
 using BeatSaverMatcher.Common.BeatSaver;
 using BeatSaverMatcher.Common.Db;
@@ -25,6 +27,11 @@ namespace BeatSaverMatcher.Web
         {
             services.Configure<SpotifyConfiguration>(Configuration.GetSection("Spotify"));
             services.AddTransient<SpotifyRepository>();
+
+            services.Configure<TidalConfiguration>(Configuration.GetSection("Tidal"));
+            services.AddTransient<TidalClient>();
+            services.AddSingleton<TidalRateLimitHandler>();
+
             services.AddTransient<MatchingService>();
             services.AddTransient<BeatSaverRepository>();
             services.AddSingleton<WorkItemStore>();

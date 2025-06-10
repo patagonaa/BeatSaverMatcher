@@ -1,11 +1,11 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - && apt install -y nodejs && rm -rf /var/lib/apt/lists/*
 WORKDIR /app/src
 COPY src/ .
 RUN dotnet restore BeatSaverMatcher.Web/BeatSaverMatcher.Web.csproj
 RUN dotnet publish -c Release BeatSaverMatcher.Web/BeatSaverMatcher.Web.csproj -o /app/build
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/build/ ./
 ENTRYPOINT ["dotnet", "BeatSaverMatcher.Web.dll"]

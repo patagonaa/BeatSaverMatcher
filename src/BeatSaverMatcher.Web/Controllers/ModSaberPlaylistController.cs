@@ -4,11 +4,12 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using BeatSaverMatcher.Api;
+using BeatSaverMatcher.Api.Spotify;
 using BeatSaverMatcher.Web.Models;
 using BeatSaverMatcher.Web.Result;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using SpotifyAPI.Web;
 
 namespace BeatSaverMatcher.Web.Controllers
 {
@@ -49,12 +50,12 @@ namespace BeatSaverMatcher.Web.Controllers
                 beatmaps = beatmaps.Where(x => keysList.Contains(x.BeatSaverKey.ToString("x"))).ToList();
             }
             var header = new ContentDispositionHeaderValue("attachment") { FileName = playlist.Id + ".bplist", FileNameStar = playlist.Name + ".bplist" };
-            Response.Headers.Add("Content-Disposition", header.ToString());
+            Response.Headers.ContentDisposition = header.ToString();
 
             return new ModSaberPlaylist
             {
                 PlaylistTitle = playlist.Name,
-                PlaylistAuthor = (playlist.Owner?.DisplayName ?? "") + " using https://github.com/patagonaa/BeatSaverMatcher",
+                PlaylistAuthor = (playlist.OwnerName ?? "") + " using https://github.com/patagonaa/BeatSaverMatcher",
                 Image = await GetImage(playlist, cancellationToken),
                 Songs = beatmaps.Select(x => new ModSaberSong
                 {
@@ -66,11 +67,11 @@ namespace BeatSaverMatcher.Web.Controllers
             };
         }
 
-        private async Task<string> GetImage(FullPlaylist playlist, CancellationToken cancellationToken)
+        private async Task<string> GetImage(Playlist playlist, CancellationToken cancellationToken)
         {
             try
             {
-                var imageUrl = playlist.Images?.LastOrDefault(x => Math.Max(x.Width, x.Height) >= 256)?.Url;
+                var imageUrl = playlist.ImageUrl;
                 if (imageUrl == null)
                 {
                     return null;

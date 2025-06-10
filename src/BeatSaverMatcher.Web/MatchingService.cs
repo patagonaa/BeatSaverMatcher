@@ -1,9 +1,9 @@
-﻿using BeatSaverMatcher.Common.BeatSaver;
+﻿using BeatSaverMatcher.Api;
+using BeatSaverMatcher.Api.Spotify;
 using BeatSaverMatcher.Common.Db;
 using BeatSaverMatcher.Web.Models;
 using BeatSaverMatcher.Web.Result;
 using Microsoft.Extensions.Logging;
-using SpotifyAPI.Web;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,7 +15,7 @@ namespace BeatSaverMatcher.Web
 {
     public class MatchingService
     {
-        private readonly SpotifyRepository _spotifyRepository;
+        private readonly IMusicServiceApi _spotifyRepository;
         private readonly IBeatSaberSongRepository _songRepository;
         private readonly ILogger<MatchingService> _logger;
 
@@ -35,7 +35,7 @@ namespace BeatSaverMatcher.Web
                 item.ItemsTotal = 1;
                 item.ItemsProcessed = 0;
 
-                IList<FullTrack> tracks;
+                IList<PlaylistSong> tracks;
 
                 try
                 {
@@ -46,7 +46,7 @@ namespace BeatSaverMatcher.Web
                 }
                 catch (APIException aex)
                 {
-                    throw new MatchingException($"Error while loading playlist: {aex.Message}");
+                    throw new MatchingException($"Error while loading playlist: {aex.Message}", aex);
                 }
 
                 _logger.LogInformation("Finding beatmaps");
@@ -65,7 +65,7 @@ namespace BeatSaverMatcher.Web
                     {
                         var match = new SongMatch
                         {
-                            SpotifyArtist = string.Join(", ", track.Artists.Select(x => x.Name)),
+                            SpotifyArtist = string.Join(", ", track.Artists),
                             SpotifyTitle = track.Name
                         };
 
@@ -75,7 +75,7 @@ namespace BeatSaverMatcher.Web
                         {
                             try
                             {
-                                var directMatches = await _songRepository.GetMatches(artist.Name, track.Name);
+                                var directMatches = await _songRepository.GetMatches(artist, track.Name);
                                 foreach (var beatmap in directMatches)
                                 {
                                     beatmaps.Add(beatmap);
@@ -83,7 +83,7 @@ namespace BeatSaverMatcher.Web
                             }
                             catch (Exception ex)
                             {
-                                _logger.LogWarning(ex, "Error while searching song in DB: {ArtistName} - {SongName}", artist.Name, track.Name);
+                                _logger.LogWarning(ex, "Error while searching song in DB: {ArtistName} - {SongName}", artist, track.Name);
                                 continue;
                             }
                         }
@@ -160,8 +160,8 @@ namespace BeatSaverMatcher.Web
 
         private class MatchingException : Exception
         {
-            public MatchingException(string message)
-                : base(message)
+            public MatchingException(string message, Exception inner = null)
+                : base(message, inner)
             {
             }
         }

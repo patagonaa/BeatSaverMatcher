@@ -9,6 +9,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaverMatcher.Crawler", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaverMatcher.Common", "BeatSaverMatcher.Common\BeatSaverMatcher.Common.csproj", "{004D261B-DCA3-438A-8D57-8F9029F40E21}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaverMatcher.Api.Tidal", "BeatSaverMatcher.Api.Tidal\BeatSaverMatcher.Api.Tidal.csproj", "{74136C7D-1FA0-43F1-9652-DDD832B86675}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaverMatcher.Api", "BeatSaverMatcher.Api\BeatSaverMatcher.Api.csproj", "{B5AD31CD-1050-42DA-973A-5CC70DE92C6F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaverMatcher.Api.Spotify", "BeatSaverMatcher.Api.Spotify\BeatSaverMatcher.Api.Spotify.csproj", "{B9CAA35C-F438-4F97-87AA-C0E6CE67C3F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +33,18 @@ Global
 		{004D261B-DCA3-438A-8D57-8F9029F40E21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{004D261B-DCA3-438A-8D57-8F9029F40E21}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{004D261B-DCA3-438A-8D57-8F9029F40E21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74136C7D-1FA0-43F1-9652-DDD832B86675}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74136C7D-1FA0-43F1-9652-DDD832B86675}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74136C7D-1FA0-43F1-9652-DDD832B86675}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74136C7D-1FA0-43F1-9652-DDD832B86675}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5AD31CD-1050-42DA-973A-5CC70DE92C6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5AD31CD-1050-42DA-973A-5CC70DE92C6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5AD31CD-1050-42DA-973A-5CC70DE92C6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5AD31CD-1050-42DA-973A-5CC70DE92C6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9CAA35C-F438-4F97-87AA-C0E6CE67C3F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9CAA35C-F438-4F97-87AA-C0E6CE67C3F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9CAA35C-F438-4F97-87AA-C0E6CE67C3F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9CAA35C-F438-4F97-87AA-C0E6CE67C3F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
