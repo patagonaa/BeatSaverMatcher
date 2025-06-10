@@ -1,5 +1,6 @@
 ﻿using BeatSaverMatcher.Api;
 using BeatSaverMatcher.Api.Spotify;
+using BeatSaverMatcher.Api.Tidal;
 using BeatSaverMatcher.Common.Db;
 using BeatSaverMatcher.Web.Models;
 using BeatSaverMatcher.Web.Result;
@@ -15,13 +16,15 @@ namespace BeatSaverMatcher.Web
 {
     public class MatchingService
     {
-        private readonly IMusicServiceApi _spotifyRepository;
+        private readonly SpotifyRepository _spotifyClient;
+        private readonly TidalClient _tidalClient;
         private readonly IBeatSaberSongRepository _songRepository;
         private readonly ILogger<MatchingService> _logger;
 
-        public MatchingService(SpotifyRepository spotifyRepository, IBeatSaberSongRepository songRepository, ILogger<MatchingService> logger)
+        public MatchingService(SpotifyRepository spotifyClient, TidalClient tidalClient, IBeatSaberSongRepository songRepository, ILogger<MatchingService> logger, ILogger<TidalClient> logger1)
         {
-            _spotifyRepository = spotifyRepository;
+            _spotifyClient = spotifyClient;
+            _tidalClient = tidalClient;
             _songRepository = songRepository;
             _logger = logger;
         }
@@ -30,17 +33,19 @@ namespace BeatSaverMatcher.Web
         {
             try
             {
-                _logger.LogInformation("Loading Spotify songs for playlist {PlaylistId}", item.PlaylistId);
-                item.State = SongMatchState.LoadingSpotifySongs;
+                _logger.LogInformation("Loading songs for playlist {PlaylistId}", item.PlaylistId);
+                item.State = SongMatchState.LoadingPlaylistSongs;
                 item.ItemsTotal = 1;
                 item.ItemsProcessed = 0;
 
                 IList<PlaylistSong> tracks;
 
+                IMusicServiceApi client = Guid.TryParse(item.PlaylistId, out _) ? _tidalClient : _spotifyClient;
+
                 try
                 {
                     var progressCallback = (int current, int total) => { item.ItemsProcessed = current; item.ItemsTotal = total; };
-                    tracks = (await _spotifyRepository.GetTracksForPlaylist(item.PlaylistId, progressCallback, cancellationToken))
+                    tracks = (await client.GetTracksForPlaylist(item.PlaylistId, progressCallback, cancellationToken))
                         .Where(x => x != null)
                         .ToList();
                 }
@@ -65,8 +70,8 @@ namespace BeatSaverMatcher.Web
                     {
                         var match = new SongMatch
                         {
-                            SpotifyArtist = string.Join(", ", track.Artists),
-                            SpotifyTitle = track.Name
+                            PlaylistArtist = string.Join(", ", track.Artists),
+                            PlaylistTitle = track.Name
                         };
 
                         var beatmaps = new List<BeatSaberSongWithRatings>();
@@ -138,8 +143,8 @@ namespace BeatSaverMatcher.Web
 
                 item.Result = new SongMatchResult
                 {
-                    TotalSpotifySongs = tracks.Count,
-                    MatchedSpotifySongs = matches.Count,
+                    TotalPlaylistSongs = tracks.Count,
+                    MatchedPlaylistSongs = matches.Count,
                     Matches = matches.ToList()
                 };
                 _logger.LogInformation("Done.");

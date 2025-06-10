@@ -14,7 +14,7 @@ class AppViewModel {
 
 
     public async run() {
-        let matches = this.playlistId().match(/(?:playlist[\/:])?([\w]+)(?:\?.+)?$/);
+        let matches = this.playlistId().match(/(?:playlist[\/:])?([\w-]+)(?:\?.+)?$/);
 
         if (matches) {
             this.playlistId(matches[1]);
@@ -105,21 +105,21 @@ interface WorkResultItem {
 enum SongMatchState {
     None,
     Waiting,
-    LoadingSpotifySongs,
+    LoadingPlaylistSongs,
     SearchingBeatMaps,
     Finished = 5,
     Error
 }
 
 interface SongMatchResult {
-    matchedSpotifySongs: number;
-    totalSpotifySongs: number;
+    matchedPlaylistSongs: number;
+    totalPlaylistSongs: number;
     matches: SongMatch[];
 }
 
 interface SongMatch {
-    spotifyArtist: string;
-    spotifyTitle: string;
+    playlistArtist: string;
+    playlistTitle: string;
     beatMaps: BeatSaberSong[];
 }
 

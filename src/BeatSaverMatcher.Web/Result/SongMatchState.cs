@@ -4,7 +4,7 @@
     {
         None,
         Waiting,
-        LoadingSpotifySongs,
+        LoadingPlaylistSongs,
         SearchingBeatMaps,
         Finished = 5,
         Error

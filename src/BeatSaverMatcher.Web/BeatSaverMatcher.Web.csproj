@@ -32,6 +32,7 @@
         <ProjectReference Include="..\BeatSaverMatcher.Common\BeatSaverMatcher.Common.csproj" />
         <ProjectReference Include="..\BeatSaverMatcher.Api\BeatSaverMatcher.Api.csproj" />
         <ProjectReference Include="..\BeatSaverMatcher.Api.Spotify\BeatSaverMatcher.Api.Spotify.csproj" />
+        <ProjectReference Include="..\BeatSaverMatcher.Api.Tidal\BeatSaverMatcher.Api.Tidal.csproj" />
     </ItemGroup>
 
     <Target Name="RunWebpack" AfterTargets="Build">

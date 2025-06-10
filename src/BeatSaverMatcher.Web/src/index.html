@@ -60,7 +60,7 @@
             <div data-bind="visible: stateName() == 'Finished', if: stateName() == 'Finished'">
                 <a data-bind="attr: {href: 'bsplaylist://playlist/'+playlistUri()}">Open selected as playlist</a><br />
                 <a data-bind="attr: {href: playlistUri}">Download selected as playlist</a><br />
-                <span data-bind="text: result().matchedSpotifySongs"></span> / <span data-bind="text: result().totalSpotifySongs"></span> matched!<br />
+                <span data-bind="text: result().matchedPlaylistSongs"></span> / <span data-bind="text: result().totalPlaylistSongs"></span> matched!<br />
 
                 Columns:
                 <label><input type="checkbox" data-bind="checked: visibleColumns" value="songAuthorName" /> Song author</label>
@@ -72,7 +72,7 @@
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th colspan="2">Spotify</th>
+                            <th colspan="2">Playlist</th>
                             <th data-bind="attr: {colspan: visibleColumns().length + 5}">BeatSaber</th>
                             <th></th>
                         </tr>
@@ -109,8 +109,8 @@
                         <!-- ko foreach: beatMaps -->
                         <tr>
                             <!-- ko if: $index() == 0 -->
-                            <td data-bind="attr: {rowspan: $parent.beatMaps.length}"><span data-bind="text: $parent.spotifyArtist"></span></td>
-                            <td data-bind="attr: {rowspan: $parent.beatMaps.length}"><span data-bind="text: $parent.spotifyTitle"></span></td>
+                            <td data-bind="attr: {rowspan: $parent.beatMaps.length}"><span data-bind="text: $parent.playlistArtist"></span></td>
+                            <td data-bind="attr: {rowspan: $parent.beatMaps.length}"><span data-bind="text: $parent.playlistTitle"></span></td>
                             <!-- /ko -->
 
                             <td><span data-bind="text: name"></span></td>

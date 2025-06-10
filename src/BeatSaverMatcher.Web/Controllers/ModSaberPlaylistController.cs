@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BeatSaverMatcher.Api;
 using BeatSaverMatcher.Api.Spotify;
+using BeatSaverMatcher.Api.Tidal;
 using BeatSaverMatcher.Web.Models;
 using BeatSaverMatcher.Web.Result;
 using Microsoft.AspNetCore.Mvc;
@@ -18,14 +19,16 @@ namespace BeatSaverMatcher.Web.Controllers
     public class ModSaberPlaylistController : ControllerBase
     {
         private readonly WorkItemStore _itemStore;
-        private readonly SpotifyRepository _spotifyRepository;
+        private readonly SpotifyRepository _spotifyClient;
+        private readonly TidalClient _tidalClient;
         private readonly ILogger<ModSaberPlaylistController> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public ModSaberPlaylistController(WorkItemStore itemStore, SpotifyRepository spotifyRepository, ILogger<ModSaberPlaylistController> logger, IHttpClientFactory httpClientFactory)
+        public ModSaberPlaylistController(WorkItemStore itemStore, SpotifyRepository spotifyClient, TidalClient tidalClient, ILogger<ModSaberPlaylistController> logger, IHttpClientFactory httpClientFactory)
         {
             _itemStore = itemStore;
-            _spotifyRepository = spotifyRepository;
+            _spotifyClient = spotifyClient;
+            _tidalClient = tidalClient;
             _logger = logger;
             _httpClientFactory = httpClientFactory;
         }
@@ -41,7 +44,9 @@ namespace BeatSaverMatcher.Web.Controllers
             if (workItem.State != SongMatchState.Finished)
                 return BadRequest();
 
-            var playlist = await _spotifyRepository.GetPlaylist(playlistId, cancellationToken);
+            IMusicServiceApi client = Guid.TryParse(playlistId, out _) ? _tidalClient : _spotifyClient;
+
+            var playlist = await client.GetPlaylist(playlistId, cancellationToken);
 
             var beatmaps = workItem.Result.Matches.SelectMany(x => x.BeatMaps).ToList();
             if (keys != null)
