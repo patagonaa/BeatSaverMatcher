@@ -8,8 +8,10 @@ services:
     ports:
       - "8080:80"
     environment:
-      - "Spotity__ClientId="
-      - "Spotity__ClientSecret="
+      - "Spotify__ClientId="
+      - "Spotify__ClientSecret="
+      - "Tidal__ClientId="
+      - "Tidal__ClientSecret="
       - "ConnectionString=Server=db,1433;Database=BeatSaverMatcher;User Id=sa;Password=!1Start1!;"
       - "RedisConnection=redis"
     restart: unless-stopped

@@ -108,7 +108,7 @@ public class TidalClient : IMusicServiceApi, IDisposable
 
         var toReturn = new List<PlaylistSong>();
 
-        var nextUri = $"playlists/{playlistId}/relationships/items?countryCode=US";
+        var nextUri = $"playlists/{playlistId}/relationships/items?countryCode=US&include=items.artists";
 
         while (nextUri != null)
         {
@@ -120,23 +120,11 @@ public class TidalClient : IMusicServiceApi, IDisposable
 
             nextUri = itemsResponse.Links?.GetValueOrDefault("next")?.TrimStart('/');
 
-            var urlParams = new List<KeyValuePair<string, string?>>
-            {
-                new("countryCode", "US"),
-                new("include", "artists")
-            };
-            foreach (var item in itemsResponse.Data)
-            {
-                urlParams.Add(new("filter[id]", item.Id));
-            }
+            // Fix for API bug (next-page URI only has top level include)
+            nextUri = nextUri?.Replace("?include=items&", "?include=items.artists&");
 
-            var tracksResponse = await GetWithRateLimit<TidalResponse<IList<TidalTrackData>>>(_httpClient, QueryHelpers.AddQueryString("tracks", urlParams), cancellationToken);
-
-            if (tracksResponse?.Data == null)
-                throw new APIException("missing data from response!");
-
-            var tracks = tracksResponse.Data.ToDictionary(x => x.Id ?? throw new Exception("missing ID"), x => x);
-            var artists = tracksResponse.GetIncluded<TidalArtistData>("artists");
+            var tracks = itemsResponse.GetIncluded<TidalTrackData>("tracks");
+            var artists = itemsResponse.GetIncluded<TidalArtistData>("artists");
 
             foreach (var item in itemsResponse.Data)
             {
