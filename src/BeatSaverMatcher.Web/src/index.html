@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>BeatSaverMatcher</title>
-    <meta name="description" content="A web app to match Spotify playlists to Beatsaber songs from Beatsaver" />
-    <meta name="keywords" content="spotify, playlist, beatsaber, beat saber, beatsaver, beat saver, bsmatcher, bsabermatcher, playlist, beatsaver.com, modassistant" />
+    <meta name="description" content="A web app to match Spotify / Tidal playlists to Beatsaber songs from Beatsaver" />
+    <meta name="keywords" content="spotify, tidal, playlist, beatsaber, beat saber, beatsaver, beat saver, bsmatcher, bsabermatcher, playlist, beatsaver.com, modassistant" />
     <link rel="icon" type="image/png" href="icon_32.png" sizes="32x32" />
     <link rel="icon" type="image/png" href="icon_48.png" sizes="48x48" />
     <link rel="icon" type="image/png" href="icon.png" sizes="512x512" />
@@ -13,10 +13,10 @@
     <div id="main">
         <div class="container-fluid">
             <h1>BeatSaverMatcher</h1>
-            <h6 class="subtitle text-muted">Match Spotify playlists to songs on beatsaver.com</h6>
+            <h6 class="subtitle text-muted">Match Spotify / Tidal playlists to songs on beatsaver.com</h6>
             <form>
                 <div class="form-group">
-                    <label for="urlInput">Spotify playlist link or playlist URI:</label>
+                    <label for="urlInput">Spotify / Tidal playlist link or playlist URI:</label>
                     <input id="urlInput" class="form-control" type="text" data-bind="textInput: playlistId, enable: (stateName() == 'None' || stateName() == 'Finished')" placeholder="https://open.spotify.com/playlist/xxxxxxxxxxxxxxxxxxxxxx" />
                     <small class="form-text text-muted">Note: Automapped Beatmaps are ignored</small>
                 </div>
