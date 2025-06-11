@@ -99,7 +99,7 @@ public class TidalClient : IMusicServiceApi, IDisposable
         return new Playlist(elem.Data.Id ?? throw new Exception("missing ID"), attributes.Name, "???", coverUrl);
     }
 
-    public async Task<IList<PlaylistSong>> GetTracksForPlaylist(string playlistId, Action<int, int> progress, CancellationToken cancellationToken)
+    public async Task<IList<PlaylistSong>> GetTracksForPlaylist(string playlistId, Action<int, int?> progress, CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(playlistId, out _))
             throw new APIException("Invalid playlist ID!");
@@ -145,7 +145,7 @@ public class TidalClient : IMusicServiceApi, IDisposable
                 }
                 toReturn.Add(new PlaylistSong(track.Attributes.Title, trackArtists));
             }
-            progress(toReturn.Count, -1);
+            progress(toReturn.Count, null);
         }
 
         return toReturn;

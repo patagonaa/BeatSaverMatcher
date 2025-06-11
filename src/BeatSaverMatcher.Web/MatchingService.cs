@@ -44,7 +44,7 @@ namespace BeatSaverMatcher.Web
 
                 try
                 {
-                    var progressCallback = (int current, int total) => { item.ItemsProcessed = current; item.ItemsTotal = total; };
+                    var progressCallback = (int current, int? total) => { item.ItemsProcessed = current; item.ItemsTotal = total; };
                     tracks = (await client.GetTracksForPlaylist(item.PlaylistId, progressCallback, cancellationToken))
                         .Where(x => x != null)
                         .ToList();

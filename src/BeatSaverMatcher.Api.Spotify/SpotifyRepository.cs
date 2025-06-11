@@ -33,7 +33,7 @@ namespace BeatSaverMatcher.Api.Spotify
                 spotifyPlaylist.Images?.LastOrDefault(x => Math.Max(x.Width, x.Height) >= 256)?.Url);
         }
 
-        public async Task<IList<PlaylistSong>> GetTracksForPlaylist(string playlistId, Action<int, int> progress, CancellationToken cancellationToken)
+        public async Task<IList<PlaylistSong>> GetTracksForPlaylist(string playlistId, Action<int, int?> progress, CancellationToken cancellationToken)
         {
             var toReturn = new List<PlaylistSong>();
 

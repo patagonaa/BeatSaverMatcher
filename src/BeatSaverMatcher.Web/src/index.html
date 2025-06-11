@@ -49,7 +49,7 @@
             <div class="status" data-bind="visible: stateName() != 'Finished' && stateName() != 'None'">
                 <div>
                     Status: <span data-bind="text: stateName()"></span><br />
-                    <progress data-bind="attr: {value: (workItem() && workItem().itemsProcessed) || 0, max: (workItem() && workItem().itemsTotal) || 1}"></progress>&nbsp;(<span data-bind="text: (workItem() && workItem().itemsProcessed) || 0"></span> / <span data-bind="text: (workItem() && workItem().itemsTotal) || 0"></span>)
+                    <progress data-bind="attr: {value: (workItem() && workItem().itemsProcessed) || 0, max: (workItem() && workItem().itemsTotal) || 1}"></progress>&nbsp;(<span data-bind="text: (workItem() && workItem().itemsProcessed) || 0"></span> / <span data-bind="text: (workItem() && workItem().itemsTotal) || '?'"></span>)
                 </div>
                 <div data-bind="visible: stateName() == 'Error' && workItem() && workItem().errorMessage">
                     <div class="alert alert-danger">
