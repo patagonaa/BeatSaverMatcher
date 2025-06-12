@@ -8,6 +8,7 @@ services:
     ports:
       - "8080:80"
     environment:
+      - "ASPNETCORE_HTTP_PORTS=80"
       - "Spotify__ClientId="
       - "Spotify__ClientSecret="
       - "Tidal__ClientId="
