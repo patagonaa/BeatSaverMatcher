@@ -9,6 +9,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -51,7 +53,21 @@ namespace BeatSaverMatcher.Web
                 }
                 catch (APIException aex)
                 {
-                    throw new MatchingException($"Error while loading playlist: {aex.Message}", aex);
+                    if (aex.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        throw new MatchingException("Error 404 while loading playlist: Not Found (is it public?)", aex);
+                    }
+                    else
+                    {
+                        var sb = new StringBuilder();
+                        sb.Append("Error ");
+                        if (aex.StatusCode != null)
+                            sb.Append($"{aex.StatusCode.Value} ");
+                        sb.Append("while loading playlist");
+                        if (aex.Message != null)
+                            sb.Append($": {aex.Message}");
+                        throw new MatchingException(sb.ToString(), aex);
+                    }
                 }
 
                 _logger.LogInformation("Finding beatmaps");

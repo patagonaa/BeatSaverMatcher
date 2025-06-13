@@ -21,6 +21,20 @@ internal class TidalResponse<TData>
     }
 }
 
+internal class TidalErrorResponse
+{
+    public IList<TidalError> Errors { get; set; }
+}
+
+internal class TidalError
+{
+    public string Id { get; set; }
+    public string Status { get; set; }
+    public string Code { get; set; }
+    public string Detail { get; set; }
+    //...
+}
+
 internal class TidalData
 {
     public string? Id { get; set; }

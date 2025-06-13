@@ -73,14 +73,14 @@ public class TidalClient : IMusicServiceApi, IDisposable
     public async Task<Playlist> GetPlaylist(string playlistId, CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(playlistId, out _))
-            throw new APIException("Invalid playlist ID!");
+            throw new APIException(message: "Invalid playlist ID!");
 
         await Authenticate();
 
         var elem = await GetWithRateLimit<TidalResponse<TidalPlaylistData>>(_httpClient, $"playlists/{playlistId}?countryCode=US&include=coverArt", cancellationToken);
 
         if (elem?.Data?.Attributes == null)
-            throw new APIException("missing data from response!");
+            throw new Exception("missing data from response!");
 
         var attributes = elem.Data.Attributes;
         var artworks = elem.GetIncluded<TidalArtworkData>("artworks");
@@ -99,7 +99,7 @@ public class TidalClient : IMusicServiceApi, IDisposable
     public async Task<IList<PlaylistSong>> GetTracksForPlaylist(string playlistId, Action<int, int?> progress, CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(playlistId, out _))
-            throw new APIException("Invalid playlist ID!");
+            throw new APIException(message: "Invalid playlist ID!");
 
         await Authenticate();
 
@@ -113,7 +113,7 @@ public class TidalClient : IMusicServiceApi, IDisposable
             var itemsResponse = await GetWithRateLimit<TidalResponse<IList<TidalPlaylistItemRelationshipData>>>(_httpClient, nextUri, cancellationToken);
 
             if (itemsResponse?.Data == null)
-                throw new APIException("missing data from response!");
+                throw new Exception("missing data from response!");
 
             nextUri = itemsResponse.Links?.GetValueOrDefault("next")?.TrimStart('/');
 
@@ -129,7 +129,7 @@ public class TidalClient : IMusicServiceApi, IDisposable
                 if (track == null)
                     continue; // missing / deleted track
                 if (track?.Attributes?.Title == null || track?.Relationships?.Artists?.Data == null)
-                    throw new APIException("missing data from track!");
+                    throw new Exception("missing data from track!");
                 var trackArtists = new List<string>();
                 foreach (var artistRel in track.Relationships.Artists.Data)
                 {
@@ -137,7 +137,7 @@ public class TidalClient : IMusicServiceApi, IDisposable
                     if (artist == null)
                         continue; // missing artist
                     if (artist.Attributes?.Name == null)
-                        throw new APIException("missing data from artist!");
+                        throw new Exception("missing data from artist!");
                     trackArtists.Add(artist.Attributes.Name);
                 }
                 toReturn.Add(new PlaylistSong(track.Attributes.Title, trackArtists));
@@ -192,9 +192,27 @@ public class TidalClient : IMusicServiceApi, IDisposable
                 _logger.LogWarning("Status 500 while fetching from Tidal");
                 await Task.Delay(10000, token);
             }
+            else if (response.StatusCode >= HttpStatusCode.BadRequest)
+            {
+                string? message = null;
+                Exception? exception = null;
+                try
+                {
+                    var error = await response.Content.ReadFromJsonAsync<TidalErrorResponse>(token);
+                    if (error?.Errors?.Any(x => x.Detail != null) ?? false)
+                    {
+                        message = string.Join(", ", error.Errors.Select(x => x.Detail));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                }
+                throw new APIException(response.StatusCode, message, exception);
+            }
             else
             {
-                response.EnsureSuccessStatusCode();
+                response.EnsureSuccessStatusCode(); // should throw
                 throw new Exception($"Unknown Status {response.StatusCode}");
             }
         }

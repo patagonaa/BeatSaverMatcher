@@ -55,7 +55,7 @@ namespace BeatSaverMatcher.Api.Spotify
             }
             catch (SpotifyAPI.Web.APIException aex)
             {
-                throw new APIException(aex.Message, aex);
+                throw new APIException(aex.Response?.StatusCode, aex.Message, aex);
             }
 
             return toReturn;
