@@ -8,6 +8,7 @@
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="8.0.16" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.5" />
+    <PackageReference Include="System.Text.Json" Version="9.0.10" />
   </ItemGroup>
 
   <PropertyGroup>

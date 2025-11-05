@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
@@ -177,7 +178,13 @@ public class TidalClient : IMusicServiceApi, IDisposable
 
             if (response.StatusCode >= HttpStatusCode.OK && response.StatusCode < HttpStatusCode.MultipleChoices)
             {
+#if DEBUG
+                var content = await response.Content.ReadAsStringAsync(token);
+
+                return JsonSerializer.Deserialize<TResult>(content, JsonSerializerOptions.Web);
+#else
                 return await response.Content.ReadFromJsonAsync<TResult>(token)!;
+#endif
             }
             else if (response.StatusCode == HttpStatusCode.TooManyRequests)
             {
