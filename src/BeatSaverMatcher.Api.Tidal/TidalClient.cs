@@ -115,7 +115,7 @@ public class TidalClient : IMusicServiceApi, IDisposable
             if (itemsResponse?.Data == null)
                 throw new Exception("missing data from response!");
 
-            nextUri = itemsResponse.Links?.GetValueOrDefault("next")?.TrimStart('/');
+            nextUri = itemsResponse.Links?.Next?.TrimStart('/');
 
             // Fix for API bug (next-page URI only has top level include)
             nextUri = nextUri?.Replace("?include=items&", "?include=items.artists&");

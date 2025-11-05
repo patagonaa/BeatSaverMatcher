@@ -8,7 +8,7 @@ namespace BeatSaverMatcher.Api.Tidal;
 internal class TidalResponse<TData>
 {
     public TData? Data { get; set; }
-    public Dictionary<string, string>? Links { get; set; }
+    public TidalLinks? Links { get; set; }
     public IList<JsonNode>? Included { get; set; }
     public Dictionary<string, T> GetIncluded<T>(string type)
         where T : class
@@ -19,6 +19,13 @@ internal class TidalResponse<TData>
                 x => x["id"]!.GetValue<string>(),
                 x => x.Deserialize<T>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!) ?? [];
     }
+}
+
+internal class TidalLinks
+{
+    public string? Self { get; set; }
+    public string? Next { get; set; }
+    // Meta
 }
 
 internal class TidalErrorResponse
@@ -88,7 +95,7 @@ internal class TidalPlaylistRelationships
 
 internal class TidalRelationship<TData>
 {
-    public Dictionary<string, string>? Links { get; set; }
+    public TidalLinks? Links { get; set; }
     public TData? Data { get; set; }
 }
 internal class TidalPlaylistCoverArtRelationshipData : TidalData
