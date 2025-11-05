@@ -149,14 +149,13 @@ public class TidalClient : IMusicServiceApi, IDisposable
     private async Task<TResult?> GetWithRateLimit<TResult>(HttpClient httpClient, string uri, CancellationToken token)
     {
         int tries = 0;
-        int? requiredTokens = null;
         while (true)
         {
             tries++;
             if (tries > 10)
                 throw new Exception("Too Many Retries");
 
-            await _rateLimitHandler.WaitForTokens(requiredTokens, token);
+            await _rateLimitHandler.WaitForLimit(token);
 
             using var request = new HttpRequestMessage(HttpMethod.Get, uri);
             foreach (var header in httpClient.DefaultRequestHeaders)
@@ -164,17 +163,6 @@ public class TidalClient : IMusicServiceApi, IDisposable
                 request.Headers.Add(header.Key, header.Value);
             }
             var response = await httpClient.SendAsync(request, token);
-
-            if (
-                response.Headers.TryGetValues("X-RateLimit-Remaining", out var limitRemaining) &&
-                response.Headers.TryGetValues("X-RateLimit-Burst-Capacity", out var burstCapacity) &&
-                response.Headers.TryGetValues("X-RateLimit-Replenish-Rate", out var replenishRate) &&
-                response.Headers.TryGetValues("X-RateLimit-Requested-Tokens", out var requestedTokens)
-            )
-            {
-                requiredTokens = int.Parse(requestedTokens.First());
-                _rateLimitHandler.Update(int.Parse(limitRemaining.First()), int.Parse(burstCapacity.First()), int.Parse(replenishRate.First()), requiredTokens.Value);
-            }
 
             if (response.StatusCode >= HttpStatusCode.OK && response.StatusCode < HttpStatusCode.MultipleChoices)
             {
@@ -188,7 +176,17 @@ public class TidalClient : IMusicServiceApi, IDisposable
             }
             else if (response.StatusCode == HttpStatusCode.TooManyRequests)
             {
-                _logger.LogInformation("Hit Tidal rate limit");
+                var retryTime = response.Headers.RetryAfter?.Delta;
+
+                if (retryTime.HasValue)
+                {
+                    _rateLimitHandler.Update(retryTime.Value);
+                }
+                else
+                {
+                    _logger.LogWarning("Hit Tidal rate limit but no Retry-After header set. Did they change their rate limiting again?!");
+                    await Task.Delay(3000, token);
+                }
                 continue;
             }
             else if (response.StatusCode >= HttpStatusCode.InternalServerError)
@@ -232,25 +230,24 @@ public class TidalRateLimitHandler
 {
     private readonly SemaphoreSlim _semaphore = new(1, 1);
     private readonly ILogger<TidalRateLimitHandler> _logger;
-    private (DateTime LastUpdate, int LastTokenCount, int MaxTokenCount, int ReplenishRate)? _state = null;
-    private int? _minimumRequestTokens;
+    private DateTime? _waitUntil = null;
 
     public TidalRateLimitHandler(ILogger<TidalRateLimitHandler> logger)
     {
         _logger = logger;
     }
 
-    public void Update(int remainingTokens, int burstCapacity, int replenishRate, int requestedTokens)
+    public void Update(TimeSpan retryDelay)
     {
-        if (replenishRate <= 0)
-            throw new ArgumentException("ReplenishRate must be greater than 0", nameof(replenishRate));
+        _logger.LogInformation("Hit Tidal rate limit ({WaitTime})", retryDelay);
+
+        var waitTime = DateTime.UtcNow + retryDelay;
         _semaphore.Wait();
         try
         {
-            _state = (DateTime.UtcNow, remainingTokens, burstCapacity, replenishRate);
-            if (_minimumRequestTokens == null || requestedTokens < _minimumRequestTokens)
+            if (_waitUntil == null || waitTime > _waitUntil)
             {
-                _minimumRequestTokens = requestedTokens;
+                _waitUntil = waitTime;
             }
         }
         finally
@@ -259,44 +256,18 @@ public class TidalRateLimitHandler
         }
     }
 
-    public async Task WaitForTokens(int? requestedTokensHint, CancellationToken token)
+    public async Task WaitForLimit(CancellationToken token)
     {
-        var requestedTokens = requestedTokensHint ?? _minimumRequestTokens ?? 0;
-
-        if (_state.HasValue && requestedTokens > _state.Value.MaxTokenCount)
-            throw new Exception("may not request more tokens than maximum");
         while (true)
         {
-            TimeSpan waitTime;
-            await _semaphore.WaitAsync(token);
-            try
-            {
-                if (_state == null)
-                    return;
+            var now = DateTime.UtcNow;
+            var waitUntil = _waitUntil;
 
-                var state = _state.Value;
-                var now = DateTime.UtcNow;
+            if (waitUntil == null || waitUntil.Value <= now)
+                return;
 
-                var elapsedSeconds = (int)(now - state.LastUpdate).TotalSeconds;
-                var currentTokens = Math.Min(state.LastTokenCount + elapsedSeconds * state.ReplenishRate, state.MaxTokenCount);
-
-                if (requestedTokens <= currentTokens)
-                {
-                    _state = (now, currentTokens - requestedTokens, state.MaxTokenCount, state.ReplenishRate);
-                    return;
-                }
-                else
-                {
-                    waitTime = TimeSpan.FromSeconds(Math.Ceiling((requestedTokens - currentTokens) / (double)state.ReplenishRate));
-                    _logger.LogInformation("Waiting for Tidal rate limit, waiting {WaitTime}s to replenish ({CurrentTokens} / {RequestedTokens} tokens)", (int)waitTime.TotalSeconds, currentTokens, requestedTokensHint?.ToString() ?? "?");
-                }
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
+            var waitTime = waitUntil.Value - now;
             await Task.Delay(waitTime, token);
         }
-
     }
 }
