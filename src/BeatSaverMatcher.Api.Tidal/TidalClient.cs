@@ -117,9 +117,6 @@ public class TidalClient : IMusicServiceApi, IDisposable
 
             nextUri = itemsResponse.Links?.Next?.TrimStart('/');
 
-            // Fix for API bug (next-page URI only has top level include)
-            nextUri = nextUri?.Replace("?include=items&", "?include=items.artists&");
-
             var tracks = itemsResponse.GetIncluded<TidalTrackData>("tracks");
             var artists = itemsResponse.GetIncluded<TidalArtistData>("artists");
 
