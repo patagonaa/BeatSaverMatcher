@@ -5,12 +5,14 @@ using BeatSaverMatcher.Common.Db;
 using BeatSaverMatcher.Web.Models;
 using BeatSaverMatcher.Web.Result;
 using Microsoft.Extensions.Logging;
+using Prometheus;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,6 +20,7 @@ namespace BeatSaverMatcher.Web
 {
     public class MatchingService
     {
+        private static readonly Counter _playlistRequests = Metrics.CreateCounter("beatsaver_playlist_load_count", "number of times playlist was loaded", "provider", "result");
         private readonly SpotifyRepository _spotifyClient;
         private readonly TidalClient _tidalClient;
         private readonly IBeatSaberSongRepository _songRepository;
@@ -40,25 +43,35 @@ namespace BeatSaverMatcher.Web
                 item.ItemsTotal = 1;
                 item.ItemsProcessed = 0;
 
+                var idType = GetIdType(item.PlaylistId);
+                if (idType == MusicServiceApiType.Unknown)
+                {
+                    _playlistRequests.WithLabels(idType.ToString(), "InvalidId").Inc();
+                    throw new MatchingException("Invalid Playlist ID");
+                }
+
                 IList<PlaylistSong> tracks;
-
-                IMusicServiceApi client = Guid.TryParse(item.PlaylistId, out _) ? _tidalClient : _spotifyClient;
-
                 try
                 {
+                    IMusicServiceApi client = GetClient(idType);
+
                     var progressCallback = (int current, int? total) => { item.ItemsProcessed = current; item.ItemsTotal = total; };
                     tracks = (await client.GetTracksForPlaylist(item.PlaylistId, progressCallback, cancellationToken))
                         .Where(x => x != null)
                         .ToList();
+
+                    _playlistRequests.WithLabels(idType.ToString(), "OK").Inc();
                 }
                 catch (APIException aex)
                 {
                     if (aex.StatusCode == HttpStatusCode.NotFound)
                     {
+                        _playlistRequests.WithLabels(idType.ToString(), "NotFound").Inc();
                         throw new MatchingException("Error 404 while loading playlist: Not Found (is it public?)", aex);
                     }
                     else
                     {
+                        _playlistRequests.WithLabels(idType.ToString(), "Error").Inc();
                         var sb = new StringBuilder();
                         sb.Append("Error ");
                         if (aex.StatusCode != null)
@@ -179,12 +192,42 @@ namespace BeatSaverMatcher.Web
             }
         }
 
+        private MusicServiceApiType GetIdType(string playlistId)
+        {
+            if (Guid.TryParse(playlistId, out _))
+            {
+                return MusicServiceApiType.Tidal;
+            }
+            if (Regex.IsMatch(playlistId, "[0-9A-Za-z]{22}"))
+            {
+                return MusicServiceApiType.Spotify;
+            }
+            return MusicServiceApiType.Unknown;
+        }
+
+        private IMusicServiceApi GetClient(MusicServiceApiType type)
+        {
+            return type switch
+            {
+                MusicServiceApiType.Spotify => _spotifyClient,
+                MusicServiceApiType.Tidal => _tidalClient,
+                _ => throw new ArgumentException("Invalid Music API Type")
+            };
+        }
+
         private class MatchingException : Exception
         {
             public MatchingException(string message, Exception inner = null)
                 : base(message, inner)
             {
             }
+        }
+
+        private enum MusicServiceApiType
+        {
+            Unknown = 0,
+            Tidal,
+            Spotify
         }
     }
 }
