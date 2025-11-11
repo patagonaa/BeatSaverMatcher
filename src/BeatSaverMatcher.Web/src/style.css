@@ -51,6 +51,10 @@ form,
     max-width: 600px;
 }
 
+.btn-primary {
+    padding: 1rem 4rem;
+}
+
 .status>div {
     padding: 5px 0;
 }
