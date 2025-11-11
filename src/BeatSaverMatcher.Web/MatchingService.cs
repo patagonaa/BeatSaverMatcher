@@ -75,7 +75,7 @@ namespace BeatSaverMatcher.Web
                         var sb = new StringBuilder();
                         sb.Append("Error ");
                         if (aex.StatusCode != null)
-                            sb.Append($"{aex.StatusCode.Value} ");
+                            sb.Append($"{(int)aex.StatusCode.Value} ");
                         sb.Append("while loading playlist");
                         if (aex.Message != null)
                             sb.Append($": {aex.Message}");
