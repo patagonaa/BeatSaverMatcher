@@ -120,16 +120,16 @@
                         <td><span data-bind="text: name"></span></td>
 
                         <!-- ko if: $root.visibleColumns().includes('songAuthorName') -->
-                        <td><span data-bind="text: songAuthorName"></span></td>
+                        <td class="wrap-cell"><span data-bind="text: songAuthorName"></span></td>
                         <!-- /ko -->
                         <!-- ko if: $root.visibleColumns().includes('songName') -->
-                        <td><span data-bind="text: songName"></span></td>
+                        <td class="wrap-cell"><span data-bind="text: songName"></span></td>
                         <!-- /ko -->
                         <!-- ko if: $root.visibleColumns().includes('songSubName') -->
-                        <td><span data-bind="text: songSubName"></span></td>
+                        <td class="wrap-cell"><span data-bind="text: songSubName"></span></td>
                         <!-- /ko -->
                         <!-- ko if: $root.visibleColumns().includes('levelAuthorName') -->
-                        <td><span data-bind="text: levelAuthorName"></span></td>
+                        <td class="wrap-cell"><span data-bind="text: levelAuthorName"></span></td>
                         <!-- /ko -->
                         <!-- ko if: $root.visibleColumns().includes('uploaded') -->
                         <td><span data-bind="text: new Date(uploaded).toLocaleDateString()"></span></td>
