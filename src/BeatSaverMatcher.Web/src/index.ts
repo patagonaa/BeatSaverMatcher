@@ -1,5 +1,4 @@
 ﻿import * as ko from "knockout";
-import 'bootstrap/dist/css/bootstrap.min.css';
 import './style.css';
 
 class AppViewModel {
