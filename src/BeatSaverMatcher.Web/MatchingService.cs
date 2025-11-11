@@ -93,12 +93,15 @@ namespace BeatSaverMatcher.Web
 
                 var processed = 0;
                 await Parallel.ForEachAsync(
-                    tracks,
+                    tracks.Select((x, i) => (Track: x, Index: i)),
                     new ParallelOptions { CancellationToken = cancellationToken, MaxDegreeOfParallelism = 8 },
-                    async (track, _) =>
+                    async (x, _) =>
                     {
+                        var track = x.Track;
+
                         var match = new SongMatch
                         {
+                            PlaylistIndex = x.Index,
                             PlaylistArtist = string.Join(", ", track.Artists),
                             PlaylistTitle = track.Name
                         };
@@ -135,7 +138,7 @@ namespace BeatSaverMatcher.Web
 
                 _logger.LogInformation("Found {MatchCount} / {TrackCount} songs!", matches.Count, tracks.Count);
 
-                foreach (var match in matches)
+                foreach (var match in matches.OrderBy(x => x.PlaylistIndex))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     var foundBeatMaps = new List<BeatSaberSongViewModel>();

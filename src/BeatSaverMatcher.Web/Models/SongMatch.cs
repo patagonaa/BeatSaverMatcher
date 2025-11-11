@@ -6,6 +6,7 @@ namespace BeatSaverMatcher.Web.Models
 {
     public class SongMatch
     {
+        public int PlaylistIndex { get; set; }
         public string PlaylistArtist { get; set; }
         public string PlaylistTitle { get; set; }
         [JsonIgnore]
