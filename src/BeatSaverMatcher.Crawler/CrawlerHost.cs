@@ -139,15 +139,15 @@ namespace BeatSaverMatcher.Crawler
 
             return new BeatSaberSong
             {
-                LevelAuthorName = song.Metadata.LevelAuthorName,
-                SongAuthorName = song.Metadata.SongAuthorName,
-                SongName = song.Metadata.SongName,
-                SongSubName = song.Metadata.SongSubName,
+                LevelAuthorName = LimitLength(song.Metadata.LevelAuthorName, 4000),
+                SongAuthorName = LimitLength(song.Metadata.SongAuthorName, 4000),
+                SongName = LimitLength(song.Metadata.SongName, 4000),
+                SongSubName = LimitLength(song.Metadata.SongSubName, 4000),
                 Bpm = song.Metadata.Bpm,
-                Name = song.Name,
-                AutoMapper = song.Automapper ? song.Metadata.LevelAuthorName : null,
+                Name = LimitLength(song.Name, 4000),
+                AutoMapper = LimitLength(song.Automapper ? song.Metadata.LevelAuthorName : null, 255),
                 Difficulties = BeatSaverUtils.MapDifficulties(currentVersion.Diffs),
-                Uploader = song.Uploader.Name,
+                Uploader = LimitLength(song.Uploader.Name, 4000),
                 Uploaded = song.Uploaded,
                 CreatedAt = song.CreatedAt,
                 UpdatedAt = song.UpdatedAt,
@@ -155,6 +155,13 @@ namespace BeatSaverMatcher.Crawler
                 Hash = BeatSaverUtils.MapHash(currentVersion.Hash),
                 BeatSaverKey = int.Parse(song.Id, NumberStyles.HexNumber)
             };
+        }
+
+        private static string LimitLength(string a, int length)
+        {
+            if (a.Length <= length)
+                return a;
+            return string.Concat(a.AsSpan(0, length - 3), "...");
         }
     }
 }
