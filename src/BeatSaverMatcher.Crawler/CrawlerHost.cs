@@ -78,15 +78,15 @@ namespace BeatSaverMatcher.Crawler
                     break;
                 }
 
-                if(songs.Count > 0 && songs.Last().UpdatedAt <= lastUpdatedAt)
+                if (songs.Count > 0 && songs.Last().UpdatedAt <= lastUpdatedAt)
                 {
                     _logger.LogError("Beatsaver returned map before or at last update date, this would cause an endless loop!");
                     break;
                 }
 
-                try
+                foreach (var song in songs.Reverse())
                 {
-                    foreach (var song in songs.Reverse())
+                    try
                     {
                         token.ThrowIfCancellationRequested();
                         await InsertOrUpdate(song, token);
@@ -100,11 +100,11 @@ namespace BeatSaverMatcher.Crawler
                             lastUpdatedAt = song.UpdatedAt;
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Unknown Exception");
-                    break;
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Unknown Exception while updating song {Key}", song.Id);
+                        break;
+                    }
                 }
 
                 if (songs.Count == 0)
