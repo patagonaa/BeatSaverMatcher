@@ -159,7 +159,7 @@ namespace BeatSaverMatcher.Crawler
 
         private static string LimitLength(string a, int length)
         {
-            if (a.Length <= length)
+            if (a == null || a.Length <= length)
                 return a;
             return string.Concat(a.AsSpan(0, length - 3), "...");
         }
