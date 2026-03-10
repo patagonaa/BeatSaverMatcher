@@ -20,6 +20,17 @@
         <p class="subtitle text-muted">Match Spotify / Tidal playlists to songs on beatsaver.com</p>
         <form>
             <div class="form-group">
+                <div class="alert">
+                    <span>
+                        Spotify support is currently broken as <a href="https://developer.spotify.com/blog/2026-02-06-update-on-developer-access-and-platform-security">Spotify decided to make the API premium-only as of March 2026</a>.<br>
+                        <br>
+                        Due to several reasons (sponsoring the Donald Trump inauguration, financing military AI stuff, running ICE ads and not paying artists properly) I stopped using Spotify, so this means this app can't use the Spotify API anymore.<br>
+                        <br>
+                        If Spotify changes their mind or someone <a href="https://github.com/sponsors/patagonaa">sets up a monthly payment</a> that covers a Spotify premium subscription, maybe I'll think about it, otherwise this tool will be Tidal-only for now.
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
                 <label for="urlInput">Spotify / Tidal playlist link or playlist URI:</label>
                 <input id="urlInput" class="form-control" type="text" data-bind="textInput: playlistId, enable: (stateName() == 'None' || stateName() == 'Finished')" placeholder="https://open.spotify.com/playlist/xxxxxxxxxxxxxxxxxxxxxx" />
                 <small class="form-text text-muted">Note: Automapped Beatmaps are ignored</small>
