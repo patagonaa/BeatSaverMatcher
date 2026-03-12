@@ -109,7 +109,7 @@ namespace BeatSaverMatcher.Crawler
                 }
             }
 
-            _firstRunFinishedTcs.SetResult();
+            _firstRunFinishedTcs.TrySetResult();
             _logger.LogInformation("Scrape done.");
         }
 
