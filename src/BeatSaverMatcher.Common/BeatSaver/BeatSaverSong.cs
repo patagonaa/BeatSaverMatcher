@@ -6,69 +6,69 @@ namespace BeatSaverMatcher.Common.BeatSaver
 #nullable enable
     public class BeatSaverSong
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string? Description { get; set; }
-        public BeatSaverUploader Uploader { get; set; }
-        public BeatSaverMetadata Metadata { get; set; }
-        public BeatSaverStats Stats { get; set; }
-        public DateTime? Uploaded { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
-        public DateTime? LastPublishedAt { get; set; }
-        public bool Automapper { get; set; }
-        public bool Ranked { get; set; }
-        public IList<BeatSaverVersion> Versions { get; set; }
+        public string Id { get; init; }
+        public string Name { get; init; }
+        public string? Description { get; init; }
+        public BeatSaverUploader Uploader { get; init; }
+        public BeatSaverMetadata Metadata { get; init; }
+        public BeatSaverStats Stats { get; init; }
+        public DateTime? Uploaded { get; init; }
+        public DateTime CreatedAt { get; init; }
+        public DateTime UpdatedAt { get; init; }
+        public DateTime? LastPublishedAt { get; init; }
+        public bool Automapper { get; init; }
+        public bool Ranked { get; init; }
+        public IList<BeatSaverVersion> Versions { get; init; }
         //...
     }
 
     public class BeatSaverUploader
     {
-        public string Name { get; set; }
+        public string Name { get; init; }
         //...
     }
 
     public class BeatSaverStats
     {
-        public int Downloads { get; set; }
-        public int Plays { get; set; }
-        public int Downvotes { get; set; }
-        public int Upvotes { get; set; }
-        public double Score { get; set; }
+        public int Downloads { get; init; }
+        public int Plays { get; init; }
+        public int Downvotes { get; init; }
+        public int Upvotes { get; init; }
+        public double Score { get; init; }
     }
 
     public class BeatSaverMetadata
     {
-        public double Duration { get; set; }
-        public string LevelAuthorName { get; set; }
-        public string SongAuthorName { get; set; }
-        public string SongName { get; set; }
-        public string SongSubName { get; set; }
-        public double Bpm { get; set; }
+        public double Duration { get; init; }
+        public string LevelAuthorName { get; init; }
+        public string SongAuthorName { get; init; }
+        public string SongName { get; init; }
+        public string SongSubName { get; init; }
+        public double Bpm { get; init; }
     }
 
     public class BeatSaverVersion
     {
-        public string Hash { get; set; }
-        public string State { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public IList<BeatSaverDifficulty> Diffs { get; set; }
+        public string Hash { get; init; }
+        public string State { get; init; }
+        public DateTime CreatedAt { get; init; }
+        public IList<BeatSaverDifficulty> Diffs { get; init; }
     }
 
     public class BeatSaverScore
     {
         //Hash
-        public int MapId { get; set; }
+        public int MapId { get; init; }
         // Key64
-        public int Upvotes { get; set; }
-        public int Downvotes { get; set; }
-        public double Score { get; set; }
+        public int Upvotes { get; init; }
+        public int Downvotes { get; init; }
+        public double Score { get; init; }
     }
 
     public class BeatSaverDifficulty
     {
-        public BeatSaverDifficultyType Difficulty { get; set; }
-        public string Characteristic { get; set; }
+        public BeatSaverDifficultyType Difficulty { get; init; }
+        public string Characteristic { get; init; }
     }
 
     public enum BeatSaverDifficultyType

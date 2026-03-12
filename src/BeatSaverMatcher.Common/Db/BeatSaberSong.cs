@@ -4,23 +4,23 @@ namespace BeatSaverMatcher.Common.Db
 {
     public class BeatSaberSong
     {
-        public string LevelAuthorName { get; set; }
-        public string SongAuthorName { get; set; }
-        public string SongName { get; set; }
-        public string SongSubName { get; set; }
-        public double Bpm { get; set; }
+        public string LevelAuthorName { get; init; }
+        public string SongAuthorName { get; init; }
+        public string SongName { get; init; }
+        public string SongSubName { get; init; }
+        public double Bpm { get; init; }
 
-        public string Name { get; set; }
+        public string Name { get; init; }
 
-        public SongDifficulties Difficulties { get; set; }
-        public string Uploader { get; set; }
-        public DateTime? Uploaded { get; set; }
-        public byte[] Hash { get; set; }
-        public int BeatSaverKey { get; set; }
-        public bool AutoMapper { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
-        public DateTime? LastPublishedAt { get; set; }
-        public DateTime? DeletedAt { get; set; }
+        public SongDifficulties Difficulties { get; init; }
+        public string Uploader { get; init; }
+        public DateTime? Uploaded { get; init; }
+        public byte[] Hash { get; init; }
+        public int BeatSaverKey { get; init; }
+        public bool AutoMapper { get; init; }
+        public DateTime CreatedAt { get; init; }
+        public DateTime UpdatedAt { get; init; }
+        public DateTime? LastPublishedAt { get; init; }
+        public DateTime? DeletedAt { get; init; }
     }
 }
