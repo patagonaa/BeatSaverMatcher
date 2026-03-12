@@ -35,7 +35,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
             _httpClient.DefaultRequestHeaders.Add("User-Agent", "BeatSaverMatcher/1.0 (https://github.com/patagonaa/BeatSaverMatcher)");
         }
 
-        public async Task<BeatSaverSong> GetSong(int key, CancellationToken token)
+        public async Task<BeatSaverSong?> GetSong(int key, CancellationToken token)
         {
             return await DoWithRetries(async () =>
             {
@@ -59,14 +59,11 @@ namespace BeatSaverMatcher.Common.BeatSaver
                 var url = $"maps/latest?sort=UPDATED&automapper=true&pageSize=100&after={HttpUtility.UrlEncode(DateTime.SpecifyKind(lastUpdatedAt, DateTimeKind.Utc).ToString("o"))}";
                 
                 using var response = await _httpClient.GetAsync(url, token);
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return null;
-                }
 
                 response.EnsureSuccessStatusCode();
 
-                var page = await response.Content.ReadFromJsonAsync<BeatSaverSongSearchResponse>(_beatSaverSerializerOptions, token);
+                var page = await response.Content.ReadFromJsonAsync<BeatSaverSongSearchResponse>(_beatSaverSerializerOptions, token)
+                    ?? throw new Exception("Response was null");
                 return page.Docs;
             }, token);
         }
@@ -77,14 +74,11 @@ namespace BeatSaverMatcher.Common.BeatSaver
             {
                 var url = $"maps/deleted?pageSize=100&after={HttpUtility.UrlEncode(DateTime.SpecifyKind(lastUpdatedAt, DateTimeKind.Utc).ToString("o"))}";
                 using var response = await _httpClient.GetAsync(url, token);
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return null;
-                }
 
                 response.EnsureSuccessStatusCode();
 
-                var page = await response.Content.ReadFromJsonAsync<BeatSaverSongDeletedResponse>(_beatSaverSerializerOptions, token);
+                var page = await response.Content.ReadFromJsonAsync<BeatSaverSongDeletedResponse>(_beatSaverSerializerOptions, token)
+                    ?? throw new Exception("Response was null");
                 return page.Docs;
             }, token);
         }
@@ -96,14 +90,11 @@ namespace BeatSaverMatcher.Common.BeatSaver
                 var url = $"vote?since={HttpUtility.UrlEncode(DateTime.SpecifyKind(lastUpdatedAt, DateTimeKind.Utc).ToString("o"))}";
                 
                 using var response = await _httpClient.GetAsync(url, token);
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return null;
-                }
 
                 response.EnsureSuccessStatusCode();
 
-                var result = await response.Content.ReadFromJsonAsync<IList<BeatSaverScore>>(_beatSaverSerializerOptions, token);
+                var result = await response.Content.ReadFromJsonAsync<IList<BeatSaverScore>>(_beatSaverSerializerOptions, token)
+                    ?? throw new Exception("Response was null");
                 return result;
             }, token);
         }

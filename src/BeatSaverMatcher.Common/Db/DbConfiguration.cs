@@ -2,6 +2,6 @@
 {
     public class DbConfiguration
     {
-        public string ConnectionString { get; set; }
+        required public string ConnectionString { get; init; }
     }
 }

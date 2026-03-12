@@ -7,9 +7,9 @@ namespace BeatSaverMatcher.Api.Tidal;
 
 internal class TidalResponse<TData>
 {
-    public TData? Data { get; set; }
-    public TidalLinks? Links { get; set; }
-    public IList<JsonNode>? Included { get; set; }
+    public TData? Data { get; init; }
+    public TidalLinks? Links { get; init; }
+    public IList<JsonNode>? Included { get; init; }
     public Dictionary<string, T> GetIncluded<T>(string type)
         where T : class
     {
@@ -23,50 +23,50 @@ internal class TidalResponse<TData>
 
 internal class TidalLinks
 {
-    public string? Self { get; set; }
-    public string? Next { get; set; }
+    public string? Self { get; init; }
+    public string? Next { get; init; }
     // Meta
 }
 
 internal class TidalErrorResponse
 {
-    public IList<TidalError> Errors { get; set; }
+    public IList<TidalError>? Errors { get; init; }
 }
 
 internal class TidalError
 {
-    public string Id { get; set; }
-    public string Status { get; set; }
-    public string Code { get; set; }
-    public string Detail { get; set; }
+    public string? Id { get; init; }
+    public string? Status { get; init; }
+    public string? Code { get; init; }
+    public string? Detail { get; init; }
     //...
 }
 
 internal class TidalData
 {
-    public string? Id { get; set; }
-    public string? Type { get; set; }
+    public string? Id { get; init; }
+    public string? Type { get; init; }
 }
 
 internal class TidalPlaylistData : TidalData
 {
-    public TidalPlaylistAttributes? Attributes { get; set; }
-    public TidalPlaylistRelationships? Relationships { get; set; }
+    public TidalPlaylistAttributes? Attributes { get; init; }
+    public TidalPlaylistRelationships? Relationships { get; init; }
 }
 internal class TidalArtworkData : TidalData
 {
-    public TidalArtworkAttributes? Attributes { get; set; }
+    public TidalArtworkAttributes? Attributes { get; init; }
 }
 
 internal class TidalTrackData : TidalData
 {
-    public TidalTrackAttributes? Attributes { get; set; }
-    public TidalTrackRelationships? Relationships { get; set; }
+    public TidalTrackAttributes? Attributes { get; init; }
+    public TidalTrackRelationships? Relationships { get; init; }
 }
 
 internal class TidalTrackRelationships
 {
-    public TidalRelationship<IList<TidalTrackArtistRelationshipData>>? Artists { get; set; }
+    public TidalRelationship<IList<TidalTrackArtistRelationshipData>>? Artists { get; init; }
 }
 
 internal class TidalTrackArtistRelationshipData : TidalData
@@ -75,28 +75,28 @@ internal class TidalTrackArtistRelationshipData : TidalData
 
 internal class TidalTrackAttributes
 {
-    public string? Title { get; set; }
+    public string? Title { get; init; }
 }
 
 internal class TidalArtistData : TidalData
 {
-    public TidalArtistAttributes? Attributes { get; set; }
+    public TidalArtistAttributes? Attributes { get; init; }
 }
 
 public class TidalArtistAttributes
 {
-    public string? Name { get; set; }
+    public string? Name { get; init; }
 }
 
 internal class TidalPlaylistRelationships
 {
-    public TidalRelationship<TidalPlaylistCoverArtRelationshipData>? CoverArt { get; set; }
+    public TidalRelationship<TidalPlaylistCoverArtRelationshipData>? CoverArt { get; init; }
 }
 
 internal class TidalRelationship<TData>
 {
-    public TidalLinks? Links { get; set; }
-    public TData? Data { get; set; }
+    public TidalLinks? Links { get; init; }
+    public TData? Data { get; init; }
 }
 internal class TidalPlaylistCoverArtRelationshipData : TidalData
 {
@@ -109,21 +109,21 @@ internal class TidalPlaylistItemRelationshipData : TidalData
 
 internal class TidalPlaylistAttributes
 {
-    public string? Name { get; set; }
+    public string? Name { get; init; }
 }
 
 internal class TidalArtworkAttributes
 {
-    public string? MediaType { get; set; }
-    public IList<TidalArtworkAttributesFile>? Files { get; set; }
+    public string? MediaType { get; init; }
+    public IList<TidalArtworkAttributesFile>? Files { get; init; }
 }
 internal class TidalArtworkAttributesFile
 {
-    public string? Href { get; set; }
-    public TidalArtworkAttributesFileMeta? Meta { get; set; }
+    public string? Href { get; init; }
+    public TidalArtworkAttributesFileMeta? Meta { get; init; }
 }
 internal class TidalArtworkAttributesFileMeta
 {
-    public int? Width { get; set; }
-    public int? Height { get; set; }
+    public int? Width { get; init; }
+    public int? Height { get; init; }
 }

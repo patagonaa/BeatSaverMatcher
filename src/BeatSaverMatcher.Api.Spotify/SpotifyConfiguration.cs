@@ -2,7 +2,7 @@
 {
     public class SpotifyConfiguration
     {
-        public string ClientId { get; init; }
-        public string ClientSecret { get; init; }
+        required public string ClientId { get; init; }
+        required public string ClientSecret { get; init; }
     }
 }

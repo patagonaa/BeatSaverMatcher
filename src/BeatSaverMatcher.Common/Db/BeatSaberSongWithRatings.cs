@@ -2,8 +2,8 @@
 {
     public class BeatSaberSongWithRatings : BeatSaberSong
     {
-        public int? Upvotes { get; set; }
-        public int? Downvotes { get; set; }
-        public double? Score { get; set; }
+        public int? Upvotes { get; init; }
+        public int? Downvotes { get; init; }
+        public double? Score { get; init; }
     }
 }

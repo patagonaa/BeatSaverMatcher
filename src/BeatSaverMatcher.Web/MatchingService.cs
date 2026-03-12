@@ -97,14 +97,7 @@ namespace BeatSaverMatcher.Web
                     new ParallelOptions { CancellationToken = cancellationToken, MaxDegreeOfParallelism = 8 },
                     async (x, _) =>
                     {
-                        var track = x.Track;
-
-                        var match = new SongMatch
-                        {
-                            PlaylistIndex = x.Index,
-                            PlaylistArtist = string.Join(", ", track.Artists),
-                            PlaylistTitle = track.Name
-                        };
+                        var track = x.Track;;
 
                         var beatmaps = new List<BeatSaberSongWithRatings>();
 
@@ -127,8 +120,13 @@ namespace BeatSaverMatcher.Web
 
                         if (beatmaps.Any())
                         {
-                            match.DbBeatMaps = beatmaps.GroupBy(x => x.BeatSaverKey).Select(x => x.First()).ToList();
-                            matches.Add(match);
+                            matches.Add(new SongMatch
+                                {
+                                    PlaylistIndex = x.Index,
+                                    PlaylistArtist = string.Join(", ", track.Artists),
+                                    PlaylistTitle = track.Name,
+                                    DbBeatMaps = beatmaps.GroupBy(x => x.BeatSaverKey).Select(x => x.First()).ToList()
+                                });
                         }
                         Interlocked.Increment(ref processed);
 
@@ -220,7 +218,7 @@ namespace BeatSaverMatcher.Web
 
         private class MatchingException : Exception
         {
-            public MatchingException(string message, Exception inner = null)
+            public MatchingException(string message, Exception? inner = null)
                 : base(message, inner)
             {
             }

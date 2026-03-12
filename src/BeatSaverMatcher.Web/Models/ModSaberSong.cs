@@ -2,9 +2,9 @@
 {
     public class ModSaberSong
     {
-        public string Key { get; set; }
-        public string Hash { get; set; }
-        public string SongName { get; set; }
-        public string Uploader { get; set; }
+        required public string Key { get; init; }
+        required public string Hash { get; init; }
+        required public string SongName { get; init; }
+        required public string Uploader { get; init; }
     }
 }

@@ -41,14 +41,14 @@ namespace BeatSaverMatcher.Web.Controllers
             if (workItem == null)
                 return NotFound();
 
-            if (workItem.State != SongMatchState.Finished)
+            if (workItem.State != SongMatchState.Finished || workItem.Result == null)
                 return BadRequest();
 
             IMusicServiceApi client = Guid.TryParse(playlistId, out _) ? _tidalClient : _spotifyClient;
 
             var playlist = await client.GetPlaylist(playlistId, cancellationToken);
 
-            var beatmaps = workItem.Result.Matches.SelectMany(x => x.BeatMaps).ToList();
+            var beatmaps = workItem.Result.Matches.SelectMany(x => x.BeatMaps ?? []).ToList();
             if (keys != null)
             {
                 var keysList = keys.Split(',');
@@ -59,7 +59,7 @@ namespace BeatSaverMatcher.Web.Controllers
 
             return new ModSaberPlaylist
             {
-                PlaylistTitle = playlist.Name,
+                PlaylistTitle = playlist.Name ?? playlist.Id,
                 PlaylistAuthor = (playlist.OwnerName ?? "") + " using https://github.com/patagonaa/BeatSaverMatcher",
                 Image = await GetImage(playlist, cancellationToken),
                 Songs = beatmaps.Select(x => new ModSaberSong
@@ -72,7 +72,7 @@ namespace BeatSaverMatcher.Web.Controllers
             };
         }
 
-        private async Task<string> GetImage(Playlist playlist, CancellationToken cancellationToken)
+        private async Task<string?> GetImage(Playlist playlist, CancellationToken cancellationToken)
         {
             try
             {

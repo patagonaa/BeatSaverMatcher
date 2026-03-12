@@ -28,7 +28,7 @@ namespace BeatSaverMatcher.Web.Controllers
         }
 
         [HttpGet("{playlistId}")]
-        public WorkResultItem GetMatchState([FromRoute] string playlistId)
+        public WorkResultItem? GetMatchState([FromRoute] string playlistId)
         {
             return _itemStore.Get(playlistId);
         }

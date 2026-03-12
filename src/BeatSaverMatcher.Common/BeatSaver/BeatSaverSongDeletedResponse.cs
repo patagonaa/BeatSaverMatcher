@@ -4,6 +4,6 @@ namespace BeatSaverMatcher.Common.BeatSaver
 {
     internal class BeatSaverSongDeletedResponse
     {
-        public IList<BeatSaverDeletedSong> Docs { get; set; }
+        required public IList<BeatSaverDeletedSong> Docs { get; init; }
     }
 }

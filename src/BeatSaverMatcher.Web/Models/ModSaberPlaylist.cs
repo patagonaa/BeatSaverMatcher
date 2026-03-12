@@ -4,9 +4,9 @@ namespace BeatSaverMatcher.Web.Models
 {
     public class ModSaberPlaylist
     {
-        public string PlaylistTitle { get; set; }
-        public string PlaylistAuthor { get; set; }
-        public string Image { get; set; }
-        public IList<ModSaberSong> Songs { get; set; }
+        required public string PlaylistTitle { get; init; }
+        required public string PlaylistAuthor { get; init; }
+        public string? Image { get; init; }
+        required public IList<ModSaberSong> Songs { get; init; }
     }
 }

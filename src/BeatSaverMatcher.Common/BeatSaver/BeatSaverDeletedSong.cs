@@ -4,7 +4,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
 {
     public class BeatSaverDeletedSong
     {
-        public string Id { get; set; }
-        public DateTime DeletedAt { get; set; }
+        required public string Id { get; init; }
+        public DateTime DeletedAt { get; init; }
     }
 }

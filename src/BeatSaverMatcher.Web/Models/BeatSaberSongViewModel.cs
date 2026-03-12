@@ -5,18 +5,18 @@ namespace BeatSaverMatcher.Web.Models
 {
     public class BeatSaberSongViewModel
     {
-        public string LevelAuthorName { get; init; }
-        public string SongAuthorName { get; init; }
-        public string SongName { get; init; }
-        public string SongSubName { get; init; }
+        required public string LevelAuthorName { get; init; }
+        required public string SongAuthorName { get; init; }
+        required public string SongName { get; init; }
+        required public string SongSubName { get; init; }
         public double Bpm { get; init; }
 
-        public string Name { get; init; }
+        required public string Name { get; init; }
 
         public SongDifficulties Difficulties { get; init; }
-        public string Uploader { get; init; }
+        required public string Uploader { get; init; }
         public DateTime Uploaded { get; init; }
-        public byte[] Hash { get; init; }
+        required public byte[] Hash { get; init; }
         public int BeatSaverKey { get; init; }
         public double? Rating { get; init; }
         public int? UpVotes { get; init; }

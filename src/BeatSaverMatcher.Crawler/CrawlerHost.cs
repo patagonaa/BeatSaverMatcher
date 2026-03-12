@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
@@ -119,7 +120,7 @@ namespace BeatSaverMatcher.Crawler
             }
         }
 
-        private BeatSaberSong MapSong(BeatSaverSong song)
+        private BeatSaberSong? MapSong(BeatSaverSong song)
         {
             var currentVersion = song.Versions
                 .Where(x => x.State == "Published")
@@ -149,7 +150,8 @@ namespace BeatSaverMatcher.Crawler
             };
         }
 
-        private static string LimitLength(string a, int length)
+        [return: NotNullIfNotNull(nameof(a))]
+        private static string? LimitLength(string? a, int length)
         {
             if (a == null || a.Length <= length)
                 return a;

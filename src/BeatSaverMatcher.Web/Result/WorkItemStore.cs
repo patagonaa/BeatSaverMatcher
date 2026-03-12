@@ -1,6 +1,7 @@
 ﻿using Prometheus;
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BeatSaverMatcher.Web.Result
 {
@@ -20,7 +21,7 @@ namespace BeatSaverMatcher.Web.Result
             _pendingRequestsGauge = Metrics.CreateGauge("beatsaver_waiting_requests", "Requests waiting to be processed");
         }
 
-        public bool TryDequeue(out WorkResultItem item)
+        public bool TryDequeue([NotNullWhen(true)] out WorkResultItem? item)
         {
             bool dequeued = _pendingItems.TryDequeue(out item);
             if (dequeued)
@@ -30,7 +31,7 @@ namespace BeatSaverMatcher.Web.Result
 
         public bool Enqueue(string playlistId)
         {
-            if (_items.TryGetValue(playlistId, out WorkResultItem existingItem) && !existingItem.IsFinished)
+            if (_items.TryGetValue(playlistId, out WorkResultItem? existingItem) && !existingItem.IsFinished)
             {
                 return false;
             }
@@ -40,7 +41,7 @@ namespace BeatSaverMatcher.Web.Result
             return true;
         }
 
-        public WorkResultItem Get(string playlistId)
+        public WorkResultItem? Get(string playlistId)
         {
             if (_items.TryGetValue(playlistId, out var item))
                 return item;
