@@ -145,7 +145,7 @@ namespace BeatSaverMatcher.Crawler
                 SongSubName = LimitLength(song.Metadata.SongSubName, 4000),
                 Bpm = song.Metadata.Bpm,
                 Name = LimitLength(song.Name, 4000),
-                AutoMapper = LimitLength(song.Automapper ? song.Metadata.LevelAuthorName : null, 255),
+                AutoMapper = song.Automapper,
                 Difficulties = BeatSaverUtils.MapDifficulties(currentVersion.Diffs),
                 Uploader = LimitLength(song.Uploader.Name, 4000),
                 Uploaded = song.Uploaded,

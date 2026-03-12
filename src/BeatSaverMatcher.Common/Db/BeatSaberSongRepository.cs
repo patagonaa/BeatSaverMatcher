@@ -36,7 +36,7 @@ LEFT JOIN [BeatSaberSongRatings] rating ON song.[BeatSaverKey] = rating.[BeatSav
 WHERE [DeletedAt] IS NULL AND
     CONTAINS(song.*, @ArtistName) AND
     CONTAINS(song.*, @TrackName) AND
-    song.AutoMapper IS NULL";
+    song.AutoMapper = '0'";
 
                 var results = await connection.QueryAsync<BeatSaberSongWithRatings>(query, new { ArtistName = artistName, TrackName = trackName });
                 return results.ToList();
@@ -155,7 +155,7 @@ WHERE [DeletedAt] IS NULL AND
             using var connection = GetConnection();
             var query = @"
 SELECT
-    CAST(IIF(AutoMapper IS NOT NULL, '1', '0') AS bit) AS AutoMapper,
+    AutoMapper,
     Difficulties,
     COUNT(*) AS Count
 FROM [dbo].[BeatSaberSong]

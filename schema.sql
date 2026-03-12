@@ -10,7 +10,11 @@ CREATE TABLE [dbo].[BeatSaberSong](
     [SongName] [nvarchar](4000) NOT NULL,
     [SongSubName] [nvarchar](4000) NOT NULL,
     [Name] [nvarchar](4000) NOT NULL,
-    [AutoMapper] [nvarchar](255) NULL,
+    [AutoMapper] [bit] NOT NULL,
+    [CreatedAt] datetime2(7) NULL,
+    [UpdatedAt] datetime2(7) NULL,
+    [LastPublishedAt] datetime2(7) NULL,
+    [DeletedAt] datetime2(7) NULL
  CONSTRAINT [PK_BeatSaberSong] PRIMARY KEY CLUSTERED 
 (
     [BeatSaverKey] ASC
@@ -20,20 +24,13 @@ GO
 
 CREATE FULLTEXT CATALOG [BeatSaverCatalog] WITH ACCENT_SENSITIVITY = ON
 AS DEFAULT
+GO
 
 CREATE FULLTEXT INDEX ON BeatSaberSong(LevelAuthorName, SongAuthorName, SongName, SongSubName, Name) KEY INDEX PK_BeatSaberSong
+GO
 
-BEGIN TRANSACTION
+CREATE INDEX IDX_BeatSaberSong_DeletedAt_AutoMapper_Difficulties ON BeatSaverMatcher.dbo.BeatSaberSong (DeletedAt, AutoMapper, Difficulties)
 GO
-ALTER TABLE dbo.BeatSaberSong ADD
-	CreatedAt datetime2(7) NULL,
-	UpdatedAt datetime2(7) NULL,
-	LastPublishedAt datetime2(7) NULL
-GO
-ALTER TABLE dbo.BeatSaberSong ADD
-	DeletedAt datetime2(7) NULL
-GO
-COMMIT
 
 BEGIN TRANSACTION
 GO
@@ -51,16 +48,5 @@ ALTER TABLE dbo.BeatSaberSongRatings ADD CONSTRAINT
 	(
 	BeatSaverKey
 	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-
 GO
 COMMIT
-
-
-CREATE NONCLUSTERED INDEX [IDX_BeatSaberSong_DeletedAt] ON [dbo].[BeatSaberSong]
-(
-	[DeletedAt] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
-
-GO
-
-
