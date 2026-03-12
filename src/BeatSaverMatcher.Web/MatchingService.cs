@@ -97,9 +97,9 @@ namespace BeatSaverMatcher.Web
                     new ParallelOptions { CancellationToken = cancellationToken, MaxDegreeOfParallelism = 8 },
                     async (x, _) =>
                     {
-                        var track = x.Track;;
+                        var track = x.Track;
 
-                        var beatmaps = new List<BeatSaberSongWithRatings>();
+                        var dbBeatMaps = new List<BeatSaberSongWithRatings>();
 
                         foreach (var artist in track.Artists)
                         {
@@ -108,7 +108,7 @@ namespace BeatSaverMatcher.Web
                                 var directMatches = await _songRepository.GetMatches(artist, track.Name);
                                 foreach (var beatmap in directMatches)
                                 {
-                                    beatmaps.Add(beatmap);
+                                    dbBeatMaps.Add(beatmap);
                                 }
                             }
                             catch (Exception ex)
@@ -118,14 +118,27 @@ namespace BeatSaverMatcher.Web
                             }
                         }
 
-                        if (beatmaps.Any())
+                        if (dbBeatMaps.Any())
                         {
+                            var viewBeatMaps = new List<BeatSaberSongViewModel>();
+                            foreach (var dbBeatMap in dbBeatMaps.DistinctBy(x => x.BeatSaverKey))
+                            {
+                                try
+                                {
+                                    viewBeatMaps.Add(MapBeatMap(dbBeatMap));
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(ex, "Error while mapping beatmap 0x{BeatMapKey}", dbBeatMap.BeatSaverKey.ToString("x"));
+                                }
+                            }
+
                             matches.Add(new SongMatch
                                 {
                                     PlaylistIndex = x.Index,
                                     PlaylistArtist = string.Join(", ", track.Artists),
                                     PlaylistTitle = track.Name,
-                                    DbBeatMaps = beatmaps.GroupBy(x => x.BeatSaverKey).Select(x => x.First()).ToList()
+                                    BeatMaps = viewBeatMaps.OrderByDescending(x => x.Rating ?? 0).ToList(),
                                 });
                         }
                         Interlocked.Increment(ref processed);
@@ -136,46 +149,11 @@ namespace BeatSaverMatcher.Web
 
                 _logger.LogInformation("Found {MatchCount} / {TrackCount} songs!", matches.Count, tracks.Count);
 
-                foreach (var match in matches.OrderBy(x => x.PlaylistIndex))
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    var foundBeatMaps = new List<BeatSaberSongViewModel>();
-                    foreach (var dbBeatmap in match.DbBeatMaps)
-                    {
-                        try
-                        {
-                            foundBeatMaps.Add(new BeatSaberSongViewModel
-                            {
-                                BeatSaverKey = dbBeatmap.BeatSaverKey,
-                                Hash = dbBeatmap.Hash,
-                                Uploader = dbBeatmap.Uploader,
-                                Uploaded = dbBeatmap.Uploaded ?? dbBeatmap.CreatedAt,
-                                Difficulties = dbBeatmap.Difficulties,
-                                Bpm = dbBeatmap.Bpm,
-                                LevelAuthorName = dbBeatmap.LevelAuthorName,
-                                SongAuthorName = dbBeatmap.SongAuthorName,
-                                SongName = dbBeatmap.SongName,
-                                SongSubName = dbBeatmap.SongSubName,
-                                Name = dbBeatmap.Name,
-                                Rating = dbBeatmap.Score,
-                                UpVotes = dbBeatmap.Upvotes,
-                                DownVotes = dbBeatmap.Downvotes
-                            });
-                            item.ItemsProcessed++;
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, "Error while mapping beatmap 0x{BeatMapKey}", dbBeatmap.BeatSaverKey.ToString("x"));
-                        }
-                    }
-                    match.BeatMaps = foundBeatMaps.OrderByDescending(x => x.Rating ?? 0).ToList();
-                }
-
                 item.Result = new SongMatchResult
                 {
                     TotalPlaylistSongs = tracks.Count,
                     MatchedPlaylistSongs = matches.Count,
-                    Matches = matches.ToList()
+                    Matches = matches.OrderBy(x => x.PlaylistIndex).ToList()
                 };
                 _logger.LogInformation("Done.");
                 item.State = SongMatchState.Finished;
@@ -191,6 +169,27 @@ namespace BeatSaverMatcher.Web
                 item.State = SongMatchState.Error;
                 _logger.LogError(ex, "Error while matching!");
             }
+        }
+
+        private static BeatSaberSongViewModel MapBeatMap(BeatSaberSongWithRatings dbBeatMap)
+        {
+            return new BeatSaberSongViewModel
+            {
+                BeatSaverKey = dbBeatMap.BeatSaverKey,
+                Hash = dbBeatMap.Hash,
+                Uploader = dbBeatMap.Uploader,
+                Uploaded = dbBeatMap.Uploaded ?? dbBeatMap.CreatedAt,
+                Difficulties = dbBeatMap.Difficulties,
+                Bpm = dbBeatMap.Bpm,
+                LevelAuthorName = dbBeatMap.LevelAuthorName,
+                SongAuthorName = dbBeatMap.SongAuthorName,
+                SongName = dbBeatMap.SongName,
+                SongSubName = dbBeatMap.SongSubName,
+                Name = dbBeatMap.Name,
+                Rating = dbBeatMap.Score,
+                UpVotes = dbBeatMap.Upvotes,
+                DownVotes = dbBeatMap.Downvotes
+            };
         }
 
         private MusicServiceApiType GetIdType(string playlistId)
