@@ -41,7 +41,7 @@ namespace BeatSaverMatcher.Api.Spotify
 
             try
             {
-                var currentPage = await _spotifyClient.Playlists.GetItems(playlistId, request, cancellationToken);
+                var currentPage = await _spotifyClient.Playlists.GetPlaylistItems(playlistId, request, cancellationToken);
                 while (currentPage?.Items != null)
                 {
                     if (currentPage.Offset.HasValue && currentPage.Total.HasValue)
