@@ -55,7 +55,7 @@ namespace BeatSaverMatcher.Crawler
                 }
                 catch (HttpRequestException wex)
                 {
-                    if ((int)wex.StatusCode < 200 || (int)wex.StatusCode >= 300)
+                    if (wex.StatusCode.HasValue && ((int)wex.StatusCode < 200 || (int)wex.StatusCode >= 300))
                     {
                         _logger.LogWarning("Error {StatusCode} while scraping", (int)wex.StatusCode);
                         break;
