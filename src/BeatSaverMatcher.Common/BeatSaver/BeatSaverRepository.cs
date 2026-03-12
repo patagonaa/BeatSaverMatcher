@@ -30,7 +30,7 @@ namespace BeatSaverMatcher.Common.BeatSaver
             _logger = logger;
             _httpClient = new HttpClient()
             {
-                BaseAddress = new Uri("https://beatsaver.com/api")
+                BaseAddress = new Uri("https://beatsaver.com/api/")
             };
             _httpClient.DefaultRequestHeaders.Add("User-Agent", "BeatSaverMatcher/1.0 (https://github.com/patagonaa/BeatSaverMatcher)");
         }
