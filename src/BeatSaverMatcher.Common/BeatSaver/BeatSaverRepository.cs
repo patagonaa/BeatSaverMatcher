@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -12,9 +12,10 @@ using System.Web;
 
 namespace BeatSaverMatcher.Common.BeatSaver
 {
-    public class BeatSaverRepository
+    public sealed class BeatSaverRepository : IDisposable
     {
         private readonly ILogger<BeatSaverRepository> _logger;
+        private readonly HttpClient _httpClient;
         private static readonly JsonSerializerOptions _beatSaverSerializerOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -27,39 +28,27 @@ namespace BeatSaverMatcher.Common.BeatSaver
         public BeatSaverRepository(ILogger<BeatSaverRepository> logger)
         {
             _logger = logger;
+            _httpClient = new HttpClient()
+            {
+                BaseAddress = new Uri("https://beatsaver.com/api")
+            };
+            _httpClient.DefaultRequestHeaders.Add("User-Agent", "BeatSaverMatcher/1.0 (https://github.com/patagonaa/BeatSaverMatcher)");
         }
 
         public async Task<BeatSaverSong> GetSong(int key, CancellationToken token)
         {
             return await DoWithRetries(async () =>
             {
-                try
+                using var response = await _httpClient.GetAsync($"maps/id/{key:x}", token);
+                if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    var request = WebRequest.CreateHttp($"https://beatsaver.com/api/maps/id/{key:x}");
-                    request.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36");
-                    request.Headers.Add("sec-fetch-mode", "navigate");
-                    request.Headers.Add("sec-fetch-user", "?1");
-                    request.Headers.Add("accept-language", "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7");
-
-                    BeatSaverSong song;
-                    var response = (HttpWebResponse)await request.GetResponseAsync();
-                    using (var sr = new StreamReader(response.GetResponseStream()))
-                    {
-                        song = JsonSerializer.Deserialize<BeatSaverSong>(sr.ReadToEnd(), _beatSaverSerializerOptions);
-                    }
-                    return song;
+                    return null;
                 }
-                catch (WebException wex)
-                {
-                    if (!(wex.Response is HttpWebResponse response))
-                        throw;
 
-                    if (response.StatusCode == HttpStatusCode.NotFound)
-                    {
-                        return null;
-                    }
-                    throw;
-                }
+                response.EnsureSuccessStatusCode();
+
+                var song = await response.Content.ReadFromJsonAsync<BeatSaverSong>(_beatSaverSerializerOptions, token);
+                return song;
             }, token);
         }
 
@@ -67,20 +56,17 @@ namespace BeatSaverMatcher.Common.BeatSaver
         {
             return await DoWithRetries(async () =>
             {
-                var url = $"https://beatsaver.com/api/maps/latest?sort=UPDATED&automapper=true&pageSize=100&after={HttpUtility.UrlEncode(DateTime.SpecifyKind(lastUpdatedAt, DateTimeKind.Utc).ToString("o"))}";
-                var request = WebRequest.CreateHttp(url);
-                request.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36");
-                request.Headers.Add("sec-fetch-mode", "navigate");
-                request.Headers.Add("sec-fetch-user", "?1");
-                request.Headers.Add("accept-language", "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7");
-
-                BeatSaverSongSearchResponse page;
-                var response = (HttpWebResponse)await request.GetResponseAsync();
-                using (var sr = new StreamReader(response.GetResponseStream()))
+                var url = $"maps/latest?sort=UPDATED&automapper=true&pageSize=100&after={HttpUtility.UrlEncode(DateTime.SpecifyKind(lastUpdatedAt, DateTimeKind.Utc).ToString("o"))}";
+                
+                using var response = await _httpClient.GetAsync(url, token);
+                if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    page = JsonSerializer.Deserialize<BeatSaverSongSearchResponse>(sr.ReadToEnd(), _beatSaverSerializerOptions);
+                    return null;
                 }
 
+                response.EnsureSuccessStatusCode();
+
+                var page = await response.Content.ReadFromJsonAsync<BeatSaverSongSearchResponse>(_beatSaverSerializerOptions, token);
                 return page.Docs;
             }, token);
         }
@@ -89,43 +75,17 @@ namespace BeatSaverMatcher.Common.BeatSaver
         {
             return await DoWithRetries(async () =>
             {
-                var url = $"https://beatsaver.com/api/maps/deleted?pageSize=100&after={HttpUtility.UrlEncode(DateTime.SpecifyKind(lastUpdatedAt, DateTimeKind.Utc).ToString("o"))}";
-                var request = WebRequest.CreateHttp(url);
-                request.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36");
-                request.Headers.Add("sec-fetch-mode", "navigate");
-                request.Headers.Add("sec-fetch-user", "?1");
-                request.Headers.Add("accept-language", "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7");
-
-                BeatSaverSongDeletedResponse page;
-                var response = (HttpWebResponse)await request.GetResponseAsync();
-                using (var sr = new StreamReader(response.GetResponseStream()))
+                var url = $"maps/deleted?pageSize=100&after={HttpUtility.UrlEncode(DateTime.SpecifyKind(lastUpdatedAt, DateTimeKind.Utc).ToString("o"))}";
+                using var response = await _httpClient.GetAsync(url, token);
+                if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    page = JsonSerializer.Deserialize<BeatSaverSongDeletedResponse>(sr.ReadToEnd(), _beatSaverSerializerOptions);
+                    return null;
                 }
 
+                response.EnsureSuccessStatusCode();
+
+                var page = await response.Content.ReadFromJsonAsync<BeatSaverSongDeletedResponse>(_beatSaverSerializerOptions, token);
                 return page.Docs;
-            }, token);
-        }
-
-        public async Task<IDictionary<string, BeatSaverSong>> GetSongs(IList<int> keys, CancellationToken token)
-        {
-            return await DoWithRetries(async () =>
-            {
-                var url = $"https://beatsaver.com/api/maps/ids/{string.Join(',', keys.Select(x => x.ToString("x")))}";
-                var request = WebRequest.CreateHttp(url);
-                request.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36");
-                request.Headers.Add("sec-fetch-mode", "navigate");
-                request.Headers.Add("sec-fetch-user", "?1");
-                request.Headers.Add("accept-language", "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7");
-
-                IDictionary<string, BeatSaverSong> result;
-                var response = (HttpWebResponse)await request.GetResponseAsync();
-                using (var sr = new StreamReader(response.GetResponseStream()))
-                {
-                    result = JsonSerializer.Deserialize<IDictionary<string, BeatSaverSong>>(sr.ReadToEnd(), _beatSaverSerializerOptions);
-                }
-
-                return result;
             }, token);
         }
 
@@ -133,20 +93,17 @@ namespace BeatSaverMatcher.Common.BeatSaver
         {
             return await DoWithRetries(async () =>
             {
-                var url = $"https://beatsaver.com/api/vote?since={HttpUtility.UrlEncode(DateTime.SpecifyKind(lastUpdatedAt, DateTimeKind.Utc).ToString("o"))}";
-                var request = WebRequest.CreateHttp(url);
-                request.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36");
-                request.Headers.Add("sec-fetch-mode", "navigate");
-                request.Headers.Add("sec-fetch-user", "?1");
-                request.Headers.Add("accept-language", "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7");
-
-                IList<BeatSaverScore> result;
-                var response = (HttpWebResponse)await request.GetResponseAsync();
-                using (var sr = new StreamReader(response.GetResponseStream()))
+                var url = $"vote?since={HttpUtility.UrlEncode(DateTime.SpecifyKind(lastUpdatedAt, DateTimeKind.Utc).ToString("o"))}";
+                
+                using var response = await _httpClient.GetAsync(url, token);
+                if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    result = JsonSerializer.Deserialize<IList<BeatSaverScore>>(sr.ReadToEnd(), _beatSaverSerializerOptions);
+                    return null;
                 }
 
+                response.EnsureSuccessStatusCode();
+
+                var result = await response.Content.ReadFromJsonAsync<IList<BeatSaverScore>>(_beatSaverSerializerOptions, token);
                 return result;
             }, token);
         }
@@ -160,44 +117,19 @@ namespace BeatSaverMatcher.Common.BeatSaver
                 {
                     return await action();
                 }
-                catch (WebException wex)
+                catch (HttpRequestException hex)
                 {
-                    var response = wex.Response as HttpWebResponse;
-                    if (response == null)
-                        throw;
-
                     tries++;
 
-                    if ((int)response.StatusCode == 429) // Too Many Requests
+                    if (hex.StatusCode == HttpStatusCode.TooManyRequests) // Too Many Requests
                     {
-                        if (_logger.IsEnabled(LogLevel.Debug))
-                        {
-                            var allHeaders = Environment.NewLine + string.Join(Environment.NewLine, response.Headers.AllKeys.Select(headerKey => $"{headerKey}: {response.Headers[headerKey]}"));
-                            _logger.LogDebug("Error 429 Too Many Requests. Headers: {Headers}", allHeaders);
-                        }
-
-                        var timeout = TimeSpan.Zero;
-                        if (response.Headers.AllKeys.Contains("Rate-Limit-Reset") && int.TryParse(response.Headers["Rate-Limit-Reset"], out int epochReset))
-                        {
-                            var resetTime = new DateTime(1970, 01, 01, 0, 0, 0, DateTimeKind.Utc).AddSeconds(epochReset);
-                            var delayTime = resetTime - DateTime.UtcNow;
-                            if (delayTime > timeout)
-                            {
-                                timeout = delayTime;
-                            }
-                        }
-                        else
-                        {
-                            timeout = TimeSpan.FromSeconds(9);
-                        }
-
-                        timeout += TimeSpan.FromSeconds(1); // always wait a minimum of one second to account for time tolerances
+                        var timeout = TimeSpan.FromSeconds(1);
                         _logger.LogInformation("Rate Limit Reached. Waiting {Milliseconds} ms", timeout.TotalMilliseconds);
                         await Task.Delay(timeout, token);
                     }
                     else
                     {
-                        _logger.LogError(wex, "Error while fetching.");
+                        _logger.LogError(hex, "Error while fetching.");
                         throw;
                     }
 
@@ -205,6 +137,11 @@ namespace BeatSaverMatcher.Common.BeatSaver
                         throw;
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            _httpClient.Dispose();
         }
     }
 }

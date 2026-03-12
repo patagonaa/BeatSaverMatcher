@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -53,24 +53,16 @@ namespace BeatSaverMatcher.Crawler
                     songs = await _beatSaverRepository.GetSongsUpdatedAfter(lastUpdatedAt, token);
                     _logger.LogInformation("Got {SongCount} songs from BeatSaver", songs.Count);
                 }
-                catch (WebException wex)
+                catch (HttpRequestException wex)
                 {
-                    if (wex.Response is HttpWebResponse response)
+                    if ((int)wex.StatusCode < 200 || (int)wex.StatusCode >= 300)
                     {
-                        if ((int)response.StatusCode < 200 || (int)response.StatusCode >= 300)
-                        {
-                            _logger.LogWarning("Error {StatusCode} - {StatusDescription} while scraping", response.StatusCode, response.StatusDescription);
-                            break;
-                        }
+                        _logger.LogWarning("Error {StatusCode} while scraping", (int)wex.StatusCode);
+                        break;
+                    }
 
-                        _logger.LogWarning(wex, "Unknown Exception while fetching");
-                        break;
-                    }
-                    else
-                    {
-                        _logger.LogWarning(wex, "Unknown WebException");
-                        break;
-                    }
+                    _logger.LogWarning(wex, "Unknown Exception while fetching");
+                    break;
                 }
                 catch (Exception ex)
                 {
