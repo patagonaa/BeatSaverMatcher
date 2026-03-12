@@ -26,14 +26,14 @@ namespace BeatSaverMatcher.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<SpotifyConfiguration>(Configuration.GetSection("Spotify"));
-            services.AddTransient<SpotifyRepository>();
+            services.AddSingleton<SpotifyRepository>();
 
             services.Configure<TidalConfiguration>(Configuration.GetSection("Tidal"));
-            services.AddTransient<TidalClient>();
+            services.AddSingleton<TidalClient>();
             services.AddSingleton<TidalRateLimitHandler>();
 
-            services.AddTransient<MatchingService>();
-            services.AddTransient<BeatSaverRepository>();
+            services.AddSingleton<MatchingService>();
+            services.AddSingleton<BeatSaverRepository>();
             services.AddSingleton<WorkItemStore>();
             services.AddHostedService<SongMatchWorker>();
             services.AddHostedService<MatchCleanupWorker>();
@@ -56,7 +56,7 @@ namespace BeatSaverMatcher.Web
             }
 
             services.Configure<DbConfiguration>(Configuration);
-            services.AddTransient<IBeatSaberSongRepository, BeatSaberSongRepository>();
+            services.AddSingleton<IBeatSaberSongRepository, BeatSaberSongRepository>();
 
             services.AddResponseCompression();
             services.AddControllers();

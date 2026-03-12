@@ -43,10 +43,10 @@ namespace BeatSaverMatcher.Crawler
         private static void ConfigureServices(HostBuilderContext ctx, IServiceCollection services)
         {
             services.Configure<DbConfiguration>(ctx.Configuration);
-            services.AddTransient<BeatSaverRepository>();
-            services.AddTransient<IBeatSaberSongRepository, BeatSaberSongRepository>();
+            services.AddSingleton<BeatSaverRepository>();
+            services.AddSingleton<IBeatSaberSongRepository, BeatSaberSongRepository>();
             services.AddHostedService<CrawlerHost>();
-			services.AddHostedService<DeleteCrawlerHost>();
+            services.AddHostedService<DeleteCrawlerHost>();
             services.AddHostedService<RatingsCrawlerHost>();
             services.AddHostedService<MetricsScrapeHost>();
             services.AddHostedService<MetricsServer>();
