@@ -26,7 +26,7 @@ namespace BeatSaverMatcher.Web
         private readonly IBeatSaberSongRepository _songRepository;
         private readonly ILogger<MatchingService> _logger;
 
-        public MatchingService(SpotifyRepository spotifyClient, TidalClient tidalClient, IBeatSaberSongRepository songRepository, ILogger<MatchingService> logger, ILogger<TidalClient> logger1)
+        public MatchingService(SpotifyRepository spotifyClient, TidalClient tidalClient, IBeatSaberSongRepository songRepository, ILogger<MatchingService> logger)
         {
             _spotifyClient = spotifyClient;
             _tidalClient = tidalClient;
