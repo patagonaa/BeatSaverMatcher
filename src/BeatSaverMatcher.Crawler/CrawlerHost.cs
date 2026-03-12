@@ -43,7 +43,7 @@ namespace BeatSaverMatcher.Crawler
 
         private async Task Scrape(CancellationToken token)
         {
-            DateTime lastUpdatedAt = DateTime.UnixEpoch;
+            DateTime lastUpdatedAt = await _songRepository.GetLatestUpdatedAt(token) ?? DateTime.UnixEpoch;
 
             _logger.LogInformation("Starting update crawl at {Date}", lastUpdatedAt);
 
