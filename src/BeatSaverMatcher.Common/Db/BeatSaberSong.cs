@@ -14,12 +14,12 @@ namespace BeatSaverMatcher.Common.Db
 
         public SongDifficulties Difficulties { get; set; }
         public string Uploader { get; set; }
-        public DateTime Uploaded { get; set; }
+        public DateTime? Uploaded { get; set; }
         public byte[] Hash { get; set; }
         public int BeatSaverKey { get; set; }
         public bool AutoMapper { get; set; }
-        public DateTime? CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
         public DateTime? LastPublishedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
     }

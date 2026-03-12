@@ -140,7 +140,7 @@ namespace BeatSaverMatcher.Crawler
                 AutoMapper = song.Automapper,
                 Difficulties = BeatSaverUtils.MapDifficulties(currentVersion.Diffs),
                 Uploader = LimitLength(song.Uploader.Name, 4000),
-                Uploaded = song.Uploaded,
+                Uploaded = song.Uploaded ?? song.CreatedAt,
                 CreatedAt = song.CreatedAt,
                 UpdatedAt = song.UpdatedAt,
                 LastPublishedAt = song.LastPublishedAt,

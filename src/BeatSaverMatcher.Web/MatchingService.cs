@@ -151,7 +151,7 @@ namespace BeatSaverMatcher.Web
                                 BeatSaverKey = dbBeatmap.BeatSaverKey,
                                 Hash = dbBeatmap.Hash,
                                 Uploader = dbBeatmap.Uploader,
-                                Uploaded = dbBeatmap.Uploaded,
+                                Uploaded = dbBeatmap.Uploaded ?? dbBeatmap.CreatedAt,
                                 Difficulties = dbBeatmap.Difficulties,
                                 Bpm = dbBeatmap.Bpm,
                                 LevelAuthorName = dbBeatmap.LevelAuthorName,

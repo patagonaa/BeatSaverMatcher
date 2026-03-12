@@ -2,7 +2,7 @@ CREATE TABLE [dbo].[BeatSaberSong](
     [BeatSaverKey] [int] NOT NULL,
     [Hash] [binary](20) NOT NULL,
     [Uploader] [nvarchar](4000) NOT NULL,
-    [Uploaded] [datetime2] NOT NULL,
+    [Uploaded] [datetime2] NULL,
     [Difficulties] [int] NOT NULL,
     [Bpm] [float] NOT NULL,
     [LevelAuthorName] [nvarchar](4000) NOT NULL,
@@ -11,8 +11,8 @@ CREATE TABLE [dbo].[BeatSaberSong](
     [SongSubName] [nvarchar](4000) NOT NULL,
     [Name] [nvarchar](4000) NOT NULL,
     [AutoMapper] [bit] NOT NULL,
-    [CreatedAt] datetime2(7) NULL,
-    [UpdatedAt] datetime2(7) NULL,
+    [CreatedAt] datetime2(7) NOT NULL,
+    [UpdatedAt] datetime2(7) NOT NULL,
     [LastPublishedAt] datetime2(7) NULL,
     [DeletedAt] datetime2(7) NULL
  CONSTRAINT [PK_BeatSaberSong] PRIMARY KEY CLUSTERED 
