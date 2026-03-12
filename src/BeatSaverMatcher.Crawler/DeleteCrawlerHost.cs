@@ -32,6 +32,11 @@ namespace BeatSaverMatcher.Crawler
             while (true)
             {
                 stoppingToken.ThrowIfCancellationRequested();
+
+                // wait until crawler is finished once so we can be sure the beatmaps
+                // are in db so we can set them to deleted
+                await CrawlerHost.FirstRunFinished.WaitAsync(stoppingToken);
+
                 await Scrape(stoppingToken);
                 await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken);
             }

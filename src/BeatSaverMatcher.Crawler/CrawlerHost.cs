@@ -13,11 +13,14 @@ using System.Threading.Tasks;
 
 namespace BeatSaverMatcher.Crawler
 {
-    class CrawlerHost : BackgroundService
+    sealed class CrawlerHost : BackgroundService
     {
         private readonly ILogger<CrawlerHost> _logger;
         private readonly IBeatSaberSongRepository _songRepository;
         private readonly BeatSaverRepository _beatSaverRepository;
+
+        private static readonly TaskCompletionSource _firstRunFinishedTcs = new();
+        public static readonly Task FirstRunFinished = _firstRunFinishedTcs.Task;
 
         public CrawlerHost(ILogger<CrawlerHost> logger,
             IBeatSaberSongRepository songRepository,
@@ -40,7 +43,7 @@ namespace BeatSaverMatcher.Crawler
 
         private async Task Scrape(CancellationToken token)
         {
-            DateTime lastUpdatedAt = await _songRepository.GetLatestUpdatedAt(token) ?? DateTime.UnixEpoch;
+            DateTime lastUpdatedAt = DateTime.UnixEpoch;
 
             _logger.LogInformation("Starting update crawl at {Date}", lastUpdatedAt);
 
@@ -106,6 +109,7 @@ namespace BeatSaverMatcher.Crawler
                 }
             }
 
+            _firstRunFinishedTcs.SetResult();
             _logger.LogInformation("Scrape done.");
         }
 
