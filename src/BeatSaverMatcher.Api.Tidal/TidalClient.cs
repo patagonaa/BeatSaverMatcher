@@ -86,15 +86,15 @@ public class TidalClient : IMusicServiceApi, IDisposable
         var attributes = elem.Data.Attributes;
         var artworks = elem.GetIncluded<TidalArtworkData>("artworks");
 
-        var coverArtRelationship = elem.Data.Relationships?.CoverArt?.Data;
-        string? coverUrl = null;
+        var coverArtRelationship = elem.Data.Relationships?.CoverArt?.Data?.FirstOrDefault();
+        var images = new List<PlaylistImage>();
         if (coverArtRelationship?.Id != null)
         {
             var includedArt = artworks.GetValueOrDefault(coverArtRelationship.Id)?.Attributes;
-            coverUrl = includedArt?.Files?.LastOrDefault(x => Math.Max(x.Meta?.Width ?? 0, x.Meta?.Height ?? 0) >= 256)?.Href;
+            images.AddRange(includedArt?.Files?.Where(x => x.Href != null).Select(x => new PlaylistImage(x.Meta?.Width ?? 0, x.Meta?.Height ?? 0, x.Href!)) ?? []);
         }
 
-        return new Playlist(elem.Data.Id ?? throw new Exception("missing ID"), attributes.Name, "???", coverUrl);
+        return new Playlist(elem.Data.Id ?? throw new Exception("missing ID"), attributes.Name, "???", images);
     }
 
     public async Task<IList<PlaylistSong>> GetTracksForPlaylist(string playlistId, Action<int, int?> progress, CancellationToken cancellationToken)

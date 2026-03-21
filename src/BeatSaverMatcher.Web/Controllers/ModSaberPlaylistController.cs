@@ -76,13 +76,17 @@ namespace BeatSaverMatcher.Web.Controllers
         {
             try
             {
-                var imageUrl = playlist.ImageUrl;
-                if (imageUrl == null)
+                var sortedImgs = playlist.Images.OrderBy(x => Math.Max(x.Width, x.Height)).ToList();
+
+                // get smallest image >= 256, otherwise get largest image
+                var image = sortedImgs.FirstOrDefault(x => Math.Max(x.Width, x.Height) >= 256) ??
+                    sortedImgs.LastOrDefault();
+                if (image == null)
                 {
                     return null;
                 }
 
-                var imageBytes = await _httpClientFactory.CreateClient().GetByteArrayAsync(imageUrl, cancellationToken);
+                var imageBytes = await _httpClientFactory.CreateClient().GetByteArrayAsync(image.ImageUrl, cancellationToken);
 
                 return Convert.ToBase64String(imageBytes);
             }

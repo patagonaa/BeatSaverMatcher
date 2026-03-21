@@ -30,7 +30,7 @@ namespace BeatSaverMatcher.Api.Spotify
                 spotifyPlaylist.Id ?? throw new Exception("Missing ID of playlist reponse"),
                 spotifyPlaylist.Name,
                 spotifyPlaylist.Owner?.DisplayName,
-                spotifyPlaylist.Images?.LastOrDefault(x => Math.Max(x.Width, x.Height) >= 256)?.Url);
+                spotifyPlaylist.Images?.Select(x => new PlaylistImage(x.Width, x.Height, x.Url)).ToList() ?? []);
         }
 
         public async Task<IList<PlaylistSong>> GetTracksForPlaylist(string playlistId, Action<int, int?> progress, CancellationToken cancellationToken)

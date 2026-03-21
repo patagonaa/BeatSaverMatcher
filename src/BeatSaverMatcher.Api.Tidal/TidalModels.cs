@@ -90,7 +90,7 @@ public class TidalArtistAttributes
 
 internal class TidalPlaylistRelationships
 {
-    public TidalRelationship<TidalPlaylistCoverArtRelationshipData>? CoverArt { get; init; }
+    public TidalRelationship<IList<TidalPlaylistCoverArtRelationshipData>>? CoverArt { get; init; }
 }
 
 internal class TidalRelationship<TData>
