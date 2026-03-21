@@ -1,7 +1,10 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
+
+COPY --parents ./src/**/*.csproj /app/
 WORKDIR /app/src
-COPY src/ .
 RUN dotnet restore BeatSaverMatcher.Crawler/BeatSaverMatcher.Crawler.csproj
+
+COPY src/ .
 RUN dotnet publish -c Release BeatSaverMatcher.Crawler/BeatSaverMatcher.Crawler.csproj -o /app/build
 
 

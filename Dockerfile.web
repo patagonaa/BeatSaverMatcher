@@ -1,8 +1,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 RUN curl -sL https://deb.nodesource.com/setup_24.x | bash - && apt install -y nodejs && rm -rf /var/lib/apt/lists/*
+
+COPY --parents ./src/**/*.csproj /app/
 WORKDIR /app/src
-COPY src/ .
 RUN dotnet restore BeatSaverMatcher.Web/BeatSaverMatcher.Web.csproj
+
+COPY src/ .
 RUN dotnet publish -c Release BeatSaverMatcher.Web/BeatSaverMatcher.Web.csproj -o /app/build
 
 
